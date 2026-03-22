@@ -4,109 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Week 3 — Classical Quantum Algorithms</title>
+<meta name="description" content="Week 3 course notes: Deutsch-Jozsa, Bernstein-Vazirani, and Grover's search algorithm with interactive visualizations.">
 <script>MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],tags:'ams'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 <style>
-:root{--accent:#7c2d8e;--accent2:#a855f7;--accent-light:#f5e6ff;--bg:#fdf8ff;--card:#ffffff;--text:#1e293b;--muted:#64748b;--border:#e9d5ff;--gold:#b8860b;--sidebar-w:260px}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:16px;line-height:1.7}
-nav{position:fixed;top:44px;left:0;width:var(--sidebar-w);height:calc(100vh - 44px);background:#1e0a2e;overflow-y:auto;padding:0 0 40px;z-index:100}
-nav .nav-head{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.1)}
-nav .nav-head h2{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:#d8b4fe;font-weight:600;line-height:1.3}
-nav .nav-head p{font-size:0.72rem;color:#64748b;margin-top:4px}
-nav a{display:block;padding:8px 20px;color:#94a3b8;text-decoration:none;font-size:0.8rem;border-left:3px solid transparent;transition:all .2s}
-nav a:hover,nav a.active{color:#f5e6ff;border-left-color:#a855f7;background:rgba(168,85,247,0.08)}
-nav .nav-section{padding:14px 20px 6px;font-size:0.65rem;color:#475569;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
-nav a.sub{padding-left:32px;font-size:0.75rem}
-main{margin-left:var(--sidebar-w);flex:1;padding:44px 40px 80px;max-width:1100px}
-.hero{background:linear-gradient(135deg,#1e0a2e 0%,#7c2d8e 60%,#a855f7 100%);padding:60px 50px;border-radius:0 0 24px 24px;margin-bottom:48px;position:relative;overflow:hidden}
-.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.03)}
-.hero .week-badge{display:inline-block;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);padding:4px 14px;border-radius:20px;font-size:0.75rem;color:#d8b4fe;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
-.hero h1{font-family:'Cormorant Garamond',serif;font-size:2.8rem;color:#fff;font-weight:700;line-height:1.2;margin-bottom:12px}
-.hero p{color:#e9d5ff;font-size:1rem;max-width:600px;line-height:1.6}
-.section{margin-bottom:56px;scroll-margin-top:20px}
-.section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid var(--accent-light)}
-.section-num{background:var(--accent);color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:600;flex-shrink:0}
-.section-header h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;color:var(--accent);font-weight:700}
-h3.sub{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--accent);margin:28px 0 12px;font-weight:600}
-p{margin-bottom:14px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin:20px 0;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
-.card.highlight{border-left:4px solid var(--accent);background:#faf0ff}
-.card.definition{border-left:4px solid var(--gold);background:#fffbf0}
-.card.warning{border-left:4px solid #dc2626;background:#fff5f5}
-.card.example{border-left:4px solid #166534;background:#f0fdf4}
-.card.insight{border-left:4px solid #1a4e8a;background:#f0f7ff}
-.card-title{font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
-.card.definition .card-title{color:var(--gold)}
-.card.highlight .card-title{color:var(--accent)}
-.card.warning .card-title{color:#dc2626}
-.card.example .card-title{color:#166534}
-.card.insight .card-title{color:#1a4e8a}
-.math-block{background:#f5e6ff;border-radius:10px;padding:20px 24px;margin:16px 0;overflow-x:auto;border:1px solid #e9d5ff}
-.viz-container{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin:28px 0;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
-.viz-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;color:var(--accent);margin-bottom:4px}
-.viz-subtitle{font-size:0.8rem;color:var(--muted);margin-bottom:18px}
-.ctrl-btn{padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;font-family:'Source Sans 3',sans-serif;font-weight:600;transition:background .2s;margin:4px}
-.ctrl-btn:hover{background:var(--accent2)}
-.ctrl-btn.secondary{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
-.ctrl-btn.secondary:hover{background:var(--accent-light)}
-canvas{display:block}
-.circuit{font-family:'JetBrains Mono',monospace;font-size:0.82rem;background:#1e0a2e;color:#e9d5ff;padding:20px 24px;border-radius:10px;overflow-x:auto;white-space:pre;line-height:1.9;margin:12px 0}
-code{font-family:'JetBrains Mono',monospace;font-size:0.85em;background:#f5e6ff;padding:1px 6px;border-radius:4px;color:#1e0a2e;border:1px solid #e9d5ff}
-.cmp-table{width:100%;border-collapse:collapse;margin:16px 0}
-.cmp-table th{background:var(--accent);color:#fff;padding:10px 16px;text-align:left;font-size:0.85rem}
-.cmp-table td{padding:10px 16px;border-bottom:1px solid var(--border);font-size:0.9rem;vertical-align:top}
-.cmp-table tr:nth-child(even) td{background:#faf0ff}
-.step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start}
-.step-num{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;margin-top:2px}
-.step-body{flex:1}
-/* Oracle viz */
-.oracle-box{display:inline-flex;align-items:center;justify-content:center;background:var(--accent);color:#fff;border-radius:8px;padding:8px 16px;font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;min-width:60px}
-/* Timeline */
-.timeline{position:relative;padding-left:30px;margin:20px 0}
-.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--accent-light)}
-.tl-item{position:relative;margin-bottom:18px}
-.tl-item::before{content:'';position:absolute;left:-24px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 2px var(--accent)}
-.tl-year{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent);font-weight:700}
-.tl-title{font-weight:600}
-.tl-desc{font-size:0.88rem;color:var(--muted)}
-/* Grover viz */
-#groverCanvas{border-radius:10px;background:#fdf8ff;border:1px solid #e9d5ff}
-.prob-bar-row{display:flex;align-items:center;gap:8px;margin:3px 0}
-.prob-bar-label{font-family:'JetBrains Mono',monospace;font-size:0.75rem;width:36px;text-align:right;flex-shrink:0}
-.prob-bar-track{flex:1;background:#e9d5ff;border-radius:3px;height:18px;overflow:hidden}
-.prob-bar-fill-g{height:100%;border-radius:3px;transition:width 0.4s ease;background:var(--accent)}
-.prob-bar-fill-other{height:100%;border-radius:3px;transition:width 0.4s ease;background:#c4b5fd}
-/* Deutsch-Jozsa viz */
-.dj-fn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin:12px 0}
-.dj-fn-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;cursor:pointer;transition:all .2s}
-.dj-fn-card:hover,.dj-fn-card.active-fn{border-color:var(--accent);background:var(--accent-light)}
-.dj-fn-name{font-weight:700;font-size:0.85rem;color:var(--accent)}
-.dj-fn-type{font-size:0.75rem;color:var(--muted);margin-top:2px}
-
-/* ── Top Navigation Bar ───────────────────────── */
-.topnav{position:fixed;top:0;left:0;right:0;height:44px;background:#0f0f17;display:flex;align-items:center;padding:0 24px;gap:16px;z-index:300;border-bottom:1px solid rgba(255,255,255,0.08)}
-.topnav-brand{font-family:'Cormorant Garamond',serif;font-size:1rem;color:#e2e8f0;text-decoration:none;font-weight:700;white-space:nowrap;letter-spacing:.02em}
-.topnav-links{display:flex;gap:2px;margin-left:auto}
-.topnav-link{padding:5px 11px;border-radius:6px;text-decoration:none;font-size:0.76rem;color:#94a3b8;transition:all .18s;white-space:nowrap;font-family:'Source Sans 3',sans-serif}
-.topnav-link:hover{background:rgba(255,255,255,0.09);color:#e2e8f0}
-.topnav-link.current{color:#fff;font-weight:600;background:rgba(255,255,255,0.13)}
+  :root { --accent: #7c2d8e; --accent2: #a855f7; }
+  .hero { background: linear-gradient(135deg, #1e0a2e 0%, #7c2d8e 60%, #a855f7 100%); }
+  .hero .week-badge { color: #d8b4fe; }
+  .hero p { color: #e9d5ff; }
+  #groverCanvas { border-radius: 10px; background: var(--canvas-bg); border: 1px solid var(--canvas-border); }
 </style>
+<script src="theme.js"></script>
 </head>
-<body>
+<body class="week-page">
 
 <div class="topnav">
-  <a href="index.html" class="topnav-brand">⚛ NPTEL Quantum Computing</a>
+  <button class="sidebar-toggle" id="sidebar-toggle-btn" title="Toggle sidebar">☰</button>
+  <a href="index.html" class="topnav-brand"><span>⚛</span> I2QC Notes</a>
   <div class="topnav-links">
     <a href="index.html" class="topnav-link">Home</a>
-    <a href="week1.html" class="topnav-link">W1: Foundations</a>
-    <a href="week2.html" class="topnav-link">W2: Entanglement</a>
-    <a href="week3.html" class="topnav-link current">W3: Algorithms</a>
-    <a href="week4.html" class="topnav-link">W4: NISQ &amp; QEC</a>
+    <a href="week1.html" class="topnav-link">W1</a>
+    <a href="week2.html" class="topnav-link">W2</a>
+    <a href="week3.html" class="topnav-link current">W3</a>
+    <a href="week4.html" class="topnav-link">W4</a>
   </div>
+  <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme">🌙</button>
 </div>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
 <nav id="sidebar">
   <div class="nav-head">
     <h2>Intro to Quantum Computing</h2>
@@ -239,12 +165,26 @@ $$\text{Quantum query complexity} = 1 \quad \text{(always)}$$
 
 <h3 class="sub" id="s1c">The Quantum Circuit</h3>
 
-<div class="circuit">n-qubit Deutsch-Jozsa Circuit:
-
-|0⟩ᵢ⊗ⁿ ─ H⊗ⁿ ─────── U_f ─── H⊗ⁿ ─── [M⊗ⁿ] ─── output
-                │
-|1⟩ ──── H ─── ┘ (target ancilla qubit, not measured)
-
+<div class="qc-title">n-qubit Deutsch-Jozsa Circuit:</div>
+<div class="qc-circuit" style="align-items:center">
+  <div class="qc-wire-label"><div>|0⟩^n</div><div>|1⟩</div></div>
+  <div class="qc-step"><div class="qc-wire-classic" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate h">H^n</div></div>
+    <div class="qc-cell"><div class="qc-gate h">H</div></div>
+  </div>
+  <div class="qc-step" style="width:60px"><div class="qc-wire-classic" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"></div><div class="qc-cell"></div>
+    <div class="qc-gate box" style="position:absolute; top:8px; bottom:8px; left:4px; right:4px; display:flex; align-items:center; justify-content:center; background:#475569; font-style:normal; font-weight:bold; font-size:1rem; border:1px solid rgba(255,255,255,0.2); z-index:3; color:#fff">U_f</div>
+  </div>
+  <div class="qc-step"><div class="qc-wire-classic" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate h">H^n</div></div>
+    <div class="qc-cell"></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire-classic" style="top:28px; width:50%"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate m"></div><div class="qc-measure-text" style="top:-4px;right:-32px">n bits</div></div>
+    <div class="qc-cell"></div>
+  </div>
+</div>
 Measure output register. If all 0s: f is constant. Otherwise: balanced.</div>
 
 <h3 class="sub" id="s1d">Full Circuit Derivation</h3>
@@ -316,7 +256,7 @@ Measure output register. If all 0s: f is constant. Otherwise: balanced.</div>
     </div>
   </div>
   <canvas id="djCanvas" width="640" height="220" style="border-radius:10px;background:#fdf8ff;border:1px solid #e9d5ff;display:block"></canvas>
-  <div id="dj-result" style="margin-top:12px;font-size:0.9rem;padding:12px 16px;background:#faf0ff;border-radius:8px;border:1px solid #e9d5ff"></div>
+  <div id="dj-result" style="margin-top:12px;color:#1e0a2e;font-size:0.9rem;padding:12px 16px;background:#faf0ff;border-radius:8px;border:1px solid #e9d5ff"></div>
 </div>
 
 <h3 class="sub" id="s1e">Complexity Classes: EQP vs P</h3>
@@ -363,11 +303,26 @@ $$f(e_i) = s \cdot e_i = s_i$$
 
 <p>Remarkably, the BV algorithm uses the <em>exact same circuit</em> as Deutsch-Jozsa. The difference is only in the oracle and the interpretation of the output.</p>
 
-<div class="circuit">Bernstein-Vazirani Circuit:
-
-|0⟩^n ─── H^n ─── U_f ─── H^n ─── [M^n] ─── gives s directly!
-|1⟩   ─── H   ─────────────────── (not measured)</div>
-
+<div class="qc-title">Bernstein-Vazirani Circuit:</div>
+<div class="qc-circuit" style="align-items:center">
+  <div class="qc-wire-label"><div>|0⟩^n</div><div>|1⟩</div></div>
+  <div class="qc-step"><div class="qc-wire-classic" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate h">H^n</div></div>
+    <div class="qc-cell"><div class="qc-gate h">H</div></div>
+  </div>
+  <div class="qc-step" style="width:60px"><div class="qc-wire-classic" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"></div><div class="qc-cell"></div>
+    <div class="qc-gate box" style="position:absolute; top:8px; bottom:8px; left:4px; right:4px; display:flex; align-items:center; justify-content:center; background:#475569; font-style:normal; font-weight:bold; font-size:1rem; border:1px solid rgba(255,255,255,0.2); z-index:3; color:#fff">U_f</div>
+  </div>
+  <div class="qc-step"><div class="qc-wire-classic" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate h">H^n</div></div>
+    <div class="qc-cell"></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire-classic" style="top:28px; width:50%"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate m"></div><div class="qc-measure-text" style="top:-4px;right:-32px">n bits</div></div>
+    <div class="qc-cell"></div>
+  </div>
+</div>
 <h3 class="sub">Full Derivation</h3>
 
 <p>Steps 1–3 are identical to DJ. After phase kickback:</p>
@@ -405,7 +360,7 @@ $$|\psi_3\rangle = |s\rangle|{-}\rangle$$
     <button class="ctrl-btn" onclick="runBV()" style="margin-left:12px">Run Algorithm (1 query!)</button>
   </div>
   <canvas id="bvCanvas" width="640" height="200" style="border-radius:10px;background:#fdf8ff;border:1px solid #e9d5ff;display:block"></canvas>
-  <div id="bv-result" style="margin-top:12px;font-size:0.9rem;padding:12px;background:#faf0ff;border-radius:8px;border:1px solid #e9d5ff"></div>
+  <div id="bv-result" style="margin-top:12px;color:#1e0a2e;font-size:0.9rem;padding:12px;background:#faf0ff;border-radius:8px;border:1px solid #e9d5ff"></div>
 </div>
 
 <h3 class="sub" id="s2c">Complexity Separation: BPP vs BQP</h3>
@@ -530,7 +485,7 @@ $$|\psi_T\rangle = \cos\!\left(\frac{(2T+1)\theta}{2}\right)|e\rangle + \sin\!\l
   </div>
   <div id="grover-iter-label" style="font-size:0.85rem;margin-bottom:10px;font-family:'JetBrains Mono',monospace;color:var(--accent)">Iteration 0 — Initial uniform superposition</div>
   <canvas id="groverCanvas" width="640" height="200"></canvas>
-  <div id="grover-prob-display" style="margin-top:12px;font-size:0.88rem;padding:10px;background:#faf0ff;border-radius:8px;border:1px solid #e9d5ff"></div>
+  <div id="grover-prob-display" style="margin-top:12px;color:#1e0a2e;font-size:0.88rem;padding:10px;background:#faf0ff;border-radius:8px;border:1px solid #e9d5ff"></div>
 </div>
 
 <h3 class="sub" id="s3f">Optimality: The BBBV Lower Bound</h3>
@@ -550,7 +505,7 @@ $$|\psi_T\rangle = \cos\!\left(\frac{(2T+1)\theta}{2}\right)|e\rangle + \sin\!\l
 
 <div class="card example">
 <div class="card-title">✏️ Grover Pseudocode</div>
-<pre style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;background:#f8faff;padding:14px;border-radius:8px;line-height:1.8">Algorithm GROVER(oracle O_f, n qubits, N = 2^n):
+<pre style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;background:var(--code-bg);color:var(--text);padding:14px;border-radius:8px;line-height:1.8">Algorithm GROVER(oracle O_f, n qubits, N = 2^n):
   T_opt ← ⌊(π/4)·√N⌋    // optimal number of iterations
   |ψ⟩ ← H^⊗n |0⟩^n      // uniform superposition
 
@@ -573,14 +528,14 @@ $$|\psi_T\rangle = \cos\!\left(\frac{(2T+1)\theta}{2}\right)|e\rangle + \sin\!\l
 const DJ_FUNS = {
   c0: {f:(x)=>0, label:'Constant 0', type:'constant'},
   c1: {f:(x)=>1, label:'Constant 1', type:'constant'},
-  b1: {f:(x)=>(Integer.bitCount ? 0 : countBits(x))%2, label:'Parity of bits', type:'balanced'},
+  b1: {f:(x)=>countBits(x)%2, label:'Parity of bits', type:'balanced'},
   b2: {f:(x)=>x>=4?1:0, label:'x ≥ 4', type:'balanced'},
   b3: {f:(x)=>x&1, label:'Least significant bit', type:'balanced'},
   b4: {f:(x)=>(x>>1)&1, label:'Second bit', type:'balanced'},
 };
 
 function countBits(x){ let c=0; while(x>0){c+=x&1;x>>=1;} return c; }
-DJ_FUNS.b1.f = (x)=>countBits(x)%2;
+
 
 let currentDJFn = 'c0';
 

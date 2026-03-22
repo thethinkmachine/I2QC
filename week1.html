@@ -4,144 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Week 1 — Quantum Mechanics & Computing Foundations</title>
+<meta name="description" content="Week 1 course notes: Dirac notation, qubits, Bloch sphere, postulates of QM, quantum gates, and multi-qubit systems.">
 <script>MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],tags:'ams'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};
 </script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 <style>
-:root{
-  --accent:#1a4e8a;--accent2:#2d7dd2;--accent-light:#dbeafe;
-  --bg:#f8f9fc;--card:#ffffff;--text:#1e293b;--muted:#64748b;--border:#e2e8f0;
-  --gold:#b8860b;--sidebar-w:260px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:16px;line-height:1.7}
-
-/* Sidebar */
-nav{position:fixed;top:44px;left:0;width:var(--sidebar-w);height:calc(100vh - 44px);background:#0f2444;overflow-y:auto;padding:0 0 40px;z-index:100}
-nav .nav-head{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.1)}
-nav .nav-head h2{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:#93c5fd;font-weight:600;line-height:1.3}
-nav .nav-head p{font-size:0.72rem;color:#64748b;margin-top:4px}
-nav a{display:block;padding:8px 20px 8px 20px;color:#94a3b8;text-decoration:none;font-size:0.8rem;border-left:3px solid transparent;transition:all .2s}
-nav a:hover,nav a.active{color:#dbeafe;border-left-color:#2d7dd2;background:rgba(45,125,210,0.08)}
-nav .nav-section{padding:14px 20px 6px;font-size:0.65rem;color:#475569;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
-nav a.sub{padding-left:32px;font-size:0.75rem}
-
-/* Main */
-main{margin-left:var(--sidebar-w);flex:1;padding:0 40px 80px;max-width:1100px;padding-top:44px}
-
-/* Hero */
-.hero{background:linear-gradient(135deg,#0f2444 0%,#1a4e8a 60%,#2d7dd2 100%);padding:60px 50px;border-radius:0 0 24px 24px;margin-bottom:48px;position:relative;overflow:hidden}
-.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.03)}
-.hero .week-badge{display:inline-block;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);padding:4px 14px;border-radius:20px;font-size:0.75rem;color:#93c5fd;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
-.hero h1{font-family:'Cormorant Garamond',serif;font-size:2.8rem;color:#fff;font-weight:700;line-height:1.2;margin-bottom:12px}
-.hero p{color:#bfdbfe;font-size:1rem;max-width:600px;line-height:1.6}
-
-/* Sections */
-.section{margin-bottom:56px;scroll-margin-top:20px}
-.section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid var(--accent-light)}
-.section-num{background:var(--accent);color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:600;flex-shrink:0}
-.section-header h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;color:var(--accent);font-weight:700}
-.section-header h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--text);font-weight:600}
-
-h3.sub{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--accent);margin:28px 0 12px;font-weight:600}
-h4.sub{font-size:1rem;font-weight:600;color:var(--text);margin:20px 0 8px}
-
-p{margin-bottom:14px}
-
-/* Cards */
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin:20px 0;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
-.card.highlight{border-left:4px solid var(--accent);background:#f0f7ff}
-.card.definition{border-left:4px solid var(--gold);background:#fffbf0}
-.card.warning{border-left:4px solid #dc2626;background:#fff5f5}
-.card.example{border-left:4px solid #166534;background:#f0fdf4}
-.card.insight{border-left:4px solid #7c3aed;background:#faf5ff}
-.card-title{font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
-.card.definition .card-title{color:var(--gold)}
-.card.highlight .card-title{color:var(--accent)}
-.card.warning .card-title{color:#dc2626}
-.card.example .card-title{color:#166534}
-.card.insight .card-title{color:#7c3aed}
-
-/* Math display */
-.math-block{background:#f1f5f9;border-radius:10px;padding:20px 24px;margin:16px 0;overflow-x:auto;border:1px solid #e2e8f0}
-
-/* Viz container */
-.viz-container{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin:28px 0;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
-.viz-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;color:var(--accent);margin-bottom:4px}
-.viz-subtitle{font-size:0.8rem;color:var(--muted);margin-bottom:18px}
-.viz-controls{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
-.ctrl-group{display:flex;flex-direction:column;gap:4px;min-width:200px}
-.ctrl-group label{font-size:0.8rem;font-weight:600;color:var(--muted)}
-.ctrl-group input[type=range]{accent-color:var(--accent);width:100%}
-.ctrl-val{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent);font-weight:500}
-.ctrl-btn{padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;font-family:'Source Sans 3',sans-serif;font-weight:600;transition:background .2s}
-.ctrl-btn:hover{background:var(--accent2)}
-.ctrl-btn.secondary{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
-.ctrl-btn.secondary:hover{background:var(--accent-light)}
-
-canvas{display:block;margin:0 auto}
-
-/* Comparison table */
-.cmp-table{width:100%;border-collapse:collapse;margin:16px 0}
-.cmp-table th{background:var(--accent);color:#fff;padding:10px 16px;text-align:left;font-size:0.85rem}
-.cmp-table td{padding:10px 16px;border-bottom:1px solid var(--border);font-size:0.9rem}
-.cmp-table tr:nth-child(even) td{background:#f8faff}
-
-/* Gate cards */
-.gate-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin:16px 0}
-.gate-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
-.gate-card .gate-name{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--accent)}
-.gate-card .gate-sym{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--muted);margin:4px 0 10px}
-
-/* Inline code */
-code{font-family:'JetBrains Mono',monospace;font-size:0.85em;background:#f1f5f9;padding:1px 6px;border-radius:4px;color:#0f172a}
-
-/* Step list */
-.steps{counter-reset:step;margin:12px 0}
-.step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start}
-.step-num{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;margin-top:2px}
-.step-body{flex:1}
-
-/* Circuit diagram */
-.circuit{font-family:'JetBrains Mono',monospace;font-size:0.85rem;background:#0f2444;color:#e2e8f0;padding:20px 24px;border-radius:10px;overflow-x:auto;white-space:pre;line-height:1.8;margin:12px 0}
-
-/* Bloch state display */
-#bloch-state-display{font-family:'JetBrains Mono',monospace;font-size:0.9rem;background:#f0f7ff;border-radius:8px;padding:12px 16px;margin-top:12px;color:#0f2444;min-height:2.5em}
-
-/* Gate result display */
-#gate-result{font-family:'JetBrains Mono',monospace;font-size:0.85rem;background:#f0fdf4;border-radius:8px;padding:12px;margin-top:12px;color:#0f172a}
-
-/* Measurement viz */
-.prob-bar-container{margin:10px 0}
-.prob-bar-label{display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:3px}
-.prob-bar-track{background:#e2e8f0;border-radius:4px;height:22px;overflow:hidden}
-.prob-bar-fill{height:100%;border-radius:4px;transition:width 0.5s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:0.75rem;color:#fff;font-weight:600}
-.meas-result{font-size:2rem;font-family:'Cormorant Garamond',serif;font-weight:700;text-align:center;margin:16px 0;min-height:50px;color:var(--accent)}
-
-/* ── Top Navigation Bar ───────────────────────── */
-.topnav{position:fixed;top:0;left:0;right:0;height:44px;background:#0f0f17;display:flex;align-items:center;padding:0 24px;gap:16px;z-index:300;border-bottom:1px solid rgba(255,255,255,0.08)}
-.topnav-brand{font-family:'Cormorant Garamond',serif;font-size:1rem;color:#e2e8f0;text-decoration:none;font-weight:700;white-space:nowrap;letter-spacing:.02em}
-.topnav-links{display:flex;gap:2px;margin-left:auto}
-.topnav-link{padding:5px 11px;border-radius:6px;text-decoration:none;font-size:0.76rem;color:#94a3b8;transition:all .18s;white-space:nowrap;font-family:'Source Sans 3',sans-serif}
-.topnav-link:hover{background:rgba(255,255,255,0.09);color:#e2e8f0}
-.topnav-link.current{color:#fff;font-weight:600;background:rgba(255,255,255,0.13)}
+  :root { --accent: #1a4e8a; --accent2: #2d7dd2; }
+  .hero { background: linear-gradient(135deg, #0f2444 0%, #1a4e8a 60%, #2d7dd2 100%); }
+  .hero .week-badge { color: #93c5fd; }
+  .hero p { color: #bfdbfe; }
 </style>
+<script src="theme.js"></script>
 </head>
-<body>
+<body class="week-page">
 
 <div class="topnav">
-  <a href="index.html" class="topnav-brand">⚛ NPTEL Quantum Computing</a>
+  <button class="sidebar-toggle" id="sidebar-toggle-btn" title="Toggle sidebar">☰</button>
+  <a href="index.html" class="topnav-brand"><span>⚛</span> I2QC Notes</a>
   <div class="topnav-links">
     <a href="index.html" class="topnav-link">Home</a>
-    <a href="week1.html" class="topnav-link current">W1: Foundations</a>
-    <a href="week2.html" class="topnav-link">W2: Entanglement</a>
-    <a href="week3.html" class="topnav-link">W3: Algorithms</a>
-    <a href="week4.html" class="topnav-link">W4: NISQ &amp; QEC</a>
+    <a href="week1.html" class="topnav-link current">W1</a>
+    <a href="week2.html" class="topnav-link">W2</a>
+    <a href="week3.html" class="topnav-link">W3</a>
+    <a href="week4.html" class="topnav-link">W4</a>
   </div>
+  <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme">🌙</button>
 </div>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
 <nav id="sidebar">
   <div class="nav-head">
     <h2>Intro to Quantum Computing</h2>
@@ -382,7 +274,7 @@ $$x = \sin\theta\cos\phi, \qquad y = \sin\theta\sin\phi, \qquad z = \cos\theta$$
             <button class="ctrl-btn secondary" onclick="setBlochState(90,270)">|−i⟩</button>
           </div>
         </div>
-        <div style="margin-top:16px;background:#f0f7ff;border-radius:8px;padding:12px;font-size:0.83rem">
+        <div style="margin-top:16px;color:#0c4a6e;background:#f0f7ff;border-radius:8px;padding:12px;font-size:0.83rem">
           <strong>Probability of measuring |0⟩:</strong> <span id="prob0">1.000</span><br>
           <strong>Probability of measuring |1⟩:</strong> <span id="prob1">0.000</span>
         </div>
@@ -788,9 +680,31 @@ $$[S_z, S_x] = S_z S_x - S_x S_z = i\hbar S_y \neq 0$$
 
 <p>Quantum circuits are the language of quantum algorithms. We read them left-to-right, with each wire representing a qubit and each box a gate. The overall computation is the matrix product of all the gates applied in sequence (matrix multiplication order: rightmost first).</p>
 
-<div class="circuit">q₀: ─── H ─── T ─── H ─── [M]
-q₁: ─────────── X ─────── [M]
-         ↑ controlled on q₀</div>
+<div class="qc-title">Example 2-qubit circuit:</div>
+<div class="qc-circuit" style="align-items:center">
+  <div class="qc-wire-label"><div>q₀</div><div>q₁</div></div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate h">H</div></div>
+    <div class="qc-cell"></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate t">T</div></div>
+    <div class="qc-cell"></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate h">H</div></div>
+    <div class="qc-cell"></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-ctrl-line" style="top:28px; bottom:28px"></div>
+    <div class="qc-cell"><div class="qc-ctrl"></div></div>
+    <div class="qc-cell"><div class="qc-gate x">X</div></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire-classic" style="top:28px; width:50%"></div><div class="qc-wire-classic" style="top:84px; width:50%"></div>
+    <div class="qc-cell"><div class="qc-gate m"></div></div>
+    <div class="qc-cell"><div class="qc-gate m"></div></div>
+  </div>
+</div>
 
 <p>Key facts about quantum circuits:</p>
 <ul style="padding-left:24px;margin-bottom:14px">
@@ -857,9 +771,19 @@ $$\text{CNOT} = \begin{pmatrix}1&0&0&0\\0&1&0&0\\0&0&0&1\\0&0&1&0\end{pmatrix}$$
 
 <p>The CNOT is the quantum analogue of the XOR gate. Combined with the Hadamard gate, it can create entanglement. Circuit notation:</p>
 
-<div class="circuit">q₀: ─── H ─── ●  ───
-                  │
-q₁: ─────────── ⊕  ───</div>
+<div class="qc-title">H + CNOT → Bell state:</div>
+<div class="qc-circuit" style="align-items:center">
+  <div class="qc-wire-label"><div>q₀</div><div>q₁</div></div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate h">H</div></div>
+    <div class="qc-cell"></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px;width:150%"></div><div class="qc-wire" style="top:84px;width:150%"></div>
+    <div class="qc-ctrl-line" style="top:28px; bottom:28px"></div>
+    <div class="qc-cell"><div class="qc-ctrl"></div></div>
+    <div class="qc-cell"><div class="qc-targ"></div></div>
+  </div>
+</div>
 
 <p>Starting from $|00\rangle$: Apply $H$ to $q_0$: $\frac{1}{\sqrt{2}}(|00\rangle + |10\rangle)$. Then CNOT (control: $q_0$, target: $q_1$):</p>
 $$\frac{1}{\sqrt{2}}(|00\rangle + |10\rangle) \xrightarrow{\text{CNOT}} \frac{1}{\sqrt{2}}(|00\rangle + |11\rangle) = |\Phi^+\rangle$$
@@ -894,11 +818,35 @@ $$\frac{1}{\sqrt{2}}(|00\rangle + |10\rangle) \xrightarrow{\text{CNOT}} \frac{1}
 
 <p><strong>Key insight:</strong> $Z = HXH$ (sandwiching X between two Hadamards converts between X and Z bases). Therefore, if we want to conditionally apply Z on the target, we can: apply H to the target, then CNOT, then H to the target again.</p>
 
-<div class="circuit">CZ circuit identity:
-
-q₀: ────── ● ──────   =   q₀: ──── ● ────
-           │                         │
-q₁: ── H ─⊕─ H ──       q₁: ──────●────</div>
+<div class="qc-title">CZ circuit identity:  CZ = (I⊗H) · CNOT · (I⊗H)</div>
+<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+  <div class="qc-circuit" style="align-items:center;margin:0;flex:0 0 auto">
+    <div class="qc-wire-label"><div>q₀</div><div>q₁</div></div>
+    <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+      <div class="qc-cell"></div>
+      <div class="qc-cell"><div class="qc-gate h">H</div></div>
+    </div>
+    <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+      <div class="qc-ctrl-line" style="top:28px; bottom:28px"></div>
+      <div class="qc-cell"><div class="qc-ctrl"></div></div>
+      <div class="qc-cell"><div class="qc-targ"></div></div>
+    </div>
+    <div class="qc-step"><div class="qc-wire" style="top:28px;width:150%"></div><div class="qc-wire" style="top:84px;width:150%"></div>
+      <div class="qc-cell"></div>
+      <div class="qc-cell"><div class="qc-gate h">H</div></div>
+    </div>
+  </div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:1.2rem;color:var(--muted);font-weight:700">=</div>
+  <div class="qc-circuit" style="align-items:center;margin:0;flex:0 0 auto">
+    <div class="qc-wire-label"><div>q₀</div><div>q₁</div></div>
+    <div class="qc-step"><div class="qc-wire" style="top:28px;width:150%"></div><div class="qc-wire" style="top:84px;width:150%"></div>
+      <div class="qc-ctrl-line" style="top:28px; bottom:28px"></div>
+      <div class="qc-cell"><div class="qc-ctrl"></div></div>
+      <div class="qc-cell"><div class="qc-ctrl"></div></div>
+    </div>
+  </div>
+  <div class="qc-caption"><div>CZ gate</div></div>
+</div>
 
 <p>Let us verify with matrix multiplication:</p>
 $$(I \otimes H)\cdot\text{CNOT}\cdot(I\otimes H) = \text{CZ}$$
@@ -1238,14 +1186,6 @@ function updateGateViz(){
 
 updateGateViz();
 
-// Sidebar scroll highlight
-const sections = document.querySelectorAll('.section');
-const navLinks = document.querySelectorAll('nav a');
-window.addEventListener('scroll', ()=>{
-  let cur='';
-  sections.forEach(s=>{ if(window.scrollY>=s.offsetTop-80) cur=s.id; });
-  navLinks.forEach(a=>{ a.classList.toggle('active', a.getAttribute('href')==='#'+cur); });
-});
 </script>
 </main>
 </body>

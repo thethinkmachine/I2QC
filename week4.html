@@ -4,109 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Week 4 — NISQ-Era Algorithms & Quantum Error Correction</title>
+<meta name="description" content="Week 4 course notes: Variational quantum algorithms, VQE, QAOA, barren plateaus, and quantum error correction.">
 <script>MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],tags:'ams'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
 <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 <style>
-:root{--accent:#b45309;--accent2:#f59e0b;--accent-light:#fef3c7;--bg:#fffdf5;--card:#ffffff;--text:#1e293b;--muted:#64748b;--border:#fde68a;--gold:#b8860b;--sidebar-w:260px;--red:#dc2626;--blue:#1a4e8a}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:16px;line-height:1.7}
-nav{position:fixed;top:44px;left:0;width:var(--sidebar-w);height:calc(100vh - 44px);background:#1c1000;overflow-y:auto;padding:0 0 40px;z-index:100}
-nav .nav-head{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.1)}
-nav .nav-head h2{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:#fcd34d;font-weight:600;line-height:1.3}
-nav .nav-head p{font-size:0.72rem;color:#64748b;margin-top:4px}
-nav a{display:block;padding:8px 20px;color:#94a3b8;text-decoration:none;font-size:0.8rem;border-left:3px solid transparent;transition:all .2s}
-nav a:hover,nav a.active{color:#fef3c7;border-left-color:#f59e0b;background:rgba(245,158,11,0.08)}
-nav .nav-section{padding:14px 20px 6px;font-size:0.65rem;color:#475569;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
-nav a.sub{padding-left:32px;font-size:0.75rem}
-main{margin-left:var(--sidebar-w);flex:1;padding:44px 40px 80px;max-width:1100px}
-.hero{background:linear-gradient(135deg,#1c1000 0%,#78350f 60%,#f59e0b 100%);padding:60px 50px;border-radius:0 0 24px 24px;margin-bottom:48px;position:relative;overflow:hidden}
-.hero .week-badge{display:inline-block;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);padding:4px 14px;border-radius:20px;font-size:0.75rem;color:#fcd34d;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
-.hero h1{font-family:'Cormorant Garamond',serif;font-size:2.8rem;color:#fff;font-weight:700;line-height:1.2;margin-bottom:12px}
-.hero p{color:#fde68a;font-size:1rem;max-width:600px;line-height:1.6}
-.section{margin-bottom:56px;scroll-margin-top:20px}
-.section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid var(--accent-light)}
-.section-num{background:var(--accent);color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:600;flex-shrink:0}
-.section-header h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;color:var(--accent);font-weight:700}
-h3.sub{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--accent);margin:28px 0 12px;font-weight:600}
-p{margin-bottom:14px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin:20px 0;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
-.card.highlight{border-left:4px solid var(--accent);background:#fffbeb}
-.card.definition{border-left:4px solid var(--gold);background:#fffbf0}
-.card.warning{border-left:4px solid #dc2626;background:#fff5f5}
-.card.example{border-left:4px solid #166534;background:#f0fdf4}
-.card.insight{border-left:4px solid #7c2d8e;background:#faf5ff}
-.card.blue{border-left:4px solid var(--blue);background:#f0f7ff}
-.card-title{font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
-.card.definition .card-title{color:var(--gold)}
-.card.highlight .card-title{color:var(--accent)}
-.card.warning .card-title{color:#dc2626}
-.card.example .card-title{color:#166534}
-.card.insight .card-title{color:#7c2d8e}
-.card.blue .card-title{color:var(--blue)}
-.math-block{background:#fffbeb;border-radius:10px;padding:20px 24px;margin:16px 0;overflow-x:auto;border:1px solid #fde68a}
-.viz-container{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin:28px 0;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
-.viz-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;color:var(--accent);margin-bottom:4px}
-.viz-subtitle{font-size:0.8rem;color:var(--muted);margin-bottom:18px}
-.ctrl-btn{padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;font-family:'Source Sans 3',sans-serif;font-weight:600;transition:background .2s;margin:4px}
-.ctrl-btn:hover{background:var(--accent2)}
-.ctrl-btn.secondary{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
-.ctrl-btn.secondary:hover{background:var(--accent-light)}
-canvas{display:block}
-.circuit{font-family:'JetBrains Mono',monospace;font-size:0.82rem;background:#1c1000;color:#fde68a;padding:20px 24px;border-radius:10px;overflow-x:auto;white-space:pre;line-height:1.9;margin:12px 0}
-code{font-family:'JetBrains Mono',monospace;font-size:0.85em;background:#fef3c7;padding:1px 6px;border-radius:4px;color:#1c1000;border:1px solid #fde68a}
-.cmp-table{width:100%;border-collapse:collapse;margin:16px 0}
-.cmp-table th{background:var(--accent);color:#fff;padding:10px 16px;text-align:left;font-size:0.85rem}
-.cmp-table td{padding:10px 16px;border-bottom:1px solid var(--border);font-size:0.9rem;vertical-align:top}
-.cmp-table tr:nth-child(even) td{background:#fffbeb}
-.step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start}
-.step-num{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;margin-top:2px}
-.step-body{flex:1}
-/* VQA schematic */
-.vqa-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0}
-.vqa-box{background:var(--card);border:2px solid var(--accent);border-radius:10px;padding:12px 16px;text-align:center;min-width:100px}
-.vqa-box.quantum{border-color:#7c2d8e;background:#faf5ff}
-.vqa-box.classical{border-color:var(--blue);background:#f0f7ff}
-.vqa-box .box-title{font-weight:700;font-size:0.8rem;margin-bottom:4px}
-.vqa-box.quantum .box-title{color:#7c2d8e}
-.vqa-box.classical .box-title{color:var(--blue)}
-.vqa-arrow{font-size:1.4rem;color:var(--muted)}
-/* Error syndrome table */
-.syndrome-table{width:100%;border-collapse:collapse;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:0.85rem}
-.syndrome-table th{background:#1c1000;color:#fde68a;padding:8px 14px;text-align:left}
-.syndrome-table td{padding:8px 14px;border-bottom:1px solid var(--border)}
-.syndrome-table tr:nth-child(even) td{background:#fffbeb}
-/* Noise viz */
-#noiseCanvas{border-radius:10px;background:#fdf8ff;border:1px solid #e9d5ff}
-/* Generation tabs */
-.gen-tabs{display:flex;gap:0;margin-bottom:16px;border-radius:10px;overflow:hidden;border:1.5px solid var(--accent)}
-.gen-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-weight:600;font-size:0.88rem;background:#fff;color:var(--accent);border:none;transition:all .2s}
-.gen-tab.active{background:var(--accent);color:#fff}
-.gen-content{display:none}
-.gen-content.active{display:block}
-
-/* ── Top Navigation Bar ───────────────────────── */
-.topnav{position:fixed;top:0;left:0;right:0;height:44px;background:#0f0f17;display:flex;align-items:center;padding:0 24px;gap:16px;z-index:300;border-bottom:1px solid rgba(255,255,255,0.08)}
-.topnav-brand{font-family:'Cormorant Garamond',serif;font-size:1rem;color:#e2e8f0;text-decoration:none;font-weight:700;white-space:nowrap;letter-spacing:.02em}
-.topnav-links{display:flex;gap:2px;margin-left:auto}
-.topnav-link{padding:5px 11px;border-radius:6px;text-decoration:none;font-size:0.76rem;color:#94a3b8;transition:all .18s;white-space:nowrap;font-family:'Source Sans 3',sans-serif}
-.topnav-link:hover{background:rgba(255,255,255,0.09);color:#e2e8f0}
-.topnav-link.current{color:#fff;font-weight:600;background:rgba(255,255,255,0.13)}
+  :root { --accent: #b45309; --accent2: #f59e0b; }
+  .hero { background: linear-gradient(135deg, #1c1000 0%, #78350f 60%, #f59e0b 100%); }
+  .hero .week-badge { color: #fcd34d; }
+  .hero p { color: #fde68a; }
+  #noiseCanvas { border-radius: 10px; background: var(--canvas-bg); border: 1px solid var(--canvas-border); }
 </style>
+<script src="theme.js"></script>
 </head>
-<body>
+<body class="week-page">
 <div class="topnav">
-  <a href="index.html" class="topnav-brand">⚛ NPTEL Quantum Computing</a>
+  <button class="sidebar-toggle" id="sidebar-toggle-btn" title="Toggle sidebar">☰</button>
+  <a href="index.html" class="topnav-brand"><span>⚛</span> I2QC Notes</a>
   <div class="topnav-links">
     <a href="index.html" class="topnav-link">Home</a>
-    <a href="week1.html" class="topnav-link">W1: Foundations</a>
-    <a href="week2.html" class="topnav-link">W2: Entanglement</a>
-    <a href="week3.html" class="topnav-link">W3: Algorithms</a>
-    <a href="week4.html" class="topnav-link current">W4: NISQ &amp; QEC</a>
+    <a href="week1.html" class="topnav-link">W1</a>
+    <a href="week2.html" class="topnav-link">W2</a>
+    <a href="week3.html" class="topnav-link">W3</a>
+    <a href="week4.html" class="topnav-link current">W4</a>
   </div>
+  <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme">🌙</button>
 </div>
-<nav>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<nav id="sidebar">
   <div class="nav-head">
     <h2>Intro to Quantum Computing</h2>
     <p>Week 4 · NISQ &amp; QEC</p>
@@ -291,11 +217,36 @@ code{font-family:'JetBrains Mono',monospace;font-size:0.85em;background:#fef3c7;
 
 <p>A typical hardware-efficient ansatz has $L$ "layers," each consisting of parameterized $R_y(\theta)$ and $R_z(\phi)$ rotations on each qubit, followed by a fixed entanglement layer (CNOT gates connecting neighboring qubits):</p>
 
-<div class="circuit">Hardware-efficient ansatz (2 qubits, 2 layers):
-
-q₀: ─Ry(θ₁)─Rz(φ₁)─ ● ─Ry(θ₃)─Rz(φ₃)─ ● ─
-                      │                   │
-q₁: ─Ry(θ₂)─Rz(φ₂)─ ⊕ ─Ry(θ₄)─Rz(φ₄)─ ⊕ ─</div>
+<div class="qc-title">Hardware-efficient ansatz (2 qubits, 2 layers):</div>
+<div class="qc-circuit" style="align-items:center">
+  <div class="qc-wire-label"><div>q₀</div><div>q₁</div></div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate ry">Ry(θ₁)</div></div>
+    <div class="qc-cell"><div class="qc-gate ry">Ry(θ₃)</div></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate rz">Rz(φ₁)</div></div>
+    <div class="qc-cell"><div class="qc-gate rz">Rz(φ₃)</div></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-ctrl-line" style="top:28px; bottom:28px"></div>
+    <div class="qc-cell"><div class="qc-ctrl"></div></div>
+    <div class="qc-cell"><div class="qc-targ"></div></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate ry">Ry(θ₂)</div></div>
+    <div class="qc-cell"><div class="qc-gate ry">Ry(θ₄)</div></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-cell"><div class="qc-gate rz">Rz(φ₂)</div></div>
+    <div class="qc-cell"><div class="qc-gate rz">Rz(φ₄)</div></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
+    <div class="qc-ctrl-line" style="top:28px; bottom:28px"></div>
+    <div class="qc-cell"><div class="qc-ctrl"></div></div>
+    <div class="qc-cell"><div class="qc-targ"></div></div>
+  </div>
+</div>
 
 <h3 class="sub" id="s1d">The Parameter-Shift Rule: Quantum Gradients</h3>
 
@@ -346,7 +297,7 @@ $$\frac{\partial C}{\partial \theta_k} = \frac{C(\theta_k + \frac{\pi}{2}) - C(\
           <button class="ctrl-btn" onclick="startVQA()">▶ Run Optimization</button>
           <button class="ctrl-btn secondary" onclick="resetVQA()">Reset</button>
         </div>
-        <div id="vqa-status" style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;background:#fffbeb;border-radius:6px;padding:10px;min-height:60px"></div>
+        <div id="vqa-status" style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:#1e0a2e;background:#fffbeb;border-radius:6px;padding:10px;min-height:60px"></div>
       </div>
     </div>
     <canvas id="vqaCanvas" width="380" height="280" style="border-radius:10px;background:#fffdf5;border:1px solid #fde68a;flex-shrink:0"></canvas>
@@ -574,9 +525,9 @@ $$H = \sum_k c_k P_k, \qquad P_k \in \{I, X, Y, Z\}^{\otimes n}$$
         <label style="font-size:0.8rem;font-weight:600;color:var(--muted)">Apply N times: <span id="noiseReps">1</span></label>
         <input type="range" id="noiseRepsSlider" min="1" max="20" value="1" oninput="updateNoiseViz()" style="width:200px;accent-color:var(--accent)">
       </div>
-      <div id="noise-output" style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;background:#fffbeb;border-radius:8px;padding:12px"></div>
+      <div id="noise-output" style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:#1e0a2e;background:#fffbeb;border-radius:8px;padding:12px"></div>
     </div>
-    <canvas id="noiseCanvas" width="300" height="300"></canvas>
+    <canvas id="noiseCanvas" width="300" height="300" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px"></canvas>
   </div>
 </div>
 </div>
@@ -604,15 +555,23 @@ $$|\bar{0}\rangle = |000\rangle \qquad |\bar{1}\rangle = |111\rangle$$
 
 <p>We start with $|\psi\rangle = \alpha|0\rangle + \beta|1\rangle$ on qubit 0, and two ancilla qubits in $|0\rangle$:</p>
 
-<div class="circuit">Encoding Circuit (3-qubit bit-flip code):
-
-|ψ⟩ = α|0⟩+β|1⟩ ─── ●──── ●──── → Physical qubit 0
-                      │    │
-|0⟩ ──────────────── ⊕──── │──── → Physical qubit 1
-                            │
-|0⟩ ─────────────────────── ⊕──── → Physical qubit 2
-
-Encoded state: α|000⟩ + β|111⟩ = |ψ̄⟩</div>
+<div class="qc-title">Encoding Circuit (3-qubit bit-flip code):</div>
+<div class="qc-circuit" style="align-items:center">
+  <div class="qc-wire-label"><div>q_data: |ψ⟩</div><div>q_anc1: |0⟩</div><div>q_anc2: |0⟩</div></div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div><div class="qc-wire" style="top:140px"></div>
+    <div class="qc-ctrl-line" style="top:28px; bottom:84px"></div>
+    <div class="qc-cell"><div class="qc-ctrl"></div></div>
+    <div class="qc-cell"><div class="qc-targ"></div></div>
+    <div class="qc-cell"></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div><div class="qc-wire" style="top:140px"></div>
+    <div class="qc-ctrl-line" style="top:28px; bottom:28px"></div>
+    <div class="qc-cell"><div class="qc-ctrl"></div></div>
+    <div class="qc-cell"></div>
+    <div class="qc-cell"><div class="qc-targ"></div></div>
+  </div>
+</div>
+<p>Encoded state: α|000⟩ + β|111⟩ = |ψ̄⟩</p>
 
 <p>Let us verify. Starting from $(\alpha|0\rangle + \beta|1\rangle)|00\rangle$:</p>
 <ul style="padding-left:24px;margin-bottom:14px">
@@ -645,22 +604,47 @@ Encoded state: α|000⟩ + β|111⟩ = |ψ̄⟩</div>
 
 <h3 class="sub" id="s5d">Full Error Correction Circuit</h3>
 
-<div class="circuit">Full Syndrome Measurement + Correction Circuit:
-
-q₀ ─────── ● ──── ● ─────────────── [correction based on syndrome]
-           │      │
-q₁ ─────── ⊕──── │─── ● ─── ● ──── [ancilla measurement]
-                  │   │
-q₂ ──────────── ⊕─── │─── ● ──── [ancilla measurement]
-                      │   │
-anc₁ ──────────────── ⊕── │─── [M] → bit 1 of syndrome
-                           │
-anc₂ ────────────────────── ⊕── [M] → bit 2 of syndrome
-
-Step 1: Encode (CNOT circuit above)
-Step 2: Wait (noise acts here)
-Step 3: Syndrome measurement (ancilla qubits)
-Step 4: Classical correction based on syndrome table</div>
+<div class="qc-title">Full Syndrome Measurement + Correction Circuit:</div>
+<div class="qc-circuit" style="align-items:center">
+  <div class="qc-wire-label"><div>q₀</div><div>q₁</div><div>q₂</div><div>anc₁: |0⟩</div><div>anc₂: |0⟩</div></div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div><div class="qc-wire" style="top:140px"></div><div class="qc-wire" style="top:196px"></div><div class="qc-wire" style="top:252px"></div>
+    <div class="qc-ctrl-line" style="top:28px; bottom:84px"></div>
+    <div class="qc-cell"><div class="qc-ctrl"></div></div><div class="qc-cell"></div><div class="qc-cell"></div>
+    <div class="qc-cell"><div class="qc-targ"></div></div><div class="qc-cell"></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div><div class="qc-wire" style="top:140px"></div><div class="qc-wire" style="top:196px"></div><div class="qc-wire" style="top:252px"></div>
+    <div class="qc-ctrl-line" style="top:84px; bottom:84px"></div>
+    <div class="qc-cell"></div><div class="qc-cell"><div class="qc-ctrl"></div></div><div class="qc-cell"></div>
+    <div class="qc-cell"><div class="qc-targ"></div></div><div class="qc-cell"></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div><div class="qc-wire" style="top:140px"></div><div class="qc-wire" style="top:196px"></div><div class="qc-wire" style="top:252px"></div>
+    <div class="qc-ctrl-line" style="top:84px; bottom:28px"></div>
+    <div class="qc-cell"></div><div class="qc-cell"><div class="qc-ctrl"></div></div><div class="qc-cell"></div>
+    <div class="qc-cell"></div><div class="qc-cell"><div class="qc-targ"></div></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div><div class="qc-wire" style="top:140px"></div><div class="qc-wire" style="top:196px"></div><div class="qc-wire" style="top:252px"></div>
+    <div class="qc-ctrl-line" style="top:140px; bottom:28px"></div>
+    <div class="qc-cell"></div><div class="qc-cell"></div><div class="qc-cell"><div class="qc-ctrl"></div></div>
+    <div class="qc-cell"></div><div class="qc-cell"><div class="qc-targ"></div></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div><div class="qc-wire" style="top:140px"></div><div class="qc-wire-classic" style="top:196px; width:50%"></div><div class="qc-wire-classic" style="top:252px; width:50%"></div>
+    <div class="qc-cell"></div><div class="qc-cell"></div><div class="qc-cell"></div>
+    <div class="qc-cell"><div class="qc-gate m"></div><div class="qc-measure-text" style="top:-4px;right:-32px">s₁</div></div>
+    <div class="qc-cell"><div class="qc-gate m"></div><div class="qc-measure-text" style="top:-4px;right:-32px">s₂</div></div>
+  </div>
+  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div><div class="qc-wire" style="top:140px"></div>
+    <div class="qc-cell"><div class="qc-gate box">X if s=10</div></div>
+    <div class="qc-cell"><div class="qc-gate box">X if s=11</div></div>
+    <div class="qc-cell"><div class="qc-gate box">X if s=01</div></div>
+    <div class="qc-cell"></div><div class="qc-cell"></div>
+  </div>
+</div>
+<div class="qc-caption" style="margin-left:0; margin-top:12px; font-family:'JetBrains Mono', monospace">
+  <div>Step 1: Encode (CNOT circuit above)</div>
+  <div>Step 2: Wait (noise acts here)</div>
+  <div>Step 3: Syndrome measurement (ancilla qubits)</div>
+  <div>Step 4: Classical correction based on syndrome table</div>
+</div>
 
 <h3 class="sub">Logical Error Rate After Correction</h3>
 
@@ -945,14 +929,6 @@ function updateNoiseViz(){
 }
 updateNoiseViz();
 
-// Sidebar scroll highlight
-const sections=document.querySelectorAll('.section');
-const navLinks=document.querySelectorAll('nav a');
-window.addEventListener('scroll',()=>{
-  let cur='';
-  sections.forEach(s=>{ if(window.scrollY>=s.offsetTop-80) cur=s.id; });
-  navLinks.forEach(a=>{ a.classList.toggle('active',a.getAttribute('href')==='#'+cur); });
-});
 </script>
 </main>
 </body>
