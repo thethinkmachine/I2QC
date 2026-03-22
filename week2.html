@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 2 — Entanglement, Interference & Qiskit</title>
+<script>MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],tags:'ams'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#166440;--accent2:#22c55e;--accent-light:#dcfce7;--bg:#f7fbf9;--card:#ffffff;--text:#1e293b;--muted:#64748b;--border:#d1fae5;--gold:#b8860b;--sidebar-w:260px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:16px;line-height:1.7}
+nav{position:fixed;top:44px;left:0;width:var(--sidebar-w);height:calc(100vh - 44px);background:#0a2a1a;overflow-y:auto;padding:0 0 40px;z-index:100}
+nav .nav-head{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.1)}
+nav .nav-head h2{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:#86efac;font-weight:600;line-height:1.3}
+nav .nav-head p{font-size:0.72rem;color:#64748b;margin-top:4px}
+nav a{display:block;padding:8px 20px;color:#94a3b8;text-decoration:none;font-size:0.8rem;border-left:3px solid transparent;transition:all .2s}
+nav a:hover,nav a.active{color:#dcfce7;border-left-color:#22c55e;background:rgba(34,197,94,0.08)}
+nav .nav-section{padding:14px 20px 6px;font-size:0.65rem;color:#475569;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+nav a.sub{padding-left:32px;font-size:0.75rem}
+main{margin-left:var(--sidebar-w);flex:1;padding:44px 40px 80px;max-width:1100px}
+.hero{background:linear-gradient(135deg,#0a2a1a 0%,#166440 60%,#22c55e 100%);padding:60px 50px;border-radius:0 0 24px 24px;margin-bottom:48px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.03)}
+.hero .week-badge{display:inline-block;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);padding:4px 14px;border-radius:20px;font-size:0.75rem;color:#86efac;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:2.8rem;color:#fff;font-weight:700;line-height:1.2;margin-bottom:12px}
+.hero p{color:#bbf7d0;font-size:1rem;max-width:600px;line-height:1.6}
+.section{margin-bottom:56px;scroll-margin-top:20px}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid var(--accent-light)}
+.section-num{background:var(--accent);color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:600;flex-shrink:0}
+.section-header h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;color:var(--accent);font-weight:700}
+h3.sub{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--accent);margin:28px 0 12px;font-weight:600}
+p{margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin:20px 0;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.card.highlight{border-left:4px solid var(--accent);background:#f0fdf4}
+.card.definition{border-left:4px solid var(--gold);background:#fffbf0}
+.card.warning{border-left:4px solid #dc2626;background:#fff5f5}
+.card.example{border-left:4px solid #1a4e8a;background:#f0f7ff}
+.card.insight{border-left:4px solid #7c3aed;background:#faf5ff}
+.card-title{font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+.card.definition .card-title{color:var(--gold)}
+.card.highlight .card-title{color:var(--accent)}
+.card.warning .card-title{color:#dc2626}
+.card.example .card-title{color:#1a4e8a}
+.card.insight .card-title{color:#7c3aed}
+.math-block{background:#f0fdf4;border-radius:10px;padding:20px 24px;margin:16px 0;overflow-x:auto;border:1px solid #bbf7d0}
+.viz-container{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin:28px 0;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
+.viz-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;color:var(--accent);margin-bottom:4px}
+.viz-subtitle{font-size:0.8rem;color:var(--muted);margin-bottom:18px}
+.ctrl-btn{padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;font-family:'Source Sans 3',sans-serif;font-weight:600;transition:background .2s;margin:4px}
+.ctrl-btn:hover{background:var(--accent2)}
+.ctrl-btn.secondary{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
+.ctrl-btn.secondary:hover{background:var(--accent-light)}
+.ctrl-btn.active-step{background:#166440;outline:2px solid #22c55e}
+canvas{display:block}
+.circuit{font-family:'JetBrains Mono',monospace;font-size:0.82rem;background:#0a2a1a;color:#e2e8f0;padding:20px 24px;border-radius:10px;overflow-x:auto;white-space:pre;line-height:1.9;margin:12px 0}
+code{font-family:'JetBrains Mono',monospace;font-size:0.85em;background:#f0fdf4;padding:1px 6px;border-radius:4px;color:#0a2a1a;border:1px solid #bbf7d0}
+.cmp-table{width:100%;border-collapse:collapse;margin:16px 0}
+.cmp-table th{background:var(--accent);color:#fff;padding:10px 16px;text-align:left;font-size:0.85rem}
+.cmp-table td{padding:10px 16px;border-bottom:1px solid var(--border);font-size:0.9rem}
+.cmp-table tr:nth-child(even) td{background:#f0fdf4}
+.step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start}
+.step-num{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;margin-top:2px}
+.step-body{flex:1}
+/* Bell state interactive */
+.bell-display{font-family:'JetBrains Mono',monospace;background:#f0fdf4;border-radius:8px;padding:14px 18px;font-size:0.9rem;min-height:3em;color:#0a2a1a;border:1px solid #bbf7d0;margin:10px 0}
+/* Teleportation steps */
+.tele-step{border:1.5px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:14px;transition:all .3s}
+.tele-step.active-tele{border-color:var(--accent);background:#f0fdf4}
+.tele-step-head{font-weight:700;color:var(--accent);font-size:0.95rem;margin-bottom:6px}
+/* Interference viz */
+#waveCanvas{border-radius:10px;background:#f8faff;border:1px solid #e2e8f0}
+/* Code blocks */
+.code-block{background:#0a2a1a;color:#e2e8f0;border-radius:10px;padding:20px 24px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;line-height:1.8;overflow-x:auto;margin:12px 0}
+.code-block .kw{color:#86efac}
+.code-block .fn{color:#6ee7b7}
+.code-block .cm{color:#475569;font-style:italic}
+.code-block .str{color:#fbbf24}
+.code-block .nm{color:#93c5fd}
+
+/* ── Top Navigation Bar ───────────────────────── */
+.topnav{position:fixed;top:0;left:0;right:0;height:44px;background:#0f0f17;display:flex;align-items:center;padding:0 24px;gap:16px;z-index:300;border-bottom:1px solid rgba(255,255,255,0.08)}
+.topnav-brand{font-family:'Cormorant Garamond',serif;font-size:1rem;color:#e2e8f0;text-decoration:none;font-weight:700;white-space:nowrap;letter-spacing:.02em}
+.topnav-links{display:flex;gap:2px;margin-left:auto}
+.topnav-link{padding:5px 11px;border-radius:6px;text-decoration:none;font-size:0.76rem;color:#94a3b8;transition:all .18s;white-space:nowrap;font-family:'Source Sans 3',sans-serif}
+.topnav-link:hover{background:rgba(255,255,255,0.09);color:#e2e8f0}
+.topnav-link.current{color:#fff;font-weight:600;background:rgba(255,255,255,0.13)}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <a href="index.html" class="topnav-brand">⚛ NPTEL Quantum Computing</a>
+  <div class="topnav-links">
+    <a href="index.html" class="topnav-link">Home</a>
+    <a href="week1.html" class="topnav-link">W1: Foundations</a>
+    <a href="week2.html" class="topnav-link current">W2: Entanglement</a>
+    <a href="week3.html" class="topnav-link">W3: Algorithms</a>
+    <a href="week4.html" class="topnav-link">W4: NISQ &amp; QEC</a>
+  </div>
+</div>
+<nav id="sidebar">
+  <div class="nav-head">
+    <h2>Intro to Quantum Computing</h2>
+    <p>Week 2 · Entanglement & Qiskit</p>
+  </div>
+  <div class="nav-section">Theory</div>
+  <a href="#s1">Entanglement & Bell States</a>
+  <a href="#bell-viz" class="sub">🔔 Bell State Generator</a>
+  <a href="#s2">Bell Measurement</a>
+  <a href="#s3">Quantum Teleportation</a>
+  <a href="#tele-viz" class="sub">📡 Teleportation Protocol</a>
+  <a href="#s3b" class="sub">No-Cloning Theorem</a>
+  <a href="#s4">Quantum Interference</a>
+  <a href="#wave-viz" class="sub">🌊 Interference Demo</a>
+  <a href="#s5">Algorithm Construction Intuition</a>
+  <div class="nav-section">Qiskit Practicals</div>
+  <a href="#s6">Qiskit Overview & Setup</a>
+  <a href="#s6b" class="sub">SDK & Architecture</a>
+  <a href="#s7">Programming Qiskit</a>
+  <a href="#s7b" class="sub">Superposition Circuit</a>
+  <a href="#s7c" class="sub">Entanglement Circuit</a>
+  <a href="#s7d" class="sub">Teleportation in Qiskit</a>
+  <a href="#s7e" class="sub">IBM Quantum Patterns</a>
+  <a href="#s8">Running on Real Hardware</a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="week-badge">Week 2</div>
+  <h1>Entanglement, Interference<br>&amp; Qiskit Programming</h1>
+  <p>From the most non-classical feature of quantum mechanics — entanglement — to the remarkable phenomenon of quantum teleportation, and then into hands-on programming on IBM's quantum computers with Qiskit.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 1: ENTANGLEMENT AND BELL STATES                  -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s1">
+<div class="section-header">
+  <div class="section-num">1</div>
+  <h2>Quantum Entanglement and Bell States</h2>
+</div>
+
+<p>In Week 1, we introduced entanglement as a mathematical phenomenon: a multi-qubit state that cannot be written as a product of single-qubit states. In Week 2, we go much deeper — examining what entanglement means physically, how to create it, how to measure it, and how to weaponise it for quantum communication protocols.</p>
+
+<h3 class="sub">What Entanglement Really Means</h3>
+
+<p>Consider two qubits that have interacted and are now in the maximally entangled state:</p>
+
+$$|\Phi^+\rangle = \frac{|00\rangle + |11\rangle}{\sqrt{2}}$$
+
+<p>This state has a remarkable property: if Alice holds qubit 1 and Bob holds qubit 2, and Alice measures her qubit in the computational basis, she gets:</p>
+<ul style="padding-left:24px;margin-bottom:14px">
+  <li style="margin-bottom:6px">Outcome $|0\rangle$ with probability $\frac{1}{2}$, after which Bob's qubit instantly becomes $|0\rangle$</li>
+  <li style="margin-bottom:6px">Outcome $|1\rangle$ with probability $\frac{1}{2}$, after which Bob's qubit instantly becomes $|1\rangle$</li>
+</ul>
+
+<p>There is <strong>perfect correlation</strong> between their outcomes, regardless of how far apart they are. This was what troubled Einstein so deeply — he called it "spooky action at a distance" — but it has been confirmed experimentally beyond any doubt. Crucially, as we will see, it cannot be used to send information faster than light.</p>
+
+<div class="card definition">
+<div class="card-title">📐 The Four Bell States (Maximally Entangled 2-Qubit States)</div>
+<p>The four Bell states form an orthonormal basis for the 2-qubit Hilbert space. They are the maximally entangled states:</p>
+
+$$|\Phi^+\rangle = \frac{|00\rangle + |11\rangle}{\sqrt{2}}, \qquad |\Phi^-\rangle = \frac{|00\rangle - |11\rangle}{\sqrt{2}}$$
+
+$$|\Psi^+\rangle = \frac{|01\rangle + |10\rangle}{\sqrt{2}}, \qquad |\Psi^-\rangle = \frac{|01\rangle - |10\rangle}{\sqrt{2}}$$
+
+<p><strong>Maximally entangled</strong> means: measuring either qubit gives a completely random outcome (50/50), but the two outcomes are perfectly correlated (or anti-correlated).</p>
+</div>
+
+<h3 class="sub">Creating Bell States: The H-CNOT Circuit</h3>
+
+<p>All four Bell states can be created from computational basis inputs using the same simple circuit: a Hadamard gate followed by a CNOT.</p>
+
+<div class="circuit">q₀: ─── H ─── ●  ───  Starting from |xy⟩:
+                  │          • |00⟩ → |Φ⁺⟩
+q₁: ─────────── ⊕  ───      • |01⟩ → |Ψ⁺⟩
+                             • |10⟩ → |Φ⁻⟩
+                             • |11⟩ → |Ψ⁻⟩</div>
+
+<p>Let us verify for $|00\rangle$:</p>
+
+<div class="steps">
+<div class="step"><div class="step-num">1</div><div class="step-body">Start: $|00\rangle$</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-body">Apply $H$ to qubit 0: $\frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)|0\rangle = \frac{1}{\sqrt{2}}(|00\rangle + |10\rangle)$</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-body">Apply CNOT (control: $q_0$, target: $q_1$): $|00\rangle \to |00\rangle$, $|10\rangle \to |11\rangle$, so:<br>$\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle) = |\Phi^+\rangle$ ✓</div></div>
+</div>
+
+<!-- VIZ 1: BELL STATE GENERATOR -->
+<div class="viz-container" id="bell-viz">
+  <div class="viz-title">🔔 Interactive Bell State Generator</div>
+  <div class="viz-subtitle">Choose an input basis state and step through the H-CNOT circuit. Watch the quantum state transform at each step.</div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+    <div>
+      <label style="font-size:0.8rem;font-weight:600;color:var(--muted);display:block;margin-bottom:6px">Input State |xy⟩:</label>
+      <div style="display:flex;gap:8px">
+        <button class="ctrl-btn secondary" id="bell-inp-00" onclick="setBellInput('00')">|00⟩</button>
+        <button class="ctrl-btn secondary" id="bell-inp-01" onclick="setBellInput('01')">|01⟩</button>
+        <button class="ctrl-btn secondary" id="bell-inp-10" onclick="setBellInput('10')">|10⟩</button>
+        <button class="ctrl-btn secondary" id="bell-inp-11" onclick="setBellInput('11')">|11⟩</button>
+      </div>
+    </div>
+    <div>
+      <label style="font-size:0.8rem;font-weight:600;color:var(--muted);display:block;margin-bottom:6px">Step through circuit:</label>
+      <div style="display:flex;gap:8px">
+        <button class="ctrl-btn secondary" onclick="setBellStep(0)">Start</button>
+        <button class="ctrl-btn secondary" onclick="setBellStep(1)">After H</button>
+        <button class="ctrl-btn secondary" onclick="setBellStep(2)">After CNOT</button>
+      </div>
+    </div>
+  </div>
+  <div class="bell-display" id="bell-state-disp">State: |00⟩</div>
+  <div id="bell-explain" style="margin-top:12px;font-size:0.88rem;color:var(--muted)">Initial state. Both qubits are definite |0⟩. Fully separable.</div>
+  <div style="margin-top:14px">
+    <canvas id="bellProbCanvas" width="500" height="120" style="border-radius:8px;background:#f8faff;border:1px solid #e2e8f0;display:block;max-width:100%"></canvas>
+  </div>
+</div>
+
+<h3 class="sub">Bell State Verification by Measurement</h3>
+
+<p>It is important to confirm that Bell states are truly entangled. For $|\Phi^+\rangle = \frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$:</p>
+
+<ul style="padding-left:24px;margin-bottom:14px">
+  <li style="margin-bottom:8px"><strong>Measure qubit 0 in Z-basis:</strong> $p(0) = \frac{1}{2}$, $p(1) = \frac{1}{2}$. Completely random.</li>
+  <li style="margin-bottom:8px"><strong>Conditional on qubit 0 = $|0\rangle$:</strong> qubit 1 collapses to $|0\rangle$ with certainty. Conditional on qubit 0 = $|1\rangle$: qubit 1 is $|1\rangle$. Perfect correlation.</li>
+  <li style="margin-bottom:8px"><strong>Measure in X-basis:</strong> $|\Phi^+\rangle = \frac{1}{2}(|{++}\rangle + |{--}\rangle)$. Again random but perfectly correlated in X-basis too.</li>
+</ul>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 2: BELL MEASUREMENT                              -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s2">
+<div class="section-header">
+  <div class="section-num">2</div>
+  <h2>Bell Measurement</h2>
+</div>
+
+<p>The Bell states $\{|\Phi^\pm\rangle, |\Psi^\pm\rangle\}$ form an orthonormal basis for the 2-qubit Hilbert space. A <strong>Bell measurement</strong> is a projective measurement in this Bell basis — it tells you which Bell state the two qubits are in.</p>
+
+<div class="card highlight">
+<div class="card-title">🔑 Key Principle: Reversibility</div>
+<p>Since the circuit that generates Bell states is unitary (and therefore reversible), the Bell measurement circuit is simply the <em>reverse</em> of the generation circuit: apply CNOT first, then Hadamard. The output (after measuring in the computational basis) tells you which Bell state you had.</p>
+</div>
+
+<div class="circuit">Bell Measurement Circuit:
+
+q₀: ─── ● ─── H ─── [M]    Output 00 → |Φ⁺⟩
+         │                  Output 01 → |Ψ⁺⟩
+q₁: ─── ⊕ ─────── [M]      Output 10 → |Φ⁻⟩
+                            Output 11 → |Ψ⁻⟩</div>
+
+<p>Let us verify: starting from $|\Phi^+\rangle = \frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$. Apply CNOT: $\frac{1}{\sqrt{2}}(|00\rangle + |10\rangle) = \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)|0\rangle = |{+}\rangle|0\rangle$. Apply $H$ to qubit 0: $|0\rangle|0\rangle = |00\rangle$. Measuring: we get $00$ with certainty. ✓</p>
+
+<div class="card insight">
+<div class="card-title">🔍 Why Bell Measurement Matters</div>
+<p>Bell measurement is the operational "decoder" for entanglement. Whenever we use a Bell state as a shared quantum resource and want to figure out what has happened (e.g. in teleportation), we perform a Bell measurement. The two classical bits output by the Bell measurement carry information about what correction is needed at the receiver's end.</p>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 3: QUANTUM TELEPORTATION                        -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s3">
+<div class="section-header">
+  <div class="section-num">3</div>
+  <h2>Quantum Teleportation</h2>
+</div>
+
+<p>Quantum teleportation sounds like science fiction, but it is a rigorously proven, experimentally verified quantum protocol. It allows Alice to send an <em>unknown</em> quantum state to Bob using only a shared Bell pair and two classical bits of communication — without the state ever physically traveling between them.</p>
+
+<div class="card warning">
+<div class="card-title">⚠️ Important: What Teleportation Is Not</div>
+<p>Quantum teleportation does NOT:</p>
+<ul style="padding-left:20px">
+  <li>Teleport matter or energy</li>
+  <li>Transmit information faster than light</li>
+  <li>Violate the No-Cloning Theorem</li>
+</ul>
+<p>It teleports a <em>quantum state</em>. The original state is destroyed in the process (Alice's qubit collapses after measurement). Bob must receive Alice's 2 classical bits before he can recover the state — so no FTL communication occurs.</p>
+</div>
+
+<h3 class="sub">Setup</h3>
+
+<p>Three qubits involved:</p>
+<ul style="padding-left:24px;margin-bottom:14px">
+  <li style="margin-bottom:6px"><strong>Qubit 0 (Alice's):</strong> Contains the unknown state $|\psi\rangle = \alpha|0\rangle + \beta|1\rangle$ to be teleported</li>
+  <li style="margin-bottom:6px"><strong>Qubit 1 (Alice's half of EPR pair):</strong> Alice's portion of the shared Bell pair</li>
+  <li style="margin-bottom:6px"><strong>Qubit 2 (Bob's):</strong> Bob's portion of the shared Bell pair</li>
+</ul>
+
+<p>The initial state of all three qubits (qubits 1 and 2 in Bell state $|\Phi^+\rangle$):</p>
+
+$$|\text{total}\rangle_\text{start} = |\psi\rangle_0 \otimes |\Phi^+\rangle_{12} = (\alpha|0\rangle + \beta|1\rangle)_0 \cdot \frac{|00\rangle + |11\rangle}{\sqrt{2}}_{12}$$
+
+$$= \frac{1}{\sqrt{2}}\bigl(\alpha|000\rangle + \alpha|011\rangle + \beta|100\rangle + \beta|111\rangle\bigr)_{012}$$
+
+<h3 class="sub">Full Protocol Derivation</h3>
+
+<div class="steps">
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-body">
+    <strong>Alice applies CNOT (qubit 0 controls qubit 1):</strong>
+    $$\frac{1}{\sqrt{2}}\bigl(\alpha|000\rangle + \alpha|011\rangle + \beta|110\rangle + \beta|101\rangle\bigr)$$
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-body">
+    <strong>Alice applies Hadamard to qubit 0</strong> ($H|0\rangle = |{+}\rangle$, $H|1\rangle = |{-}\rangle$):
+    $$= \frac{1}{2}\bigl[|00\rangle(\alpha|0\rangle+\beta|1\rangle) + |01\rangle(\alpha|1\rangle+\beta|0\rangle) + |10\rangle(\alpha|0\rangle-\beta|1\rangle) + |11\rangle(\alpha|1\rangle-\beta|0\rangle)\bigr]$$
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-body">
+    <strong>Alice measures qubits 0 and 1.</strong> She gets one of four outcomes, each with probability $\frac{1}{4}$:
+    <table class="cmp-table" style="margin:10px 0">
+    <thead><tr><th>Measurement Outcome</th><th>Bob's Qubit State</th><th>Correction Needed</th></tr></thead>
+    <tbody>
+    <tr><td>$|00\rangle$</td><td>$\alpha|0\rangle + \beta|1\rangle$</td><td>None (Identity)</td></tr>
+    <tr><td>$|01\rangle$</td><td>$\alpha|1\rangle + \beta|0\rangle$</td><td>Apply $X$</td></tr>
+    <tr><td>$|10\rangle$</td><td>$\alpha|0\rangle - \beta|1\rangle$</td><td>Apply $Z$</td></tr>
+    <tr><td>$|11\rangle$</td><td>$\alpha|1\rangle - \beta|0\rangle$</td><td>Apply $X$ then $Z$</td></tr>
+    </tbody>
+    </table>
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-body">
+    <strong>Alice sends the 2 classical bits to Bob</strong> (via a classical channel — e.g. phone). Bob applies the corresponding correction gate. Result: Bob's qubit is now in state $|\psi\rangle = \alpha|0\rangle + \beta|1\rangle$. The teleportation is complete!
+  </div>
+</div>
+</div>
+
+<!-- VIZ 2: TELEPORTATION PROTOCOL -->
+<div class="viz-container" id="tele-viz">
+  <div class="viz-title">📡 Quantum Teleportation Protocol</div>
+  <div class="viz-subtitle">Step through the teleportation protocol. Click each step to reveal the quantum state and what's happening physically.</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+    <button class="ctrl-btn secondary" onclick="setTeleStep(0)">⓪ Initial State</button>
+    <button class="ctrl-btn secondary" onclick="setTeleStep(1)">① Create EPR</button>
+    <button class="ctrl-btn secondary" onclick="setTeleStep(2)">② CNOT (Alice)</button>
+    <button class="ctrl-btn secondary" onclick="setTeleStep(3)">③ H (Alice)</button>
+    <button class="ctrl-btn secondary" onclick="setTeleStep(4)">④ Alice Measures</button>
+    <button class="ctrl-btn secondary" onclick="setTeleStep(5)">⑤ Bob Corrects</button>
+  </div>
+  <div id="tele-steps-container"></div>
+  <div class="circuit" id="tele-circuit" style="font-size:0.75rem;margin-top:14px">Loading circuit...</div>
+</div>
+
+<div class="card example">
+<div class="card-title">🌍 Real-World Experimental Verification</div>
+<ul style="padding-left:20px">
+  <li style="margin-bottom:6px"><strong>China ground-to-satellite (2017):</strong> Teleportation demonstrated between ground station and the Micius satellite at ~1400 km altitude — the first space-based quantum teleportation.</li>
+  <li style="margin-bottom:6px"><strong>Canary Islands entanglement swapping (2012):</strong> Entanglement and teleportation-like operations demonstrated between La Palma and Tenerife, ~143 km apart.</li>
+  <li style="margin-bottom:6px"><strong>Quantum networks:</strong> Teleportation is the building block for quantum repeaters and eventually a global quantum internet.</li>
+</ul>
+</div>
+
+<h3 class="sub" id="s3b">The No-Cloning Theorem</h3>
+
+<p>Quantum teleportation raises an immediate question: didn't we just <em>copy</em> Alice's state $|\psi\rangle$ to Bob? No! Alice's qubit was <em>destroyed</em> in the measurement — it collapsed to a definite basis state. The state was moved, not copied. This is enforced by the:</p>
+
+<div class="card definition">
+<div class="card-title">📐 No-Cloning Theorem</div>
+<p>There is no quantum operation that can make a perfect copy of an arbitrary unknown quantum state. Formally: there is no unitary $U$ such that $U|\psi\rangle|0\rangle = |\psi\rangle|\psi\rangle$ for all states $|\psi\rangle$.</p>
+<p><strong>Proof by contradiction:</strong> Suppose such a $U$ exists. Then:</p>
+$$U|0\rangle|0\rangle = |0\rangle|0\rangle \quad \text{and} \quad U|1\rangle|0\rangle = |1\rangle|1\rangle$$
+<p>By linearity of $U$, applying $U$ to the state $|{+}\rangle|0\rangle = \frac{1}{\sqrt{2}}(|0\rangle+|1\rangle)|0\rangle$:</p>
+$$U|{+}\rangle|0\rangle = \frac{1}{\sqrt{2}}(U|0\rangle|0\rangle + U|1\rangle|0\rangle) = \frac{1}{\sqrt{2}}(|00\rangle + |11\rangle) = |\Phi^+\rangle$$
+<p>But a "clone" of $|{+}\rangle$ would be $|{+}\rangle|{+}\rangle = \frac{1}{2}(|00\rangle+|01\rangle+|10\rangle+|11\rangle)$. These are different! Contradiction. ∎</p>
+</div>
+
+<p>The CNOT gate might seem to clone: $\text{CNOT}|x\rangle|0\rangle = |x\rangle|x\rangle$ for $x \in \{0,1\}$. But this only works for basis states, not arbitrary superpositions. Applying CNOT to $|{+}\rangle|0\rangle$ gives the entangled state $|\Phi^+\rangle$, not the product state $|{+}\rangle|{+}\rangle$.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 4: INTERFERENCE                                  -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s4">
+<div class="section-header">
+  <div class="section-num">4</div>
+  <h2>Quantum Interference</h2>
+</div>
+
+<p>Interference is the third pillar of quantum computing's power (alongside superposition and entanglement). It is the quantum analogue of wave interference: amplitudes can add constructively or cancel destructively.</p>
+
+<div class="card definition">
+<div class="card-title">📐 Constructive and Destructive Interference</div>
+<p>Consider two paths contributing amplitudes $\alpha_1$ and $\alpha_2$ to the same final state. The total amplitude is $\alpha_1 + \alpha_2$, and the probability is $|\alpha_1 + \alpha_2|^2$.</p>
+<p><strong>Constructive interference:</strong> If $\alpha_1$ and $\alpha_2$ have the same phase (both positive real, for instance), $|\alpha_1+\alpha_2|^2 = (|\alpha_1|+|\alpha_2|)^2 > |\alpha_1|^2 + |\alpha_2|^2$. The state is <em>amplified</em>.</p>
+<p><strong>Destructive interference:</strong> If $\alpha_1 = -\alpha_2$, then $|\alpha_1+\alpha_2|^2 = 0$. The state is <em>suppressed</em>.</p>
+</div>
+
+<p>The double-slit experiment is the classic demonstration of interference. A quantum particle (photon, electron) sent through two slits creates an interference pattern on a screen, even when sent one at a time — because the single particle's <em>probability amplitude</em> passes through both slits simultaneously and the amplitudes from each path interfere.</p>
+
+<div class="card example">
+<div class="card-title">✏️ Interference in the Hadamard Transform</div>
+<p>The Hadamard gate applied twice is the identity ($H^2 = I$). This is a direct consequence of interference. Start with $|0\rangle$:</p>
+$$H|0\rangle = \frac{|0\rangle + |1\rangle}{\sqrt{2}} \equiv |{+}\rangle$$
+$$H|{+}\rangle = H\cdot\frac{|0\rangle + |1\rangle}{\sqrt{2}} = \frac{H|0\rangle + H|1\rangle}{\sqrt{2}} = \frac{1}{\sqrt{2}}\left(\frac{|0\rangle+|1\rangle}{\sqrt{2}} + \frac{|0\rangle-|1\rangle}{\sqrt{2}}\right) = |0\rangle$$
+<p>The $|1\rangle$ amplitudes: $\frac{1}{\sqrt{2}} \cdot \frac{1}{\sqrt{2}} + \frac{1}{\sqrt{2}} \cdot \frac{-1}{\sqrt{2}} = \frac{1}{2} - \frac{1}{2} = 0$. Perfect destructive interference on $|1\rangle$! Meanwhile $|0\rangle$ experiences constructive interference. This is why $HH = I$.</p>
+</div>
+
+<!-- VIZ 3: INTERFERENCE DEMO -->
+<div class="viz-container" id="wave-viz">
+  <div class="viz-title">🌊 Quantum Interference Visualizer</div>
+  <div class="viz-subtitle">Control two quantum paths (waves). See how their amplitudes combine — constructively (bright) or destructively (dark). The probability of measuring a given state is proportional to the squared magnitude of the total amplitude.</div>
+  <canvas id="waveCanvas" width="620" height="260" style="max-width:100%;display:block"></canvas>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:16px">
+    <div style="min-width:180px">
+      <label style="font-size:0.8rem;font-weight:600;color:#1a4e8a">Path 1 Phase: <span id="phase1Val">0°</span></label><br>
+      <input type="range" id="phase1" min="0" max="360" value="0" oninput="updateWave()" style="width:180px;accent-color:#1a4e8a">
+    </div>
+    <div style="min-width:180px">
+      <label style="font-size:0.8rem;font-weight:600;color:#dc2626">Path 2 Phase: <span id="phase2Val">0°</span></label><br>
+      <input type="range" id="phase2" min="0" max="360" value="0" oninput="updateWave()" style="width:180px;accent-color:#dc2626">
+    </div>
+    <div style="min-width:180px">
+      <label style="font-size:0.8rem;font-weight:600;color:var(--accent)">Path 2 Amplitude: <span id="amp2Val">1.0</span></label><br>
+      <input type="range" id="amp2" min="0" max="100" value="100" oninput="updateWave()" style="width:180px;accent-color:var(--accent)">
+    </div>
+  </div>
+  <div id="interference-result" style="margin-top:12px;font-size:0.88rem;padding:10px 14px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0"></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 5: ALGORITHM CONSTRUCTION INTUITION             -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s5">
+<div class="section-header">
+  <div class="section-num">5</div>
+  <h2>The Intuition Behind Quantum Algorithm Construction</h2>
+</div>
+
+<p>Now that we have all three pillars — superposition, entanglement, and interference — we can describe the general strategy for building quantum algorithms.</p>
+
+<div class="card highlight">
+<div class="card-title">🏗️ The Universal Algorithm Design Pattern</div>
+<ol style="padding-left:20px">
+  <li style="margin-bottom:10px"><strong>Superpose:</strong> Apply Hadamard gates to create a uniform superposition over all possible inputs: $H^{\otimes n}|0^n\rangle = \frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}|x\rangle$. Now all $2^n$ inputs are "in the computer simultaneously."</li>
+  <li style="margin-bottom:10px"><strong>Entangle &amp; Compute:</strong> Apply a quantum oracle (black-box function) that encodes the problem. This uses entanglement to create correlations between inputs and outputs.</li>
+  <li style="margin-bottom:10px"><strong>Interfere:</strong> Apply additional gates to create constructive interference on correct answers (high probability) and destructive interference on wrong answers (near-zero probability).</li>
+  <li style="margin-bottom:10px"><strong>Measure:</strong> Measure the output. With high probability, we observe the correct answer. Run multiple times ("shots") for statistical confidence.</li>
+</ol>
+</div>
+
+<p>This pattern underlies Deutsch-Jozsa, Bernstein-Vazirani, Grover's search, and even Shor's algorithm. The art of quantum algorithm design lies entirely in step 3 — finding the right interference pattern that amplifies the solution.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 6: QISKIT OVERVIEW                               -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s6">
+<div class="section-header">
+  <div class="section-num">6</div>
+  <h2>Qiskit — IBM's Quantum Software Stack</h2>
+</div>
+
+<p><strong>Qiskit</strong> (Quantum Information Science Kit) is IBM's open-source quantum computing SDK. It is the most widely used quantum programming framework in the world, with over 7,400 dependent projects and chosen by ~69% of quantum computing developers. It provides a full stack from high-level algorithm description down to hardware execution.</p>
+
+<h3 class="sub" id="s6b">Qiskit Architecture</h3>
+
+<table class="cmp-table">
+<thead><tr><th>Component</th><th>What It Does</th><th>When You Use It</th></tr></thead>
+<tbody>
+<tr><td><strong>Qiskit SDK</strong></td><td>Build quantum circuits, quantum operators, primitives; transpile circuits for hardware</td><td>Always — the core SDK</td></tr>
+<tr><td><strong>Qiskit Runtime (SamplerV2)</strong></td><td>Execute circuits on real hardware or simulators; returns measurement outcome statistics</td><td>Sampling tasks (measurement outcomes)</td></tr>
+<tr><td><strong>Qiskit Runtime (EstimatorV2)</strong></td><td>Compute expectation values $\langle H \rangle$ efficiently; essential for VQE, QAOA</td><td>Expectation value tasks</td></tr>
+<tr><td><strong>Qiskit Serverless</strong></td><td>Run quantum-centric supercomputing workloads at scale</td><td>Large-scale research</td></tr>
+<tr><td><strong>Qiskit Aer</strong></td><td>High-performance quantum circuit simulation (with optional noise models)</td><td>Testing locally without hardware access</td></tr>
+</tbody>
+</table>
+
+<h3 class="sub">Why Qiskit? Key Performance Numbers</h3>
+<ul style="padding-left:24px;margin-bottom:14px">
+  <li style="margin-bottom:6px">83× faster mean transpilation time than the nearest competitor (TKET)</li>
+  <li style="margin-bottom:6px">29% fewer 2-qubit gates in circuit optimization (means less noise on hardware)</li>
+  <li style="margin-bottom:6px">16× speed improvement from Qiskit 2.0's Rust-based core</li>
+  <li style="margin-bottom:6px">Qiskit 2.0 introduces a C API enabling true hybrid quantum-classical (quantum-centric supercomputing) workflows</li>
+</ul>
+
+<h3 class="sub">Installation</h3>
+
+<div class="code-block"><span class="cm"># Install the full Qiskit stack</span>
+<span class="kw">pip install</span> qiskit
+<span class="kw">pip install</span> qiskit-aer
+<span class="kw">pip install</span> qiskit-ibm-runtime
+<span class="kw">pip install</span> qiskit-experiments
+<span class="kw">pip install</span> pylatexenc       <span class="cm"># for circuit visualization</span>
+
+<span class="cm"># Set up IBM Quantum account (do once)</span>
+<span class="kw">from</span> qiskit_ibm_runtime <span class="kw">import</span> QiskitRuntimeService
+QiskitRuntimeService.save_account(
+    channel=<span class="str">'ibm_quantum_platform'</span>,
+    token=<span class="str">'&lt;YOUR-API-KEY&gt;'</span>,
+    overwrite=<span class="nm">True</span>, set_as_default=<span class="nm">True</span>
+)</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 7: PRACTICAL QISKIT PROGRAMMING                 -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s7">
+<div class="section-header">
+  <div class="section-num">7</div>
+  <h2>Practical Qiskit Programming</h2>
+</div>
+
+<p>Now we get hands-on. We'll implement each of the quantum concepts we've learned — superposition, entanglement, and teleportation — as real Qiskit code.</p>
+
+<h3 class="sub" id="s7b">1. Superposition Circuit (1-Qubit Hadamard)</h3>
+
+<p>The simplest meaningful quantum circuit: create a superposition and measure it many times to observe the 50/50 probability distribution.</p>
+
+<div class="code-block"><span class="kw">from</span> qiskit <span class="kw">import</span> QuantumCircuit
+
+<span class="cm"># Create 1-qubit circuit</span>
+qc = QuantumCircuit(<span class="nm">1</span>)
+qc.h(<span class="nm">0</span>)           <span class="cm"># Apply Hadamard: |0⟩ → |+⟩ = (|0⟩+|1⟩)/√2</span>
+qc.measure_all()   <span class="cm"># Add measurement to all qubits</span>
+qc.draw(<span class="str">"mpl"</span>)    <span class="cm"># Visualize the circuit</span>
+
+<span class="cm"># Transpile to ISA (Instruction Set Architecture) circuit</span>
+<span class="kw">from</span> qiskit.transpiler.preset_passmanagers <span class="kw">import</span> generate_preset_pass_manager
+pm = generate_preset_pass_manager(target=backend.target, optimization_level=<span class="nm">3</span>)
+qc_isa = pm.run(qc)
+
+<span class="cm"># Execute on hardware (SamplerV2)</span>
+<span class="kw">from</span> qiskit_ibm_runtime <span class="kw">import</span> SamplerV2 <span class="kw">as</span> Sampler
+sampler = Sampler(mode=backend)
+job = sampler.run([qc_isa], shots=<span class="nm">1000</span>)
+result = job.result()
+counts = result[<span class="nm">0</span>].data.meas.get_counts()
+<span class="cm"># Expected: roughly {'0': 500, '1': 500}</span></div>
+
+<p><strong>What to expect:</strong> Due to superposition, the qubit collapses randomly to $|0\rangle$ or $|1\rangle$ with equal probability at each measurement. Over 1000 shots, you'll see approximately 500 '0' and 500 '1', with small statistical fluctuations.</p>
+
+<h3 class="sub" id="s7c">2. Entanglement Circuit (Bell State)</h3>
+
+<div class="code-block"><span class="kw">from</span> qiskit <span class="kw">import</span> QuantumCircuit
+
+<span class="cm"># Create 2-qubit Bell state |Φ+⟩</span>
+qc = QuantumCircuit(<span class="nm">2</span>)
+qc.h(<span class="nm">0</span>)            <span class="cm"># |00⟩ → |+0⟩</span>
+qc.cx(<span class="nm">0</span>, <span class="nm">1</span>)        <span class="cm"># CNOT: |+0⟩ → (|00⟩+|11⟩)/√2 = |Φ+⟩</span>
+qc.measure_all()
+qc.draw()
+
+<span class="cm"># Expected results: only '00' and '11' should appear (never '01' or '10')</span>
+<span class="cm"># This is the signature of entanglement: correlated outcomes</span></div>
+
+<p><strong>What to expect:</strong> On a perfect quantum computer, you'd see only '00' (50%) and '11' (50%). The fact that you never see '01' or '10' confirms the entanglement — the qubits are perfectly correlated. On real noisy hardware, you'll see small amounts of '01' and '10' due to errors.</p>
+
+<h3 class="sub" id="s7d">3. Quantum Teleportation in Qiskit (Full Implementation)</h3>
+
+<p>This is the most complex circuit we've built so far. We implement the full 3-qubit teleportation protocol using Qiskit's classical feedback (<code>if_test</code>) for the conditional corrections.</p>
+
+<div class="code-block"><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> qiskit <span class="kw">import</span> QuantumCircuit
+
+<span class="cm"># Define an unknown state with random angles</span>
+theta = np.random.uniform(<span class="nm">0</span>, np.pi)
+varphi = np.random.uniform(<span class="nm">0</span>, <span class="nm">2</span>*np.pi)
+
+<span class="cm"># 3 qubits, 3 classical bits</span>
+qc = QuantumCircuit(<span class="nm">3</span>, <span class="nm">3</span>)
+
+<span class="cm"># Step 0: Create Alice's unknown state on qubit 0 using U-gate</span>
+qc.u(theta, varphi, <span class="nm">0.0</span>, <span class="nm">0</span>)  <span class="cm"># |ψ⟩ = cos(θ/2)|0⟩ + e^{iφ}sin(θ/2)|1⟩</span>
+qc.barrier()
+
+<span class="cm"># Step 1: Create EPR pair (Bell state) on qubits 1 and 2</span>
+qc.h(<span class="nm">1</span>)
+qc.cx(<span class="nm">1</span>, <span class="nm">2</span>)
+qc.barrier()
+
+<span class="cm"># Step 2: Alice's Bell measurement preparation</span>
+qc.cx(<span class="nm">0</span>, <span class="nm">1</span>)   <span class="cm"># CNOT: qubit 0 controls qubit 1</span>
+qc.h(<span class="nm">0</span>)       <span class="cm"># Hadamard on qubit 0</span>
+qc.barrier()
+
+<span class="cm"># Step 3: Alice measures her two qubits</span>
+qc.measure(<span class="nm">0</span>, <span class="nm">0</span>)   <span class="cm"># qubit 0 → classical bit 0</span>
+qc.measure(<span class="nm">1</span>, <span class="nm">1</span>)   <span class="cm"># qubit 1 → classical bit 1</span>
+
+<span class="cm"># Step 4: Bob applies conditional corrections based on Alice's classical bits</span>
+<span class="kw">with</span> qc.if_test((<span class="nm">0</span>, <span class="nm">1</span>)):   <span class="cm"># If classical bit 0 is 1 → apply Z to qubit 2</span>
+    qc.z(<span class="nm">2</span>)
+<span class="kw">with</span> qc.if_test((<span class="nm">1</span>, <span class="nm">1</span>)):   <span class="cm"># If classical bit 1 is 1 → apply X to qubit 2</span>
+    qc.x(<span class="nm">2</span>)
+
+<span class="cm"># Validation: apply inverse of U-gate to qubit 2, then measure</span>
+<span class="cm"># If teleportation succeeded, this should give |0⟩ with certainty</span>
+qc.u(theta, varphi, <span class="nm">0.0</span>, <span class="nm">2</span>).inverse()
+qc.measure(<span class="nm">2</span>, <span class="nm">2</span>)</div>
+
+<div class="card highlight">
+<div class="card-title">⚡ The if_test Feature</div>
+<p>Qiskit's <code>if_test</code> implements <strong>dynamic circuits</strong> — quantum circuits where future gates depend on classical measurement outcomes. This is the quantum equivalent of a classical <code>if</code> statement and is essential for teleportation (and many other quantum protocols). It requires a backend that supports mid-circuit measurement and classical feedback, such as IBM's Eagle and Heron processors.</p>
+</div>
+
+<h3 class="sub" id="s7e">The IBM Quantum Patterns Workflow</h3>
+
+<p>IBM recommends structuring all quantum programs as four steps:</p>
+
+<div class="steps">
+<div class="step"><div class="step-num">1</div><div class="step-body"><strong>Map:</strong> Describe your problem as quantum circuits and quantum operators. This is the algorithm design phase.</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-body"><strong>Optimize (Transpile):</strong> Compile your ideal circuit into the hardware's native gate set, respecting qubit connectivity constraints. <code>generate_preset_pass_manager</code> does this. Higher optimization levels run slower but produce shorter circuits.</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-body"><strong>Execute:</strong> Submit the transpiled circuit to the backend using a Primitive (<code>SamplerV2</code> or <code>EstimatorV2</code>). Specify the number of shots. The job runs and returns a <code>PrimitiveResult</code>.</div></div>
+<div class="step"><div class="step-num">4</div><div class="step-body"><strong>Post-process:</strong> Extract counts, compute expectation values, plot histograms (<code>plot_histogram</code>), use <code>marginal_counts</code> to focus on specific qubits, and analyze the results.</div></div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 8: REAL HARDWARE                                 -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s8">
+<div class="section-header">
+  <div class="section-num">8</div>
+  <h2>Running on Real IBM Quantum Hardware</h2>
+</div>
+
+<div class="code-block"><span class="kw">from</span> qiskit_ibm_runtime <span class="kw">import</span> QiskitRuntimeService
+
+<span class="cm"># Load saved account credentials</span>
+service = QiskitRuntimeService()
+
+<span class="cm"># List available backends</span>
+service.backends()
+
+<span class="cm"># Select least-busy operational backend</span>
+backend = service.least_busy(operational=<span class="nm">True</span>)
+<span class="kw">print</span>(<span class="str">f"Running on: {backend}"</span>)
+
+<span class="cm"># Visualize qubit connectivity (the coupling map)</span>
+<span class="kw">from</span> qiskit.visualization <span class="kw">import</span> plot_gate_map
+plot_gate_map(backend)
+
+<span class="cm"># Run with noise model from real backend (local simulation)</span>
+<span class="kw">from</span> qiskit_aer <span class="kw">import</span> AerSimulator
+<span class="kw">from</span> qiskit_aer.noise <span class="kw">import</span> NoiseModel
+
+noise_model = NoiseModel.from_backend(backend)
+backend_sim = AerSimulator(noise_model=noise_model)
+
+<span class="cm"># This gives realistic results without waiting in queue</span></div>
+
+<div class="card insight">
+<div class="card-title">🔍 Noise on Real Hardware</div>
+<p>Real quantum hardware is noisy. The two main noise channels are:</p>
+<ul style="padding-left:20px">
+  <li style="margin-bottom:4px"><strong>T₁ (amplitude damping):</strong> The qubit spontaneously decays from $|1\rangle$ to $|0\rangle$. Typical IBM Q T₁ ≈ 100–300 μs.</li>
+  <li style="margin-bottom:4px"><strong>T₂ (dephasing):</strong> The relative phase between $|0\rangle$ and $|1\rangle$ drifts. Typically T₂ ≤ T₁.</li>
+  <li style="margin-bottom:4px"><strong>Gate errors:</strong> Each gate operation has a small error probability (typically 0.1–1% for 2-qubit gates).</li>
+</ul>
+<p>This is why <strong>circuit depth</strong> (number of gate layers) is a critical resource — deeper circuits have more opportunities for errors to accumulate. The transpiler optimizes circuits to minimize depth on the target hardware.</p>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- JavaScript                                                  -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<script>
+// ─── Bell State Generator ────────────────────────────────────────────────────
+const BELL_STATES = {
+  '00':['|00⟩', '½(|00⟩ + |0⟩⊗|0⟩)', '|Φ⁺⟩ = (|00⟩+|11⟩)/√2'],
+  '01':['|01⟩', '½(|01⟩ + |01⟩)', '|Ψ⁺⟩ = (|01⟩+|10⟩)/√2'],
+  '10':['|10⟩', '½(|10⟩ − |10⟩)', '|Φ⁻⟩ = (|00⟩−|11⟩)/√2'],
+  '11':['|11⟩', '½(|11⟩ − |11⟩)', '|Ψ⁻⟩ = (|01⟩−|10⟩)/√2'],
+};
+
+const BELL_AFTER_H = {
+  '00': '(|0⟩+|1⟩)|0⟩/√2 = (|00⟩+|10⟩)/√2',
+  '01': '(|0⟩+|1⟩)|1⟩/√2 = (|01⟩+|11⟩)/√2',
+  '10': '(|0⟩−|1⟩)|0⟩/√2 = (|00⟩−|10⟩)/√2',
+  '11': '(|0⟩−|1⟩)|1⟩/√2 = (|01⟩−|11⟩)/√2',
+};
+
+const BELL_AFTER_CNOT = {
+  '00': '(|00⟩+|11⟩)/√2 = |Φ⁺⟩',
+  '01': '(|01⟩+|10⟩)/√2 = |Ψ⁺⟩',
+  '10': '(|00⟩−|11⟩)/√2 = |Φ⁻⟩',
+  '11': '(|01⟩−|10⟩)/√2 = |Ψ⁻⟩',
+};
+
+const BELL_EXPLS = {
+  '00':{
+    0:'Initial state |00⟩. Both qubits are definite |0⟩. This is a product state — fully separable.',
+    1:'After Hadamard on q₀: the first qubit enters superposition. State is now a product (still separable) but first qubit is in superposition.',
+    2:'After CNOT: |Φ⁺⟩ — maximally entangled! Measuring either qubit gives random result but both are always the same.',
+  },
+  '01':{
+    0:'Initial state |01⟩. Qubit 0 in |0⟩, qubit 1 in |1⟩. Product state.',
+    1:'After H on q₀: (|0⟩+|1⟩)|1⟩/√2 — superposition in q₀, q₁ still definite |1⟩.',
+    2:'After CNOT: |Ψ⁺⟩ — maximally entangled! Outcomes are always opposite: one qubit 0, the other 1.',
+  },
+  '10':{
+    0:'Initial state |10⟩. Qubit 0 in |1⟩, qubit 1 in |0⟩. Product state.',
+    1:'After H on q₀: (|0⟩−|1⟩)|0⟩/√2 — the minus sign comes from H|1⟩ = |−⟩.',
+    2:'After CNOT: |Φ⁻⟩ — maximally entangled, with a relative minus sign between |00⟩ and |11⟩.',
+  },
+  '11':{
+    0:'Initial state |11⟩. Both qubits definite |1⟩. Product state.',
+    1:'After H on q₀: (|0⟩−|1⟩)|1⟩/√2 — superposition with minus sign.',
+    2:'After CNOT: |Ψ⁻⟩ — the antisymmetric maximally entangled state, with relative minus sign.',
+  },
+};
+
+let bellInput = '00', bellStep = 0;
+
+function setBellInput(inp){ bellInput = inp; updateBellViz(); }
+function setBellStep(s){ bellStep = s; updateBellViz(); }
+
+function updateBellViz(){
+  const states = ['|'+bellInput+'⟩', BELL_AFTER_H[bellInput], BELL_AFTER_CNOT[bellInput]];
+  document.getElementById('bell-state-disp').textContent = 'State: ' + states[bellStep];
+  document.getElementById('bell-explain').textContent = BELL_EXPLS[bellInput][bellStep];
+  drawBellProbs(bellInput, bellStep);
+}
+
+function drawBellProbs(inp, step){
+  const canvas = document.getElementById('bellProbCanvas');
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const labels = ['|00⟩','|01⟩','|10⟩','|11⟩'];
+  let probs;
+  if(step===0){
+    // definite state
+    const idx = parseInt(inp[0])*2+parseInt(inp[1]);
+    probs = [0,0,0,0]; probs[idx]=1;
+  } else if(step===1){
+    // after H
+    if(inp==='00') probs=[0.5,0,0.5,0];
+    else if(inp==='01') probs=[0,0.5,0,0.5];
+    else if(inp==='10') probs=[0.5,0,0.5,0];
+    else probs=[0,0.5,0,0.5];
+  } else {
+    // Bell state - always 50/50 in two terms
+    if(inp==='00'||inp==='10') probs=[0.5,0,0,0.5];
+    else probs=[0,0.5,0.5,0];
+  }
+
+  const barW = 80, gap = 30, startX = 30;
+  const colors = ['#166440','#1a4e8a','#b45309','#dc2626'];
+  labels.forEach((lbl,i)=>{
+    const x = startX + i*(barW+gap);
+    const barH = probs[i]*(H-50);
+    ctx.fillStyle = colors[i]+'33';
+    ctx.fillRect(x, H-30-barH, barW, barH);
+    ctx.fillStyle = colors[i];
+    ctx.fillRect(x, H-30-barH, barW, 4);
+    ctx.fillStyle='#263238'; ctx.font='12px Source Sans 3,sans-serif'; ctx.textAlign='center';
+    ctx.fillText(lbl, x+barW/2, H-10);
+    ctx.fillText((probs[i]*100).toFixed(0)+'%', x+barW/2, H-35-barH);
+  });
+}
+
+updateBellViz();
+
+// ─── Teleportation Steps ─────────────────────────────────────────────────────
+const TELE_STEPS = [
+  {
+    title:'⓪ Initial State',
+    desc:'Three qubits: Alice holds an unknown state |ψ⟩ = α|0⟩ + β|1⟩ on qubit 0. Qubits 1 and 2 are each in |0⟩. The state is |ψ⟩₀ ⊗ |00⟩₁₂.',
+    math:'|total⟩ = (α|0⟩+β|1⟩) ⊗ |0⟩ ⊗ |0⟩',
+    circuit:'q₀: ─[U(θ,φ)]─ ... (unknown state)  Alice\nq₁: ─────────── ...              Alice\nq₂: ─────────── ...              Bob'
+  },
+  {
+    title:'① Create EPR Pair (Qubits 1 & 2)',
+    desc:'Alice and Bob create a Bell pair |Φ⁺⟩ = (|00⟩+|11⟩)/√2 on qubits 1 and 2. They can do this before separating. Alice keeps qubit 1, Bob takes qubit 2.',
+    math:'|total⟩ = (α|0⟩+β|1⟩)₀ ⊗ (|00⟩+|11⟩)₁₂/√2',
+    circuit:'q₀: ──[U]──────── ...  Alice\nq₁: ──── H ── ●── ...  Alice\n               │\nq₂: ──────────⊕── ...  Bob'
+  },
+  {
+    title:'② Alice applies CNOT (q₀ controls q₁)',
+    desc:'Alice entangles her unknown qubit with her half of the EPR pair. This creates 3-way correlations. The state spreads out over all four computational basis outcomes.',
+    math:'= ½[|00⟩(α|0⟩+β|1⟩) + |01⟩(α|1⟩+β|0⟩) + |10⟩(α|0⟩-β|1⟩) + |11⟩(α|1⟩-β|0⟩)]',
+    circuit:'q₀: ──[U]── ● ────── ...  Alice\n           │\nq₁: ────── ⊕ ────── ...  Alice\nq₂: ─────────────── ...  Bob'
+  },
+  {
+    title:'③ Alice applies Hadamard to q₀',
+    desc:'Alice applies H to her first qubit, completing her Bell measurement preparation. The state is now written so that Bob\'s qubit is almost the target state — just needing a correction depending on measurement.',
+    math:'Now each |ab⟩ is associated with Bob\'s qubit in a specific state',
+    circuit:'q₀: ──[U]── ● ── H ── [M]  Alice\n           │\nq₁: ────── ⊕ ──────── [M]  Alice\nq₂: ─────────────────── ...  Bob'
+  },
+  {
+    title:'④ Alice Measures and Sends Classical Bits',
+    desc:'Alice measures qubits 0 and 1. She gets one of four outcomes. She calls Bob and tells him the result (2 classical bits). Bob\'s qubit has already "collapsed" but he doesn\'t know which state without Alice\'s info.',
+    math:'|00⟩ → Bob has α|0⟩+β|1⟩ = |ψ⟩  ✓ no fix needed\n|01⟩ → Bob has α|1⟩+β|0⟩ = X|ψ⟩  fix: X\n|10⟩ → Bob has α|0⟩-β|1⟩ = Z|ψ⟩  fix: Z\n|11⟩ → Bob has α|1⟩-β|0⟩ = XZ|ψ⟩  fix: X then Z',
+    circuit:'q₀: ──[U]── ● ── H ── [M]→c₀  Alice\n           │\nq₁: ────── ⊕ ──────── [M]→c₁  Alice\nq₂: ─────────────────────────── Bob'
+  },
+  {
+    title:'⑤ Bob Applies Correction',
+    desc:'Bob receives Alice\'s 2 bits and applies the corresponding correction gate (or nothing). His qubit is now exactly |ψ⟩ — the state Alice had! Teleportation is complete. The original on qubit 0 no longer exists.',
+    math:'After correction: q₂ is in state |ψ⟩ = α|0⟩ + β|1⟩ ✓\nQubit 0 (Alice\'s original) has been destroyed by measurement.',
+    circuit:'q₀: ──[U]── ● ── H ── [M]→c₀ ──  Alice\n           │\nq₁: ────── ⊕ ──────── [M]→c₁ ──  Alice\nq₂: ─────────────── if c₀: Z ──  Bob\n                     if c₁: X'
+  },
+];
+
+function setTeleStep(n){
+  const container = document.getElementById('tele-steps-container');
+  container.innerHTML = '';
+  const s = TELE_STEPS[n];
+  const div = document.createElement('div');
+  div.className = 'tele-step active-tele';
+  div.innerHTML = `<div class="tele-step-head">${s.title}</div>
+    <p style="margin:0 0 10px;font-size:0.9rem">${s.desc}</p>
+    <pre style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;background:#f8faff;padding:10px;border-radius:6px;overflow-x:auto;white-space:pre-wrap">${s.math}</pre>`;
+  container.appendChild(div);
+  document.getElementById('tele-circuit').textContent = s.circuit;
+}
+setTeleStep(0);
+
+// ─── Interference Demo ───────────────────────────────────────────────────────
+function updateWave(){
+  const p1 = parseFloat(document.getElementById('phase1').value);
+  const p2 = parseFloat(document.getElementById('phase2').value);
+  const a2 = parseFloat(document.getElementById('amp2').value)/100;
+  document.getElementById('phase1Val').textContent = p1+'°';
+  document.getElementById('phase2Val').textContent = p2+'°';
+  document.getElementById('amp2Val').textContent = a2.toFixed(2);
+
+  const canvas = document.getElementById('waveCanvas');
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const midY = H/2;
+  const amp = 70;
+  const freq = 2*Math.PI/100;
+  const ph1 = p1*Math.PI/180, ph2 = p2*Math.PI/180;
+
+  // Wave 1 (blue)
+  ctx.beginPath(); ctx.strokeStyle='rgba(26,78,138,0.6)'; ctx.lineWidth=2;
+  for(let x=0;x<W;x++){
+    const y = midY - amp*Math.cos(freq*x + ph1);
+    x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // Wave 2 (red)
+  ctx.beginPath(); ctx.strokeStyle='rgba(220,38,38,0.6)'; ctx.lineWidth=2;
+  for(let x=0;x<W;x++){
+    const y = midY - a2*amp*Math.cos(freq*x + ph2);
+    x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // Combined wave (green)
+  ctx.beginPath(); ctx.strokeStyle='#166440'; ctx.lineWidth=3;
+  let maxAmp=0;
+  for(let x=0;x<W;x++){
+    const combinedY = Math.cos(freq*x+ph1) + a2*Math.cos(freq*x+ph2);
+    if(Math.abs(combinedY)>maxAmp) maxAmp=Math.abs(combinedY);
+    const y = midY - amp*0.8*combinedY;
+    x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // Center line
+  ctx.beginPath(); ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1;
+  ctx.setLineDash([5,5]);
+  ctx.moveTo(0,midY); ctx.lineTo(W,midY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.font='12px Source Sans 3,sans-serif';
+  ctx.fillStyle='rgba(26,78,138,0.8)'; ctx.fillText('Path 1', 5, 20);
+  ctx.fillStyle='rgba(220,38,38,0.8)'; ctx.fillText('Path 2', 5, 38);
+  ctx.fillStyle='#166440'; ctx.fillText('Combined (what we observe)', 5, 56);
+
+  // Calculate interference type
+  const phaseDiff = Math.abs(((p2-p1)%360+360)%360);
+  const phaseDiff180 = Math.min(phaseDiff, 360-phaseDiff);
+  const type = phaseDiff180<45?'Mostly Constructive 🎉':phaseDiff180>135?'Mostly Destructive 💀':'Partial interference';
+  const prob = maxAmp**2 / ((1+a2)**2);
+  document.getElementById('interference-result').innerHTML =
+    `<strong>Phase difference:</strong> ${phaseDiff180.toFixed(0)}° &nbsp;|&nbsp; <strong>Type:</strong> ${type}<br>
+     <strong>Combined max amplitude:</strong> ${maxAmp.toFixed(3)} (vs. ${(1+a2).toFixed(3)} if fully constructive)<br>
+     <em>This is how quantum algorithms use interference to amplify correct answers and suppress wrong ones.</em>`;
+}
+updateWave();
+</script>
+</main>
+</body>
+</html>

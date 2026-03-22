@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 3 — Classical Quantum Algorithms</title>
+<script>MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],tags:'ams'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#7c2d8e;--accent2:#a855f7;--accent-light:#f5e6ff;--bg:#fdf8ff;--card:#ffffff;--text:#1e293b;--muted:#64748b;--border:#e9d5ff;--gold:#b8860b;--sidebar-w:260px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:16px;line-height:1.7}
+nav{position:fixed;top:44px;left:0;width:var(--sidebar-w);height:calc(100vh - 44px);background:#1e0a2e;overflow-y:auto;padding:0 0 40px;z-index:100}
+nav .nav-head{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.1)}
+nav .nav-head h2{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:#d8b4fe;font-weight:600;line-height:1.3}
+nav .nav-head p{font-size:0.72rem;color:#64748b;margin-top:4px}
+nav a{display:block;padding:8px 20px;color:#94a3b8;text-decoration:none;font-size:0.8rem;border-left:3px solid transparent;transition:all .2s}
+nav a:hover,nav a.active{color:#f5e6ff;border-left-color:#a855f7;background:rgba(168,85,247,0.08)}
+nav .nav-section{padding:14px 20px 6px;font-size:0.65rem;color:#475569;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+nav a.sub{padding-left:32px;font-size:0.75rem}
+main{margin-left:var(--sidebar-w);flex:1;padding:44px 40px 80px;max-width:1100px}
+.hero{background:linear-gradient(135deg,#1e0a2e 0%,#7c2d8e 60%,#a855f7 100%);padding:60px 50px;border-radius:0 0 24px 24px;margin-bottom:48px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,0.03)}
+.hero .week-badge{display:inline-block;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);padding:4px 14px;border-radius:20px;font-size:0.75rem;color:#d8b4fe;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:2.8rem;color:#fff;font-weight:700;line-height:1.2;margin-bottom:12px}
+.hero p{color:#e9d5ff;font-size:1rem;max-width:600px;line-height:1.6}
+.section{margin-bottom:56px;scroll-margin-top:20px}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid var(--accent-light)}
+.section-num{background:var(--accent);color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:600;flex-shrink:0}
+.section-header h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;color:var(--accent);font-weight:700}
+h3.sub{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--accent);margin:28px 0 12px;font-weight:600}
+p{margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin:20px 0;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.card.highlight{border-left:4px solid var(--accent);background:#faf0ff}
+.card.definition{border-left:4px solid var(--gold);background:#fffbf0}
+.card.warning{border-left:4px solid #dc2626;background:#fff5f5}
+.card.example{border-left:4px solid #166534;background:#f0fdf4}
+.card.insight{border-left:4px solid #1a4e8a;background:#f0f7ff}
+.card-title{font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+.card.definition .card-title{color:var(--gold)}
+.card.highlight .card-title{color:var(--accent)}
+.card.warning .card-title{color:#dc2626}
+.card.example .card-title{color:#166534}
+.card.insight .card-title{color:#1a4e8a}
+.math-block{background:#f5e6ff;border-radius:10px;padding:20px 24px;margin:16px 0;overflow-x:auto;border:1px solid #e9d5ff}
+.viz-container{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin:28px 0;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
+.viz-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;color:var(--accent);margin-bottom:4px}
+.viz-subtitle{font-size:0.8rem;color:var(--muted);margin-bottom:18px}
+.ctrl-btn{padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;font-family:'Source Sans 3',sans-serif;font-weight:600;transition:background .2s;margin:4px}
+.ctrl-btn:hover{background:var(--accent2)}
+.ctrl-btn.secondary{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
+.ctrl-btn.secondary:hover{background:var(--accent-light)}
+canvas{display:block}
+.circuit{font-family:'JetBrains Mono',monospace;font-size:0.82rem;background:#1e0a2e;color:#e9d5ff;padding:20px 24px;border-radius:10px;overflow-x:auto;white-space:pre;line-height:1.9;margin:12px 0}
+code{font-family:'JetBrains Mono',monospace;font-size:0.85em;background:#f5e6ff;padding:1px 6px;border-radius:4px;color:#1e0a2e;border:1px solid #e9d5ff}
+.cmp-table{width:100%;border-collapse:collapse;margin:16px 0}
+.cmp-table th{background:var(--accent);color:#fff;padding:10px 16px;text-align:left;font-size:0.85rem}
+.cmp-table td{padding:10px 16px;border-bottom:1px solid var(--border);font-size:0.9rem;vertical-align:top}
+.cmp-table tr:nth-child(even) td{background:#faf0ff}
+.step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start}
+.step-num{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;margin-top:2px}
+.step-body{flex:1}
+/* Oracle viz */
+.oracle-box{display:inline-flex;align-items:center;justify-content:center;background:var(--accent);color:#fff;border-radius:8px;padding:8px 16px;font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;min-width:60px}
+/* Timeline */
+.timeline{position:relative;padding-left:30px;margin:20px 0}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--accent-light)}
+.tl-item{position:relative;margin-bottom:18px}
+.tl-item::before{content:'';position:absolute;left:-24px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 0 0 2px var(--accent)}
+.tl-year{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent);font-weight:700}
+.tl-title{font-weight:600}
+.tl-desc{font-size:0.88rem;color:var(--muted)}
+/* Grover viz */
+#groverCanvas{border-radius:10px;background:#fdf8ff;border:1px solid #e9d5ff}
+.prob-bar-row{display:flex;align-items:center;gap:8px;margin:3px 0}
+.prob-bar-label{font-family:'JetBrains Mono',monospace;font-size:0.75rem;width:36px;text-align:right;flex-shrink:0}
+.prob-bar-track{flex:1;background:#e9d5ff;border-radius:3px;height:18px;overflow:hidden}
+.prob-bar-fill-g{height:100%;border-radius:3px;transition:width 0.4s ease;background:var(--accent)}
+.prob-bar-fill-other{height:100%;border-radius:3px;transition:width 0.4s ease;background:#c4b5fd}
+/* Deutsch-Jozsa viz */
+.dj-fn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin:12px 0}
+.dj-fn-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;cursor:pointer;transition:all .2s}
+.dj-fn-card:hover,.dj-fn-card.active-fn{border-color:var(--accent);background:var(--accent-light)}
+.dj-fn-name{font-weight:700;font-size:0.85rem;color:var(--accent)}
+.dj-fn-type{font-size:0.75rem;color:var(--muted);margin-top:2px}
+
+/* ── Top Navigation Bar ───────────────────────── */
+.topnav{position:fixed;top:0;left:0;right:0;height:44px;background:#0f0f17;display:flex;align-items:center;padding:0 24px;gap:16px;z-index:300;border-bottom:1px solid rgba(255,255,255,0.08)}
+.topnav-brand{font-family:'Cormorant Garamond',serif;font-size:1rem;color:#e2e8f0;text-decoration:none;font-weight:700;white-space:nowrap;letter-spacing:.02em}
+.topnav-links{display:flex;gap:2px;margin-left:auto}
+.topnav-link{padding:5px 11px;border-radius:6px;text-decoration:none;font-size:0.76rem;color:#94a3b8;transition:all .18s;white-space:nowrap;font-family:'Source Sans 3',sans-serif}
+.topnav-link:hover{background:rgba(255,255,255,0.09);color:#e2e8f0}
+.topnav-link.current{color:#fff;font-weight:600;background:rgba(255,255,255,0.13)}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <a href="index.html" class="topnav-brand">⚛ NPTEL Quantum Computing</a>
+  <div class="topnav-links">
+    <a href="index.html" class="topnav-link">Home</a>
+    <a href="week1.html" class="topnav-link">W1: Foundations</a>
+    <a href="week2.html" class="topnav-link">W2: Entanglement</a>
+    <a href="week3.html" class="topnav-link current">W3: Algorithms</a>
+    <a href="week4.html" class="topnav-link">W4: NISQ &amp; QEC</a>
+  </div>
+</div>
+<nav id="sidebar">
+  <div class="nav-head">
+    <h2>Intro to Quantum Computing</h2>
+    <p>Week 3 · Classical Algorithms</p>
+  </div>
+  <div class="nav-section">History & Complexity</div>
+  <a href="#s0">Algorithm Timeline</a>
+  <a href="#s0b" class="sub">Query Complexity Model</a>
+  <a href="#s0c" class="sub">Oracles & Black-Box Computation</a>
+  <div class="nav-section">Deutsch-Jozsa Algorithm</div>
+  <a href="#s1">Problem Statement</a>
+  <a href="#s1b" class="sub">Classical Lower Bound</a>
+  <a href="#s1c" class="sub">Quantum Circuit Derivation</a>
+  <a href="#s1d" class="sub">Phase Kickback</a>
+  <a href="#dj-viz" class="sub">🔮 DJ Simulator</a>
+  <a href="#s1e" class="sub">Complexity & EQP vs P</a>
+  <div class="nav-section">Bernstein-Vazirani Algorithm</div>
+  <a href="#s2">Problem Statement</a>
+  <a href="#s2b" class="sub">Circuit & Derivation</a>
+  <a href="#bv-viz" class="sub">🔮 BV Simulator</a>
+  <a href="#s2c" class="sub">Complexity Separation</a>
+  <div class="nav-section">Grover's Search Algorithm</div>
+  <a href="#s3">Unstructured Search</a>
+  <a href="#s3b" class="sub">Phase Oracle</a>
+  <a href="#s3c" class="sub">Geometric Framework</a>
+  <a href="#s3d" class="sub">Diffusion Operator</a>
+  <a href="#s3e" class="sub">Full Derivation</a>
+  <a href="#grover-viz" class="sub">🔍 Grover's Amplitude Viz</a>
+  <a href="#s3f" class="sub">Optimality & √N Bound</a>
+  <a href="#s3g" class="sub">Success Probability</a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="week-badge">Week 3</div>
+  <h1>Classical Quantum Algorithms:<br>DJ · BV · Grover</h1>
+  <p>The first quantum algorithms with proven exponential or quadratic speedups over any classical approach. These are the bedrock of quantum algorithm design — where the power of interference becomes quantifiable and rigorous.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 0: HISTORY AND COMPLEXITY                        -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s0">
+<div class="section-header">
+  <div class="section-num">0</div>
+  <h2>The Historical Landscape of Quantum Algorithms</h2>
+</div>
+
+<p>Quantum computing did not emerge with a fully-formed toolbox of algorithms. The field developed gradually, with each major algorithm building conceptually on the last. Understanding this timeline gives context for why each algorithm was important.</p>
+
+<div class="timeline">
+  <div class="tl-item"><div class="tl-year">1985</div><div class="tl-title">Deutsch's Algorithm</div><div class="tl-desc">David Deutsch proves a simple problem (constant vs balanced on 1 bit) can be solved with 1 quantum query vs 2 classical. First quantum speedup.</div></div>
+  <div class="tl-item"><div class="tl-year">1992</div><div class="tl-title">Deutsch-Jozsa (DJ)</div><div class="tl-desc">Generalization to n bits: 1 quantum query vs exponentially many classical queries. First exponential separation, though the problem is somewhat artificial.</div></div>
+  <div class="tl-item"><div class="tl-year">1992</div><div class="tl-title">Bernstein-Vazirani (BV)</div><div class="tl-desc">Find a hidden n-bit string: 1 quantum query vs n classical. More natural problem than DJ. Introduces "recursive Fourier sampling."</div></div>
+  <div class="tl-item"><div class="tl-year">1993</div><div class="tl-title">Simon's Algorithm</div><div class="tl-desc">Exponential speedup for finding hidden XOR structure. Directly inspired Shor's algorithm.</div></div>
+  <div class="tl-item"><div class="tl-year">1994</div><div class="tl-title">Shor's Algorithm</div><div class="tl-desc">Polynomial-time quantum factoring. Breaks RSA. The most famous quantum algorithm.</div></div>
+  <div class="tl-item"><div class="tl-year">1996</div><div class="tl-title">Grover's Search</div><div class="tl-desc">Quadratic speedup for unstructured search: O(√N) vs O(N). Provably optimal. Broadly applicable.</div></div>
+  <div class="tl-item"><div class="tl-year">2014+</div><div class="tl-title">NISQ-era: VQE, QAOA, QML</div><div class="tl-desc">Variational algorithms designed for near-term noisy hardware. Week 4 topic.</div></div>
+</div>
+
+<h3 class="sub" id="s0b">The Query Complexity Model</h3>
+
+<p>All three algorithms this week operate in the <strong>query complexity model</strong>. This model is abstract and clean — it lets us prove quantum speedups rigorously without worrying about circuit implementation details.</p>
+
+<div class="card definition">
+<div class="card-title">📐 Query Complexity Model</div>
+<p>We are given a <strong>function</strong> $f: \{0,1\}^n \to \{0,1\}$ as a black-box (oracle). We are not allowed to inspect the implementation of $f$ — we can only <em>evaluate</em> it on inputs. The cost of the algorithm is measured in the number of <strong>queries</strong> (function evaluations) made.</p>
+<p>The question: how many queries does it take to determine some property of $f$? We compare the classical and quantum query complexities.</p>
+</div>
+
+<h3 class="sub" id="s0c">Oracles: The Quantum Black-Box</h3>
+
+<p>A classical function $f: \{0,1\}^n \to \{0,1\}$ is not directly usable in a quantum circuit (classical computation is irreversible; quantum gates must be unitary). We encode $f$ as a quantum gate called an <strong>oracle</strong>.</p>
+
+<div class="card definition">
+<div class="card-title">📐 Standard Quantum Oracle $U_f$</div>
+<p>The oracle $U_f$ acts on two registers — an $n$-qubit <em>input register</em> $|x\rangle$ and a 1-qubit <em>target register</em> $|y\rangle$:</p>
+
+$$U_f: |x\rangle|y\rangle \mapsto |x\rangle|y \oplus f(x)\rangle$$
+
+<p>where $\oplus$ denotes XOR (addition modulo 2). This is unitary because applying $U_f$ twice gives $|x\rangle|y \oplus f(x) \oplus f(x)\rangle = |x\rangle|y\rangle$, i.e., $U_f^2 = I$.</p>
+<p>Crucially, when $x$ is in superposition, $U_f$ computes $f(x)$ on all inputs <em>simultaneously</em>:</p>
+$$U_f \cdot \frac{1}{\sqrt{2^n}}\sum_x |x\rangle|0\rangle = \frac{1}{\sqrt{2^n}}\sum_x |x\rangle|f(x)\rangle$$
+</div>
+
+<div class="card highlight">
+<div class="card-title">⚡ Phase Oracle (Used in Grover)</div>
+<p>When the target register is in state $|{-}\rangle = \frac{|0\rangle - |1\rangle}{\sqrt{2}}$, something magical happens:</p>
+$$U_f|x\rangle|{-}\rangle = |x\rangle\frac{|f(x)\oplus 0\rangle - |f(x)\oplus 1\rangle}{\sqrt{2}} = (-1)^{f(x)}|x\rangle|{-}\rangle$$
+<p>The function value "kicks back" into the phase of the input state! So for the marked element (where $f(x)=1$), the phase becomes $-1$. This is the <strong>phase kickback</strong> trick — one of the most important techniques in quantum computing.</p>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 1: DEUTSCH-JOZSA                                 -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s1">
+<div class="section-header">
+  <div class="section-num">1</div>
+  <h2>The Deutsch-Jozsa Algorithm</h2>
+</div>
+
+<p>The Deutsch-Jozsa algorithm solves a problem that seems tailor-made for quantum computers — because it was. David Deutsch invented it to prove, in principle, that quantum computers can do something no classical computer can match with the same number of queries.</p>
+
+<div class="card definition">
+<div class="card-title">📐 The Deutsch-Jozsa Problem</div>
+<p><strong>Input:</strong> A black-box function $f: \{0,1\}^n \to \{0,1\}$ promised to be either:</p>
+<ul style="padding-left:20px">
+  <li><strong>Constant:</strong> $f(x) = 0$ for all $x$, or $f(x) = 1$ for all $x$</li>
+  <li><strong>Balanced:</strong> $f(x) = 0$ for exactly half the inputs, and $f(x) = 1$ for the other half</li>
+</ul>
+<p><strong>Task:</strong> Determine whether $f$ is constant or balanced.</p>
+</div>
+
+<h3 class="sub" id="s1b">Classical Lower Bound</h3>
+
+<p>Consider the classical deterministic algorithm for this problem. In the worst case, how many queries do we need to be certain of the answer?</p>
+
+<p>Suppose $f$ is constant with value 0. If we query $f$ on the first $2^{n-1}$ inputs and they all return 0, we still can't be sure: perhaps $f$ is balanced and all the 1's happen to be in the half we haven't queried yet! We need $2^{n-1} + 1$ queries to be certain: if after querying $2^{n-1}+1$ inputs we've seen both 0 and 1, it's balanced; if all the same, it must be constant.</p>
+
+<div class="math-block">
+$$\text{Classical deterministic query complexity} = 2^{n-1} + 1 \quad \text{(exponential in } n)$$
+$$\text{Quantum query complexity} = 1 \quad \text{(always)}$$
+</div>
+
+<div class="card insight">
+<div class="card-title">🔍 Probabilistic Shortcuts</div>
+<p>A randomized classical algorithm can distinguish constant from balanced with high probability in just a few queries ($O(1)$ expected). So the exponential separation only holds between <em>exact deterministic</em> classical (EQP class) and exact quantum algorithms. The DJ algorithm is still a landmark because it gives the first <em>provable exponential gap</em> between quantum and exact classical computation.</p>
+</div>
+
+<h3 class="sub" id="s1c">The Quantum Circuit</h3>
+
+<div class="circuit">n-qubit Deutsch-Jozsa Circuit:
+
+|0⟩ᵢ⊗ⁿ ─ H⊗ⁿ ─────── U_f ─── H⊗ⁿ ─── [M⊗ⁿ] ─── output
+                │
+|1⟩ ──── H ─── ┘ (target ancilla qubit, not measured)
+
+Measure output register. If all 0s: f is constant. Otherwise: balanced.</div>
+
+<h3 class="sub" id="s1d">Full Circuit Derivation</h3>
+
+<p>Let us trace through this carefully. We have $n+1$ qubits: $n$ query qubits and 1 ancilla (target) qubit.</p>
+
+<div class="steps">
+<div class="step">
+  <div class="step-num">1</div>
+  <div class="step-body">
+    <strong>Initialize:</strong> Query register in $|0\rangle^{\otimes n}$, ancilla in $|1\rangle$:
+    $$|\psi_0\rangle = |0\rangle^{\otimes n}|1\rangle$$
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">2</div>
+  <div class="step-body">
+    <strong>Apply $H^{\otimes n}$ to query register, and $H$ to ancilla:</strong>
+    $$|\psi_1\rangle = \left(\frac{1}{\sqrt{2^n}}\sum_{x\in\{0,1\}^n}|x\rangle\right)\left(\frac{|0\rangle-|1\rangle}{\sqrt{2}}\right) = \frac{1}{\sqrt{2^n}}\sum_x|x\rangle|{-}\rangle$$
+    The query register is now in uniform superposition over all $2^n$ inputs!
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">3</div>
+  <div class="step-body">
+    <strong>Apply oracle $U_f$ (phase kickback):</strong> Since the ancilla is $|{-}\rangle$, the phase kickback gives $(-1)^{f(x)}$ for each $|x\rangle$:
+    $$|\psi_2\rangle = \frac{1}{\sqrt{2^n}}\sum_x (-1)^{f(x)}|x\rangle|{-}\rangle$$
+    The information about $f$ is now encoded in the <em>phases</em> of the superposition.
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">4</div>
+  <div class="step-body">
+    <strong>Apply $H^{\otimes n}$ to the query register:</strong> The Hadamard transform converts phase information back into amplitude information. Using the identity $H^{\otimes n}|x\rangle = \frac{1}{\sqrt{2^n}}\sum_z (-1)^{x\cdot z}|z\rangle$ (where $x\cdot z = \bigoplus_i x_i z_i$ is the bitwise dot product mod 2):
+
+    $$|\psi_3\rangle = \frac{1}{2^n}\sum_x\sum_z(-1)^{f(x)}(-1)^{x\cdot z}|z\rangle = \sum_z\left(\frac{1}{2^n}\sum_x(-1)^{f(x)+x\cdot z}\right)|z\rangle$$
+
+    The amplitude of $|z\rangle$ is: $A_z = \frac{1}{2^n}\sum_x(-1)^{f(x)+x\cdot z}$
+  </div>
+</div>
+<div class="step">
+  <div class="step-num">5</div>
+  <div class="step-body">
+    <strong>Measure the query register:</strong>
+    <ul style="padding-left:20px;margin-top:6px">
+      <li style="margin-bottom:6px"><strong>If $f$ is constant ($f(x) = c$ for all $x$):</strong> $A_z = \frac{(-1)^c}{2^n}\sum_x(-1)^{x\cdot z}$. For $z = 0^n$ (all zeros): $A_0 = (-1)^c \neq 0$. For $z \neq 0^n$: $\sum_x (-1)^{x\cdot z} = 0$ (balanced sum). So we measure $|0\rangle^{\otimes n}$ with probability 1!</li>
+      <li style="margin-bottom:6px"><strong>If $f$ is balanced:</strong> For $z = 0^n$: $A_0 = \frac{1}{2^n}\sum_x(-1)^{f(x)} = 0$ (half +1, half -1, sum is 0). So we <em>never</em> measure $|0\rangle^{\otimes n}$.</li>
+    </ul>
+    <p style="margin-top:8px"><strong>Conclusion:</strong> If measurement gives all zeros: constant. If any non-zero: balanced. Always correct, using exactly 1 oracle query.</p>
+  </div>
+</div>
+</div>
+
+<!-- VIZ 1: DJ SIMULATOR -->
+<div class="viz-container" id="dj-viz">
+  <div class="viz-title">🔮 Deutsch-Jozsa Algorithm Simulator</div>
+  <div class="viz-subtitle">Choose a function type and a specific function. The simulator shows the quantum state at each step and the final measurement outcome.</div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+    <div>
+      <div style="font-size:0.8rem;font-weight:600;color:var(--muted);margin-bottom:8px">Select function (n=3 bits):</div>
+      <div class="dj-fn-grid" style="max-width:480px">
+        <div class="dj-fn-card active-fn" onclick="setDJFn('c0')"><div class="dj-fn-name">f₀ ≡ 0</div><div class="dj-fn-type">Constant (0)</div></div>
+        <div class="dj-fn-card" onclick="setDJFn('c1')"><div class="dj-fn-name">f₁ ≡ 1</div><div class="dj-fn-type">Constant (1)</div></div>
+        <div class="dj-fn-card" onclick="setDJFn('b1')"><div class="dj-fn-name">f = parity</div><div class="dj-fn-type">Balanced</div></div>
+        <div class="dj-fn-card" onclick="setDJFn('b2')"><div class="dj-fn-name">f = majority</div><div class="dj-fn-type">Balanced</div></div>
+        <div class="dj-fn-card" onclick="setDJFn('b3')"><div class="dj-fn-name">f = bit₀</div><div class="dj-fn-type">Balanced</div></div>
+        <div class="dj-fn-card" onclick="setDJFn('b4')"><div class="dj-fn-name">f = bit₁</div><div class="dj-fn-type">Balanced</div></div>
+      </div>
+    </div>
+  </div>
+  <canvas id="djCanvas" width="640" height="220" style="border-radius:10px;background:#fdf8ff;border:1px solid #e9d5ff;display:block"></canvas>
+  <div id="dj-result" style="margin-top:12px;font-size:0.9rem;padding:12px 16px;background:#faf0ff;border-radius:8px;border:1px solid #e9d5ff"></div>
+</div>
+
+<h3 class="sub" id="s1e">Complexity Classes: EQP vs P</h3>
+
+<p>The Deutsch-Jozsa algorithm separates the complexity classes EQP and P (in the query complexity setting):</p>
+<table class="cmp-table">
+<thead><tr><th>Class</th><th>Description</th><th>DJ Query Cost</th></tr></thead>
+<tbody>
+<tr><td><strong>EQP</strong></td><td>Exact Quantum Polynomial time — quantum algorithms that succeed with certainty</td><td>1 query (optimal!)</td></tr>
+<tr><td><strong>P (deterministic)</strong></td><td>Classical polynomial time, deterministic and exact</td><td>$2^{n-1}+1$ queries (exponential)</td></tr>
+<tr><td><strong>BPP (randomized)</strong></td><td>Classical randomized polynomial time (bounded error)</td><td>$O(1)$ queries — no significant separation here</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 2: BERNSTEIN-VAZIRANI                            -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s2">
+<div class="section-header">
+  <div class="section-num">2</div>
+  <h2>The Bernstein-Vazirani Algorithm</h2>
+</div>
+
+<p>The Bernstein-Vazirani (BV) algorithm solves a more natural and interesting problem than Deutsch-Jozsa. It has a similar circuit but achieves a different type of speedup (linear $n$ vs $1$, rather than exponential).</p>
+
+<div class="card definition">
+<div class="card-title">📐 The Bernstein-Vazirani Problem</div>
+<p><strong>Input:</strong> A black-box function $f_s: \{0,1\}^n \to \{0,1\}$ defined as:</p>
+$$f_s(x) = s \cdot x \pmod{2} = s_1 x_1 \oplus s_2 x_2 \oplus \cdots \oplus s_n x_n$$
+<p>where $s \in \{0,1\}^n$ is an unknown hidden <strong>secret string</strong>.</p>
+<p><strong>Task:</strong> Determine the secret string $s$ exactly.</p>
+</div>
+
+<h3 class="sub">Classical Lower Bound</h3>
+
+<p>To determine $s$ classically, we can query $f$ on the standard basis vectors:</p>
+$$f(e_i) = s \cdot e_i = s_i$$
+<p>Each query reveals one bit of $s$. We need exactly $n$ queries to determine all $n$ bits. The classical query complexity is $\Theta(n)$.</p>
+
+<p>We cannot do better deterministically: if we make fewer than $n$ queries, the remaining bits of $s$ are unconstrained — we have zero information about them.</p>
+
+<h3 class="sub" id="s2b">The Quantum Circuit — Same as DJ!</h3>
+
+<p>Remarkably, the BV algorithm uses the <em>exact same circuit</em> as Deutsch-Jozsa. The difference is only in the oracle and the interpretation of the output.</p>
+
+<div class="circuit">Bernstein-Vazirani Circuit:
+
+|0⟩^n ─── H^n ─── U_f ─── H^n ─── [M^n] ─── gives s directly!
+|1⟩   ─── H   ─────────────────── (not measured)</div>
+
+<h3 class="sub">Full Derivation</h3>
+
+<p>Steps 1–3 are identical to DJ. After phase kickback:</p>
+
+$$|\psi_2\rangle = \frac{1}{\sqrt{2^n}}\sum_x (-1)^{f_s(x)}|x\rangle|{-}\rangle = \frac{1}{\sqrt{2^n}}\sum_x (-1)^{s\cdot x}|x\rangle|{-}\rangle$$
+
+<p>Now apply $H^{\otimes n}$ to the query register. Using the fact that $H^{\otimes n}|s\rangle = \frac{1}{\sqrt{2^n}}\sum_x (-1)^{s\cdot x}|x\rangle$ (the Hadamard transform of a computational basis state $|s\rangle$ is exactly the superposition we have!), we get by the inverse Hadamard transform:</p>
+
+<div class="math-block">
+$$|\psi_3\rangle = |s\rangle|{-}\rangle$$
+</div>
+
+<p>We measure the query register and get $s$ with <strong>certainty</strong>. Just 1 query, regardless of $n$. The quantum speedup is from $n$ queries to 1 query.</p>
+
+<div class="card insight">
+<div class="card-title">🔍 The Deep Reason</div>
+<p>The BV algorithm works because the function $f_s(x) = s\cdot x$ is linear over GF(2), and the Hadamard transform is the quantum Fourier transform over GF(2). The algorithm essentially performs a Fourier analysis of the function in one shot, using quantum superposition to probe all frequencies simultaneously. This insight directly generalizes: Shor's algorithm uses the Quantum Fourier Transform over $\mathbb{Z}_N$.</p>
+</div>
+
+<!-- VIZ 2: BV SIMULATOR -->
+<div class="viz-container" id="bv-viz">
+  <div class="viz-title">🔮 Bernstein-Vazirani Simulator</div>
+  <div class="viz-subtitle">Set a secret string s (up to 5 bits). The simulator shows how the quantum algorithm recovers it in a single oracle query.</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px">
+    <div>
+      <div style="font-size:0.8rem;font-weight:600;color:var(--muted);margin-bottom:6px">Secret string s (click bits to toggle):</div>
+      <div id="bv-bits" style="display:flex;gap:6px">
+        <button class="ctrl-btn" id="bvb0" onclick="toggleBVBit(0)" style="min-width:40px">0</button>
+        <button class="ctrl-btn secondary" id="bvb1" onclick="toggleBVBit(1)" style="min-width:40px">1</button>
+        <button class="ctrl-btn" id="bvb2" onclick="toggleBVBit(2)" style="min-width:40px">0</button>
+        <button class="ctrl-btn secondary" id="bvb3" onclick="toggleBVBit(3)" style="min-width:40px">1</button>
+        <button class="ctrl-btn" id="bvb4" onclick="toggleBVBit(4)" style="min-width:40px">0</button>
+      </div>
+    </div>
+    <button class="ctrl-btn" onclick="runBV()" style="margin-left:12px">Run Algorithm (1 query!)</button>
+  </div>
+  <canvas id="bvCanvas" width="640" height="200" style="border-radius:10px;background:#fdf8ff;border:1px solid #e9d5ff;display:block"></canvas>
+  <div id="bv-result" style="margin-top:12px;font-size:0.9rem;padding:12px;background:#faf0ff;border-radius:8px;border:1px solid #e9d5ff"></div>
+</div>
+
+<h3 class="sub" id="s2c">Complexity Separation: BPP vs BQP</h3>
+
+<p>The BV problem gives an <strong>oracle separation</strong> between BPP and BQP — the first such separation. In the oracle query model:</p>
+
+$$Q(BV_n) = 1 \quad \text{vs} \quad R(BV_n) = n \quad \text{(randomized classical)}$$
+
+<p>No randomized classical algorithm can solve BV in fewer than $n$ queries: each query gives only 1 bit of information about $s$, and $s$ has $n$ bits. The quantum algorithm extracts all $n$ bits in a single "parallel" query, exploiting superposition.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 3: GROVER'S ALGORITHM                            -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s3">
+<div class="section-header">
+  <div class="section-num">3</div>
+  <h2>Grover's Quantum Search Algorithm</h2>
+</div>
+
+<p>Grover's algorithm is arguably the most broadly applicable quantum algorithm known. While DJ and BV solve rather specific problems, Grover's algorithm solves the <em>general unstructured search problem</em> that arises in almost every domain of computing.</p>
+
+<div class="card definition">
+<div class="card-title">📐 The Unstructured Search Problem</div>
+<p>Given a function $f: \{0,1\}^n \to \{0,1\}$ (with $N = 2^n$ inputs), find an input $x^*$ such that $f(x^*) = 1$. Such $x^*$ is called a <strong>marked element</strong>. Assume there is exactly one marked element (generalization to $k$ solutions is straightforward).</p>
+<p><strong>Classically:</strong> No better strategy than random search. Expected $O(N)$ queries; worst case $N$ queries.</p>
+<p><strong>Quantum (Grover):</strong> $O(\sqrt{N})$ queries. <strong>Provably optimal</strong> for quantum algorithms.</p>
+</div>
+
+<p>This is a <strong>quadratic</strong> speedup: from $O(N) = O(2^n)$ to $O(\sqrt{N}) = O(2^{n/2})$. For a billion-element database ($N = 10^9$), classical search needs $\sim 500$ million queries on average, while Grover needs $\sim 31,623$ queries. The speedup is real and useful for NP-complete problems (though it doesn't give polynomial speedup for NP).</p>
+
+<h3 class="sub" id="s3b">The Phase Oracle for Grover</h3>
+
+<p>Grover's algorithm uses the <strong>phase oracle</strong> $O_f$ that applies a phase of $-1$ to the marked element and leaves all others unchanged:</p>
+
+$$O_f|x\rangle = \begin{cases} -|x\rangle & \text{if } f(x) = 1 \text{ (marked)} \\ +|x\rangle & \text{otherwise} \end{cases} = (-1)^{f(x)}|x\rangle$$
+
+<p>As shown earlier (phase kickback trick), this can be implemented using the standard oracle $U_f$ with the ancilla prepared in $|{-}\rangle$. The oracle "marks" the target by flipping its phase.</p>
+
+<h3 class="sub" id="s3c">Geometric Framework: The Key Intuition</h3>
+
+<p>The most illuminating way to understand Grover's algorithm is geometrically. Define two important states:</p>
+
+$$|a\rangle = |x^*\rangle \quad \text{(the marked/answer element)}$$
+$$|e\rangle = \frac{1}{\sqrt{N-1}}\sum_{x \neq x^*} |x\rangle \quad \text{(uniform superposition over non-marked elements)}$$
+
+<p>The initial uniform superposition state $|U\rangle = \frac{1}{\sqrt{N}}\sum_x |x\rangle$ can be written in terms of these:</p>
+
+$$|U\rangle = \sqrt{\frac{N-1}{N}}|e\rangle + \frac{1}{\sqrt{N}}|a\rangle = \cos\!\left(\frac{\theta}{2}\right)|e\rangle + \sin\!\left(\frac{\theta}{2}\right)|a\rangle$$
+
+where $\sin(\theta/2) = 1/\sqrt{N}$, so $\theta/2 \approx 1/\sqrt{N}$ for large $N$, giving $\theta \approx 2/\sqrt{N}$.
+
+<p>The state lives in the 2D subspace $\text{span}\{|a\rangle, |e\rangle\}$. Each Grover iteration is a <strong>rotation by angle $\theta$</strong> in this 2D plane, rotating the state vector toward $|a\rangle$!</p>
+
+<div class="card highlight">
+<div class="card-title">🎯 Geometric Picture of Grover Iteration</div>
+<p>Each Grover iteration consists of two reflections (which compose to give a rotation by $\theta$):</p>
+<ol style="padding-left:20px">
+  <li style="margin-bottom:6px"><strong>Phase oracle $O_f$:</strong> Reflects the state about the $|e\rangle$ axis (flips the $|a\rangle$ component's sign). Geometrically: reflection about the hyperplane perpendicular to $|a\rangle$.</li>
+  <li style="margin-bottom:6px"><strong>Diffusion operator $D$:</strong> Reflects the state about the initial superposition $|U\rangle$. Geometrically: reflection about $|U\rangle$.</li>
+</ol>
+<p>Two reflections = one rotation! The angle of rotation is $\theta$ (twice the angle between $|e\rangle$ and $|U\rangle$).</p>
+</div>
+
+<h3 class="sub" id="s3d">The Diffusion Operator</h3>
+
+<p>The diffusion operator $D$ (also called the Grover diffusion operator or inversion-about-average) is:</p>
+
+$$D = 2|U\rangle\langle U| - I = H^{\otimes n}(2|0\rangle\langle 0| - I)H^{\otimes n}$$
+
+<p>Its matrix action on a state with amplitudes $\alpha_x$ is:</p>
+
+$$D|\psi\rangle: \quad \alpha_x \mapsto 2\langle\alpha\rangle - \alpha_x$$
+
+<p>where $\langle\alpha\rangle = \frac{1}{N}\sum_x \alpha_x$ is the <em>mean amplitude</em>. This is the "inversion about the mean" operation: amplitudes below the mean are increased, amplitudes above the mean are decreased. After the oracle makes the marked element's amplitude <em>negative</em>, the diffusion operator "reflects" it to be much larger than average — amplification!</p>
+
+<div class="card example">
+<div class="card-title">✏️ Step-by-step Amplitude Example (N=4)</div>
+<p>Let $N=4$, $|a\rangle = |11\rangle$. Initial state: $|\psi_0\rangle = \frac{1}{2}(|00\rangle + |01\rangle + |10\rangle + |11\rangle)$. All amplitudes = $+\frac{1}{2}$. Mean = $\frac{1}{2}$.</p>
+<p><strong>After oracle:</strong> Amplitude of $|11\rangle$ flips to $-\frac{1}{2}$. Others stay $+\frac{1}{2}$. New mean = $\frac{1}{4}(3\cdot\frac{1}{2} + (-\frac{1}{2})) = \frac{1}{4}$.</p>
+<p><strong>After diffusion (inversion about mean $\frac{1}{4}$):</strong></p>
+<ul style="padding-left:20px">
+  <li>$|00\rangle, |01\rangle, |10\rangle$: $2\cdot\frac{1}{4} - \frac{1}{2} = 0$!</li>
+  <li>$|11\rangle$: $2\cdot\frac{1}{4} - (-\frac{1}{2}) = 1$!</li>
+</ul>
+<p>After just ONE iteration, $|11\rangle$ has amplitude $1$ — the algorithm succeeds with probability 100% for $N=4$!</p>
+</div>
+
+<h3 class="sub" id="s3e">Full Algorithm and Number of Iterations</h3>
+
+<div class="math-block">
+$$\text{Grover's Algorithm:}$$
+<ol style="padding-left:24px;margin-top:8px">
+<li>Prepare $|U\rangle = H^{\otimes n}|0\rangle^{\otimes n}$ (uniform superposition)</li>
+<li>Repeat $T$ times: apply $G = D \cdot O_f$ (one Grover iterate)</li>
+<li>Measure; return result</li>
+</ol>
+<p style="margin-top:12px">After $T$ iterations, the state is:</p>
+$$|\psi_T\rangle = \cos\!\left(\frac{(2T+1)\theta}{2}\right)|e\rangle + \sin\!\left(\frac{(2T+1)\theta}{2}\right)|a\rangle$$
+<p>Probability of measuring the correct answer: $P(x^*) = \sin^2\!\left(\frac{(2T+1)\theta}{2}\right)$</p>
+<p>This is maximized when $\frac{(2T+1)\theta}{2} = \frac{\pi}{2}$, i.e., $T = \left\lfloor\frac{\pi}{2\theta} - \frac{1}{2}\right\rfloor \approx \frac{\pi}{4}\sqrt{N}$</p>
+</div>
+
+<!-- VIZ 3: GROVER VISUALIZATION -->
+<div class="viz-container" id="grover-viz">
+  <div class="viz-title">🔍 Grover's Algorithm — Amplitude Evolution</div>
+  <div class="viz-subtitle">Watch how each Grover iteration amplifies the marked element (highlighted in purple) while suppressing all others. Use the controls to step through the iterations.</div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+    <div>
+      <label style="font-size:0.8rem;font-weight:600;color:var(--muted)">Database size N = 2ⁿ, n = <span id="groverN-val">4</span> bits (<span id="groverSize">16</span> elements)</label><br>
+      <input type="range" id="groverN" min="2" max="6" value="4" oninput="initGrover()" style="width:200px;accent-color:var(--accent)">
+    </div>
+    <div>
+      <label style="font-size:0.8rem;font-weight:600;color:var(--muted)">Marked element: index <span id="groverTarget-val">5</span></label><br>
+      <input type="range" id="groverTarget" min="0" max="15" value="5" oninput="initGrover()" style="width:200px;accent-color:var(--accent)">
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+    <button class="ctrl-btn secondary" onclick="groverStep(-1)">⏮ Reset</button>
+    <button class="ctrl-btn" onclick="groverStep(1)">▶ One Grover Iteration</button>
+    <button class="ctrl-btn secondary" onclick="groverAutoRun()">⏭ Run to Optimal</button>
+  </div>
+  <div id="grover-iter-label" style="font-size:0.85rem;margin-bottom:10px;font-family:'JetBrains Mono',monospace;color:var(--accent)">Iteration 0 — Initial uniform superposition</div>
+  <canvas id="groverCanvas" width="640" height="200"></canvas>
+  <div id="grover-prob-display" style="margin-top:12px;font-size:0.88rem;padding:10px;background:#faf0ff;border-radius:8px;border:1px solid #e9d5ff"></div>
+</div>
+
+<h3 class="sub" id="s3f">Optimality: The BBBV Lower Bound</h3>
+
+<p>The $O(\sqrt{N})$ query complexity of Grover's algorithm is <strong>provably optimal</strong> — no quantum algorithm (no matter how clever) can search an unordered database faster. This was proven by Bennett, Bernstein, Brassard, and Vazirani (1996) using the "polynomial method".</p>
+
+<div class="card warning">
+<div class="card-title">⚠️ Implications for NP</div>
+<p>Grover's algorithm <em>cannot</em> solve NP-complete problems in polynomial time. For an NP problem with $N = 2^n$ solutions to check: classical brute force takes $O(2^n)$ queries; Grover takes $O(2^{n/2})$ — still exponential! The speedup is "only" quadratic, not polynomial. So Grover does not imply $BQP \supseteq NP$.</p>
+</div>
+
+<h3 class="sub" id="s3g">Success Probability and Repetition</h3>
+
+<p>If we run exactly $T = \lfloor\frac{\pi}{4}\sqrt{N}\rfloor$ iterations, the success probability $P(x^*) = \sin^2(\frac{(2T+1)\theta}{2})$ is <em>at least</em> $1 - \frac{1}{N}$, which approaches 1 for large $N$. For small $N$, we might need to optimize $T$ more carefully (exact values for small $N$: $N=4$ needs $T=1$, $N=8$ needs $T=2$, etc.).</p>
+
+<p>If we're uncertain or if there might be zero solutions, we can repeat the algorithm $O(\log(1/\delta))$ times to reduce failure probability to $\delta$.</p>
+
+<div class="card example">
+<div class="card-title">✏️ Grover Pseudocode</div>
+<pre style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;background:#f8faff;padding:14px;border-radius:8px;line-height:1.8">Algorithm GROVER(oracle O_f, n qubits, N = 2^n):
+  T_opt ← ⌊(π/4)·√N⌋    // optimal number of iterations
+  |ψ⟩ ← H^⊗n |0⟩^n      // uniform superposition
+
+  for t = 1 to T_opt:
+    |ψ⟩ ← O_f |ψ⟩         // Phase oracle: flip phase of |x*⟩
+    |ψ⟩ ← D |ψ⟩            // Diffusion: invert about mean
+    // D = H^n · (2|0⟩⟨0| - I) · H^n
+
+  result ← MEASURE(|ψ⟩)   // Succeeds with prob ≥ 1 - 1/N
+  return result</pre>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- JavaScript                                                 -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<script>
+// ─── DJ Simulator ──────────────────────────────────────────────────────────
+// n=3, so N=8 inputs
+const DJ_FUNS = {
+  c0: {f:(x)=>0, label:'Constant 0', type:'constant'},
+  c1: {f:(x)=>1, label:'Constant 1', type:'constant'},
+  b1: {f:(x)=>(Integer.bitCount ? 0 : countBits(x))%2, label:'Parity of bits', type:'balanced'},
+  b2: {f:(x)=>x>=4?1:0, label:'x ≥ 4', type:'balanced'},
+  b3: {f:(x)=>x&1, label:'Least significant bit', type:'balanced'},
+  b4: {f:(x)=>(x>>1)&1, label:'Second bit', type:'balanced'},
+};
+
+function countBits(x){ let c=0; while(x>0){c+=x&1;x>>=1;} return c; }
+DJ_FUNS.b1.f = (x)=>countBits(x)%2;
+
+let currentDJFn = 'c0';
+
+function setDJFn(key){
+  currentDJFn = key;
+  document.querySelectorAll('.dj-fn-card').forEach((c,i)=>{
+    c.classList.toggle('active-fn', ['c0','c1','b1','b2','b3','b4'][i]===key);
+  });
+  drawDJSim();
+}
+
+function drawDJSim(){
+  const fn = DJ_FUNS[currentDJFn];
+  const N=8, n=3;
+  const canvas = document.getElementById('djCanvas');
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  // Compute f values and phases
+  const fvals = Array.from({length:N},(_,i)=>fn.f(i));
+  // Step 1: uniform superposition amplitudes
+  const initAmp = 1/Math.sqrt(N);
+  // Step 2: after phase kickback
+  const phaseAmp = fvals.map(fv=>fv===1?-initAmp:initAmp);
+  // Step 3: after H^n (Hadamard transform)
+  const finalAmp = new Array(N).fill(0);
+  for(let z=0;z<N;z++){
+    for(let x=0;x<N;x++){
+      const dotprod = countBits(z&x)%2;
+      finalAmp[z] += (dotprod?-1:1)*phaseAmp[x];
+    }
+    finalAmp[z] /= Math.sqrt(N);
+  }
+
+  const margin = 30, barW = Math.floor((W-2*margin)/N)-2;
+  const zeroY = H*0.6;
+  const scale = 120;
+
+  // Draw axes
+  ctx.strokeStyle='#e9d5ff'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(margin,20); ctx.lineTo(margin, H-40); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(margin,zeroY); ctx.lineTo(W-margin,zeroY); ctx.stroke();
+
+  // Draw bars for final state
+  finalAmp.forEach((amp,i)=>{
+    const x = margin + i*(barW+2);
+    const barH = amp*scale;
+    const isZero = i===0;
+    ctx.fillStyle = isZero?(Math.abs(amp)>0.4?'#166534':'#7c2d8e'):'#c4b5fd';
+    ctx.fillRect(x, zeroY-Math.max(barH,0), barW, Math.abs(barH));
+    if(barH<0) ctx.fillRect(x, zeroY, barW, Math.abs(barH));
+    // label
+    ctx.fillStyle='#1e293b'; ctx.font='10px JetBrains Mono,monospace'; ctx.textAlign='center';
+    ctx.fillText(i.toString(2).padStart(n,'0'), x+barW/2, H-22);
+    ctx.fillStyle=amp>=0?'#166534':'#dc2626';
+    if(Math.abs(amp)>0.05) ctx.fillText(amp.toFixed(2), x+barW/2, zeroY-barH-(barH>0?6:-18));
+  });
+
+  ctx.fillStyle='#7c2d8e'; ctx.font='bold 11px Source Sans 3,sans-serif'; ctx.textAlign='left';
+  ctx.fillText('Final amplitudes |z⟩ after H⊗ⁿ — measure → black bar:', margin, 14);
+  ctx.fillStyle='#475569'; ctx.font='11px Source Sans 3,sans-serif';
+  ctx.fillText('|0…0⟩', margin+2, zeroY-scale-6);
+
+  // Axis labels
+  ctx.fillStyle='#475569'; ctx.textAlign='left';
+  ctx.fillText('+1/√N', margin+2, zeroY-scale+3);
+  ctx.fillText('0', margin+2, zeroY+13);
+  ctx.fillText('−1/√N', margin+2, zeroY+scale+3);
+
+  const measured = finalAmp[0]>0.4?'|000⟩ (ALL ZEROS)':'some non-zero state';
+  const result = fn.type==='constant';
+  document.getElementById('dj-result').innerHTML =
+    `<strong>Function:</strong> ${fn.label} &nbsp;|&nbsp; <strong>Type:</strong> ${fn.type.toUpperCase()}<br>
+     <strong>Amplitude of |000⟩:</strong> ${finalAmp[0].toFixed(4)} (probability ${(finalAmp[0]**2).toFixed(4)})<br>
+     <strong>Measurement outcome:</strong> ${Math.abs(finalAmp[0])>0.4?'|000…0⟩ → <strong style="color:#166534">CONSTANT</strong>':'non-zero → <strong style="color:#7c2d8e">BALANCED</strong>'}
+     &nbsp; ${result?'✅':'✅'} (correct with certainty in 1 query!)`;
+}
+
+drawDJSim();
+
+// ─── BV Simulator ────────────────────────────────────────────────────────────
+let bvSecret = [0,1,0,1,0]; // 5 bits — matches button display
+
+function toggleBVBit(i){
+  bvSecret[i] = 1-bvSecret[i];
+  document.getElementById('bvb'+i).textContent = bvSecret[i].toString();
+  document.getElementById('bvb'+i).className = bvSecret[i]==='1'||bvSecret[i]===1?'ctrl-btn':'ctrl-btn secondary';
+}
+
+function runBV(){
+  const n=5, N=32;
+  const canvas = document.getElementById('bvCanvas');
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  // After the algorithm: measure |s⟩ exactly
+  // Visualize: show probability of each output state (only |s⟩ has prob=1)
+  const sInt = bvSecret.reduce((acc,b,i)=>acc|(b<<(4-i)),0);
+  const margin=20, barW=Math.floor((W-2*margin)/N)-1;
+  const zeroY=H-50;
+
+  for(let i=0;i<N;i++){
+    const x=margin+i*(barW+1);
+    const prob=i===sInt?1:0;
+    ctx.fillStyle=i===sInt?'#7c2d8e':'#e9d5ff';
+    ctx.fillRect(x,zeroY-prob*(H-70),barW,prob*(H-70));
+  }
+  ctx.beginPath(); ctx.strokeStyle='#e9d5ff'; ctx.lineWidth=1;
+  ctx.moveTo(margin,zeroY); ctx.lineTo(W-margin,zeroY); ctx.stroke();
+
+  ctx.fillStyle='#1e0a2e'; ctx.font='bold 12px Source Sans 3,sans-serif'; ctx.textAlign='left';
+  ctx.fillText('Measurement probability — only |s⟩ has prob=1', margin, 18);
+  ctx.fillStyle='#7c2d8e'; ctx.textAlign='center';
+  ctx.fillText('|'+bvSecret.join('')+'⟩', margin+sInt*(barW+1)+barW/2, zeroY-H+66);
+  ctx.fillStyle='#475569'; ctx.font='10px Source Sans 3,sans-serif';
+  ctx.fillText('s = '+bvSecret.join('')+' (index '+sInt+')', margin+sInt*(barW+1)+barW/2, zeroY+30);
+
+  document.getElementById('bv-result').innerHTML =
+    `<strong>Secret string s = ${bvSecret.join('')}</strong> (decimal index: ${sInt})<br>
+     Quantum algorithm measures |${bvSecret.join('')}⟩ with probability <strong>100%</strong> — using exactly <strong>1 oracle query</strong>!<br>
+     Classical algorithm would need <strong>${n} queries</strong> (one per bit).`;
+}
+
+runBV();
+
+// ─── Grover's Algorithm Visualization ─────────────────────────────────────────
+let groverState=[], groverN=4, groverTarget=5, groverIter=0;
+
+function countBitsG(x){ let c=0; while(x>0){c+=x&1;x>>=1;} return c; }
+
+function initGrover(){
+  groverN = parseInt(document.getElementById('groverN').value);
+  const N = 1<<groverN;
+  document.getElementById('groverN-val').textContent = groverN;
+  document.getElementById('groverSize').textContent = N;
+  document.getElementById('groverTarget').max = N-1;
+  groverTarget = Math.min(parseInt(document.getElementById('groverTarget').value), N-1);
+  document.getElementById('groverTarget').value = groverTarget; // sync slider position
+  document.getElementById('groverTarget-val').textContent = groverTarget;
+  // Initialize uniform superposition
+  groverState = new Array(N).fill(1/Math.sqrt(N));
+  groverIter = 0;
+  document.getElementById('grover-iter-label').textContent = 'Iteration 0 — Initial uniform superposition';
+  drawGrover();
+}
+
+function groverOracleStep(){
+  groverState[groverTarget] *= -1;
+}
+
+function groverDiffusionStep(){
+  const N=groverState.length;
+  const mean = groverState.reduce((a,b)=>a+b,0)/N;
+  for(let i=0;i<N;i++) groverState[i] = 2*mean - groverState[i];
+}
+
+function groverStep(dir){
+  if(dir===-1){ initGrover(); return; }
+  groverOracleStep();
+  groverDiffusionStep();
+  groverIter++;
+  const N=groverState.length;
+  const Topt = Math.floor(Math.PI/4*Math.sqrt(N));
+  document.getElementById('grover-iter-label').textContent =
+    `Iteration ${groverIter}/${Topt} optimal — Probability of |${groverTarget}⟩: ${(groverState[groverTarget]**2).toFixed(4)}`;
+  drawGrover();
+}
+
+function groverAutoRun(){
+  const N=groverState.length;
+  const Topt=Math.floor(Math.PI/4*Math.sqrt(N));
+  initGrover();
+  function step(){ if(groverIter<Topt){ groverOracleStep(); groverDiffusionStep(); groverIter++; drawGrover(); setTimeout(step,300); } }
+  setTimeout(step,100);
+}
+
+function drawGrover(){
+  const canvas = document.getElementById('groverCanvas');
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const N=groverState.length;
+  const margin=20, barW=Math.max(2,Math.floor((W-2*margin)/N)-1);
+  const zeroY=H-45, scale=90;
+
+  for(let i=0;i<N;i++){
+    const x=margin+i*(barW+1);
+    const amp=groverState[i];
+    const barH=amp*scale;
+    ctx.fillStyle=i===groverTarget?'#7c2d8e':'#c4b5fd';
+    if(barH>=0) ctx.fillRect(x,zeroY-barH,barW,barH);
+    else ctx.fillRect(x,zeroY,barW,-barH);
+    if(i===groverTarget&&N<=32){
+      ctx.fillStyle='#1e0a2e'; ctx.font='bold 10px JetBrains Mono,monospace'; ctx.textAlign='center';
+      ctx.fillText(amp.toFixed(2), x+barW/2, zeroY-barH-(amp>0?8:-18));
+    }
+  }
+  ctx.beginPath(); ctx.strokeStyle='#9c6dba'; ctx.lineWidth=1;
+  ctx.moveTo(margin,zeroY); ctx.lineTo(W-margin,zeroY); ctx.stroke();
+  // Mean line
+  const mean=groverState.reduce((a,b)=>a+b,0)/N;
+  ctx.beginPath(); ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.5; ctx.setLineDash([5,4]);
+  ctx.moveTo(margin,zeroY-mean*scale); ctx.lineTo(W-margin,zeroY-mean*scale); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#f59e0b'; ctx.font='11px Source Sans 3,sans-serif'; ctx.textAlign='left';
+  ctx.fillText(`mean=${mean.toFixed(3)}`, margin+2, zeroY-mean*scale-5);
+
+  const prob = groverState[groverTarget]**2;
+  const Topt = Math.floor(Math.PI/4*Math.sqrt(N));
+  document.getElementById('grover-prob-display').innerHTML =
+    `<strong>Marked element |${groverTarget}⟩:</strong> amplitude=${groverState[groverTarget].toFixed(4)}, probability=<strong>${(prob*100).toFixed(2)}%</strong><br>
+     <strong>Optimal iterations for N=${N}:</strong> T = ⌊π/4·√${N}⌋ = ${Topt}<br>
+     ${groverIter>=Topt?'<span style="color:#166534;font-weight:700">✅ At optimal iteration!</span>':''}
+     <em>Mean amplitude:</em> ${mean.toFixed(4)} (yellow dashed line = "inversion about average" pivot)`;
+}
+
+initGrover();
+</script>
+</main>
+</body>
+</html>

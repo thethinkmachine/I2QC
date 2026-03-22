@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 4 — NISQ-Era Algorithms & Quantum Error Correction</title>
+<script>MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],tags:'ams'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#b45309;--accent2:#f59e0b;--accent-light:#fef3c7;--bg:#fffdf5;--card:#ffffff;--text:#1e293b;--muted:#64748b;--border:#fde68a;--gold:#b8860b;--sidebar-w:260px;--red:#dc2626;--blue:#1a4e8a}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:16px;line-height:1.7}
+nav{position:fixed;top:44px;left:0;width:var(--sidebar-w);height:calc(100vh - 44px);background:#1c1000;overflow-y:auto;padding:0 0 40px;z-index:100}
+nav .nav-head{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.1)}
+nav .nav-head h2{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:#fcd34d;font-weight:600;line-height:1.3}
+nav .nav-head p{font-size:0.72rem;color:#64748b;margin-top:4px}
+nav a{display:block;padding:8px 20px;color:#94a3b8;text-decoration:none;font-size:0.8rem;border-left:3px solid transparent;transition:all .2s}
+nav a:hover,nav a.active{color:#fef3c7;border-left-color:#f59e0b;background:rgba(245,158,11,0.08)}
+nav .nav-section{padding:14px 20px 6px;font-size:0.65rem;color:#475569;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+nav a.sub{padding-left:32px;font-size:0.75rem}
+main{margin-left:var(--sidebar-w);flex:1;padding:44px 40px 80px;max-width:1100px}
+.hero{background:linear-gradient(135deg,#1c1000 0%,#78350f 60%,#f59e0b 100%);padding:60px 50px;border-radius:0 0 24px 24px;margin-bottom:48px;position:relative;overflow:hidden}
+.hero .week-badge{display:inline-block;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);padding:4px 14px;border-radius:20px;font-size:0.75rem;color:#fcd34d;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:2.8rem;color:#fff;font-weight:700;line-height:1.2;margin-bottom:12px}
+.hero p{color:#fde68a;font-size:1rem;max-width:600px;line-height:1.6}
+.section{margin-bottom:56px;scroll-margin-top:20px}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:12px;border-bottom:2px solid var(--accent-light)}
+.section-num{background:var(--accent);color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:600;flex-shrink:0}
+.section-header h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;color:var(--accent);font-weight:700}
+h3.sub{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--accent);margin:28px 0 12px;font-weight:600}
+p{margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin:20px 0;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.card.highlight{border-left:4px solid var(--accent);background:#fffbeb}
+.card.definition{border-left:4px solid var(--gold);background:#fffbf0}
+.card.warning{border-left:4px solid #dc2626;background:#fff5f5}
+.card.example{border-left:4px solid #166534;background:#f0fdf4}
+.card.insight{border-left:4px solid #7c2d8e;background:#faf5ff}
+.card.blue{border-left:4px solid var(--blue);background:#f0f7ff}
+.card-title{font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+.card.definition .card-title{color:var(--gold)}
+.card.highlight .card-title{color:var(--accent)}
+.card.warning .card-title{color:#dc2626}
+.card.example .card-title{color:#166534}
+.card.insight .card-title{color:#7c2d8e}
+.card.blue .card-title{color:var(--blue)}
+.math-block{background:#fffbeb;border-radius:10px;padding:20px 24px;margin:16px 0;overflow-x:auto;border:1px solid #fde68a}
+.viz-container{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;margin:28px 0;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
+.viz-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;color:var(--accent);margin-bottom:4px}
+.viz-subtitle{font-size:0.8rem;color:var(--muted);margin-bottom:18px}
+.ctrl-btn{padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;font-family:'Source Sans 3',sans-serif;font-weight:600;transition:background .2s;margin:4px}
+.ctrl-btn:hover{background:var(--accent2)}
+.ctrl-btn.secondary{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
+.ctrl-btn.secondary:hover{background:var(--accent-light)}
+canvas{display:block}
+.circuit{font-family:'JetBrains Mono',monospace;font-size:0.82rem;background:#1c1000;color:#fde68a;padding:20px 24px;border-radius:10px;overflow-x:auto;white-space:pre;line-height:1.9;margin:12px 0}
+code{font-family:'JetBrains Mono',monospace;font-size:0.85em;background:#fef3c7;padding:1px 6px;border-radius:4px;color:#1c1000;border:1px solid #fde68a}
+.cmp-table{width:100%;border-collapse:collapse;margin:16px 0}
+.cmp-table th{background:var(--accent);color:#fff;padding:10px 16px;text-align:left;font-size:0.85rem}
+.cmp-table td{padding:10px 16px;border-bottom:1px solid var(--border);font-size:0.9rem;vertical-align:top}
+.cmp-table tr:nth-child(even) td{background:#fffbeb}
+.step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start}
+.step-num{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;margin-top:2px}
+.step-body{flex:1}
+/* VQA schematic */
+.vqa-flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0}
+.vqa-box{background:var(--card);border:2px solid var(--accent);border-radius:10px;padding:12px 16px;text-align:center;min-width:100px}
+.vqa-box.quantum{border-color:#7c2d8e;background:#faf5ff}
+.vqa-box.classical{border-color:var(--blue);background:#f0f7ff}
+.vqa-box .box-title{font-weight:700;font-size:0.8rem;margin-bottom:4px}
+.vqa-box.quantum .box-title{color:#7c2d8e}
+.vqa-box.classical .box-title{color:var(--blue)}
+.vqa-arrow{font-size:1.4rem;color:var(--muted)}
+/* Error syndrome table */
+.syndrome-table{width:100%;border-collapse:collapse;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:0.85rem}
+.syndrome-table th{background:#1c1000;color:#fde68a;padding:8px 14px;text-align:left}
+.syndrome-table td{padding:8px 14px;border-bottom:1px solid var(--border)}
+.syndrome-table tr:nth-child(even) td{background:#fffbeb}
+/* Noise viz */
+#noiseCanvas{border-radius:10px;background:#fdf8ff;border:1px solid #e9d5ff}
+/* Generation tabs */
+.gen-tabs{display:flex;gap:0;margin-bottom:16px;border-radius:10px;overflow:hidden;border:1.5px solid var(--accent)}
+.gen-tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-weight:600;font-size:0.88rem;background:#fff;color:var(--accent);border:none;transition:all .2s}
+.gen-tab.active{background:var(--accent);color:#fff}
+.gen-content{display:none}
+.gen-content.active{display:block}
+
+/* ── Top Navigation Bar ───────────────────────── */
+.topnav{position:fixed;top:0;left:0;right:0;height:44px;background:#0f0f17;display:flex;align-items:center;padding:0 24px;gap:16px;z-index:300;border-bottom:1px solid rgba(255,255,255,0.08)}
+.topnav-brand{font-family:'Cormorant Garamond',serif;font-size:1rem;color:#e2e8f0;text-decoration:none;font-weight:700;white-space:nowrap;letter-spacing:.02em}
+.topnav-links{display:flex;gap:2px;margin-left:auto}
+.topnav-link{padding:5px 11px;border-radius:6px;text-decoration:none;font-size:0.76rem;color:#94a3b8;transition:all .18s;white-space:nowrap;font-family:'Source Sans 3',sans-serif}
+.topnav-link:hover{background:rgba(255,255,255,0.09);color:#e2e8f0}
+.topnav-link.current{color:#fff;font-weight:600;background:rgba(255,255,255,0.13)}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <a href="index.html" class="topnav-brand">⚛ NPTEL Quantum Computing</a>
+  <div class="topnav-links">
+    <a href="index.html" class="topnav-link">Home</a>
+    <a href="week1.html" class="topnav-link">W1: Foundations</a>
+    <a href="week2.html" class="topnav-link">W2: Entanglement</a>
+    <a href="week3.html" class="topnav-link">W3: Algorithms</a>
+    <a href="week4.html" class="topnav-link current">W4: NISQ &amp; QEC</a>
+  </div>
+</div>
+<nav>
+  <div class="nav-head">
+    <h2>Intro to Quantum Computing</h2>
+    <p>Week 4 · NISQ &amp; QEC</p>
+  </div>
+  <div class="nav-section">NISQ Era Context</div>
+  <a href="#s0">Three Generations</a>
+  <a href="#s0b" class="sub">Coherence Times</a>
+  <a href="#s0c" class="sub">Noisy Grover Example</a>
+  <div class="nav-section">Variational Quantum Algorithms</div>
+  <a href="#s1">VQA Framework</a>
+  <a href="#s1b" class="sub">Cost Function</a>
+  <a href="#s1c" class="sub">Ansatz Design</a>
+  <a href="#s1d" class="sub">Parameter-Shift Rule</a>
+  <a href="#s1e" class="sub">Classical Optimizers</a>
+  <a href="#vqa-viz" class="sub">⚙️ VQA Loop Simulator</a>
+  <div class="nav-section">VQA Challenges</div>
+  <a href="#s2">Barren Plateau Problem</a>
+  <a href="#s2b" class="sub">Noise-Induced Barren Plateau</a>
+  <a href="#s2c" class="sub">Measurement Efficiency</a>
+  <a href="#s2d" class="sub">Error Mitigation</a>
+  <div class="nav-section">VQA Applications</div>
+  <a href="#s3">VQE — Quantum Chemistry</a>
+  <a href="#s3b" class="sub">Fermion Mappings</a>
+  <a href="#s3c" class="sub">qGANs</a>
+  <a href="#s3d" class="sub">QAOA & More</a>
+  <div class="nav-section">Quantum Error Correction</div>
+  <a href="#s4">Why QEC?</a>
+  <a href="#s4b" class="sub">DiVincenzo Criteria</a>
+  <a href="#s4c" class="sub">T₁ and T₂ Coherence Times</a>
+  <a href="#s4d" class="sub">Classical vs Quantum Error</a>
+  <a href="#qec-viz" class="sub">💥 Noise Channel Demo</a>
+  <a href="#s5">3-Qubit Bit-Flip Code</a>
+  <a href="#s5b" class="sub">Encoding Circuit</a>
+  <a href="#s5c" class="sub">Syndrome Measurement</a>
+  <a href="#s5d" class="sub">Error Table & Recovery</a>
+  <a href="#s6">Phase-Flip & Beyond</a>
+  <a href="#s6b" class="sub">Quantum Hamming Bound</a>
+  <a href="#s6c" class="sub">Fault Tolerance Roadmap</a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="week-badge">Week 4</div>
+  <h1>NISQ-Era Algorithms &<br>Quantum Error Correction</h1>
+  <p>Bridging the gap between today's noisy near-term devices and tomorrow's fault-tolerant quantum computers — variational algorithms, the barren plateau problem, VQE, and the theory of quantum error correction.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 0: NISQ ERA                                      -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s0">
+<div class="section-header">
+  <div class="section-num">0</div>
+  <h2>The Three Generations of Quantum Computing</h2>
+</div>
+
+<p>The term <strong>NISQ</strong> (Noisy Intermediate-Scale Quantum) was coined by John Preskill in 2018 to describe the current generation of quantum hardware: devices with 50–1000 qubits, but with errors that prevent running the deep circuits needed for textbook quantum algorithms (Shor, Grover at scale). Understanding where we are in the development of quantum computing is essential context for Week 4.</p>
+
+<div class="gen-tabs">
+  <button class="gen-tab active" onclick="showGen(0)">Generation 1: Experimental</button>
+  <button class="gen-tab" onclick="showGen(1)">Generation 2: NISQ (Now)</button>
+  <button class="gen-tab" onclick="showGen(2)">Generation 3: Fault-Tolerant</button>
+</div>
+<div id="gen-0" class="gen-content active">
+  <div class="card blue">
+    <div class="card-title">🔬 Generation 1 — Experimental Proof-of-Concept (Pre-2019)</div>
+    <p><strong>Qubit count:</strong> 1–50 physical qubits</p>
+    <p><strong>Key milestones:</strong> 1997 — NMR quantum computing (Chuang et al.); 2016 — IBM makes 5-qubit system publicly available via cloud; 2019 — Google claims "quantum supremacy" on 53-qubit Sycamore.</p>
+    <p><strong>Limitations:</strong> Coherence times of microseconds to milliseconds. Gate fidelities insufficient for fault tolerance. Purpose: demonstrate QM principles, not solve useful problems.</p>
+  </div>
+</div>
+<div id="gen-1" class="gen-content">
+  <div class="card highlight">
+    <div class="card-title">⚡ Generation 2 — NISQ (Current, 2019–present)</div>
+    <p><strong>Qubit count:</strong> 50–1000+ qubits (IBM Eagle: 127Q; IBM Condor: 1121Q; Google Willow: 105Q)</p>
+    <p><strong>Characteristics:</strong> Qubits are noisy (error rates $\sim 0.1-1\%$ per gate). No quantum error correction. Circuit depth limited to $\sim 100-1000$ gate layers before noise overwhelms signal.</p>
+    <p><strong>Algorithm class:</strong> Variational Quantum Algorithms (VQA) — designed to work with noise, keeping circuits short. Hybrid quantum-classical loops.</p>
+    <p><strong>Goal:</strong> Find problems where NISQ devices provide any useful advantage over classical computers, even approximately.</p>
+  </div>
+</div>
+<div id="gen-2" class="gen-content">
+  <div class="card example">
+    <div class="card-title">🚀 Generation 3 — Fault-Tolerant QC (Future, post-~2030?)</div>
+    <p><strong>Qubit count:</strong> Millions of <em>physical</em> qubits encoding thousands of <em>logical</em> qubits</p>
+    <p><strong>Characteristics:</strong> Full quantum error correction implemented. Logical error rates exponentially suppressed. Can run arbitrarily deep circuits.</p>
+    <p><strong>Algorithm class:</strong> Shor's algorithm, full Grover's at scale, quantum simulation of large molecules, quantum linear algebra.</p>
+    <p><strong>IBM roadmap targets:</strong> 100+ logical qubits by ~2029 (Flamingo/Kookaburra processors). Google's Willow chip (2024) demonstrated below-threshold error correction with surface codes — a critical milestone.</p>
+  </div>
+</div>
+
+<h3 class="sub" id="s0b">Coherence Times: The Clock of Quantum Computing</h3>
+
+<p>The fundamental challenge of NISQ hardware is <strong>decoherence</strong> — the process by which a qubit's quantum state leaks into the environment, destroying the superposition and entanglement needed for computation. Two timescales characterize this:</p>
+
+<table class="cmp-table">
+<thead><tr><th>Parameter</th><th>Physical Meaning</th><th>Effect on Qubits</th><th>Typical Value (IBM superconducting)</th></tr></thead>
+<tbody>
+<tr><td><strong>$T_1$ (relaxation time)</strong></td><td>Time for qubit to decay from excited state $|1\rangle$ to ground state $|0\rangle$</td><td>Amplitude damping: $|1\rangle \to |0\rangle$ spontaneously</td><td>100–500 μs</td></tr>
+<tr><td><strong>$T_2$ (dephasing time)</strong></td><td>Time for the relative phase between $|0\rangle$ and $|1\rangle$ to randomize</td><td>Phase flip: $|0\rangle+|1\rangle \to |0\rangle-|1\rangle$ randomly</td><td>50–300 μs (always $T_2 \leq 2T_1$)</td></tr>
+<tr><td><strong>Gate time</strong></td><td>Time to execute a single 2-qubit gate</td><td>Limits circuit depth before $T_1/T_2$ elapsed</td><td>~100–500 ns</td></tr>
+</tbody>
+</table>
+
+<p>With $T_1 \approx 200$ μs and gate time $\approx 200$ ns, we can execute $T_1/t_{\text{gate}} \approx 1000$ gates before amplitude errors dominate. This sets the circuit depth limit for current NISQ devices.</p>
+
+<h3 class="sub" id="s0c">Noisy Grover: A Cautionary Example</h3>
+
+<p>To illustrate the impact of noise, consider running Grover's algorithm on a real NISQ device. The ideal algorithm amplifies the target to probability 1. With noise at each gate, after $O(\sqrt{N})$ iterations:</p>
+
+<ul style="padding-left:24px;margin-bottom:14px">
+  <li style="margin-bottom:6px">Each Grover iteration applies $O(n)$ two-qubit gates, each with error rate $\epsilon \approx 0.5\%$</li>
+  <li style="margin-bottom:6px">After $T = O(\sqrt{N})$ iterations: total error probability $\approx T \cdot n \cdot \epsilon = O(\sqrt{N} \cdot n \cdot \epsilon)$</li>
+  <li style="margin-bottom:6px">For $n=20$ qubits ($N=10^6$), $T \approx 800$, error accumulates to $\sim 800 \times 20 \times 0.5\% = 80\%$. Basically random noise!</li>
+</ul>
+
+<p>This is why NISQ algorithms use <em>shallow circuits</em> with small $T$ — variational algorithms in particular fix the circuit depth and let the classical optimizer compensate for noise.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 1: VQA FRAMEWORK                                 -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s1">
+<div class="section-header">
+  <div class="section-num">1</div>
+  <h2>The Variational Quantum Algorithm (VQA) Framework</h2>
+</div>
+
+<p>Variational Quantum Algorithms are a family of hybrid classical-quantum algorithms specifically designed for NISQ hardware. The core insight is to use a <em>fixed-depth parameterized quantum circuit</em> as a function approximator and optimize its parameters classically, using the quantum device only to evaluate expectation values that are hard for classical computers.</p>
+
+<div class="vqa-flow" style="justify-content:center">
+  <div class="vqa-box">
+    <div class="box-title" style="color:var(--accent)">Problem</div>
+    <div style="font-size:0.78rem">Define cost<br>function C(θ)</div>
+  </div>
+  <div class="vqa-arrow">→</div>
+  <div class="vqa-box quantum">
+    <div class="box-title">Quantum Circuit</div>
+    <div style="font-size:0.78rem">U(θ)|0⟩<br>Prepare state</div>
+  </div>
+  <div class="vqa-arrow">→</div>
+  <div class="vqa-box quantum">
+    <div class="box-title">Measure</div>
+    <div style="font-size:0.78rem">⟨ψ(θ)|H|ψ(θ)⟩<br>Expectation value</div>
+  </div>
+  <div class="vqa-arrow">→</div>
+  <div class="vqa-box classical">
+    <div class="box-title">Classical Optimizer</div>
+    <div style="font-size:0.78rem">Update θ<br>∇C(θ)</div>
+  </div>
+  <div class="vqa-arrow">↩</div>
+  <div class="vqa-box">
+    <div class="box-title" style="color:#166534">Converged?</div>
+    <div style="font-size:0.78rem">Output θ* and<br>C(θ*)</div>
+  </div>
+</div>
+
+<h3 class="sub" id="s1b">The Cost Function</h3>
+
+<p>The cost function $C(\boldsymbol{\theta})$ must satisfy three properties for VQA to be viable:</p>
+
+<div class="card definition">
+<div class="card-title">📐 Three Properties of a Good VQA Cost Function</div>
+<ol style="padding-left:20px">
+  <li style="margin-bottom:10px"><strong>Faithful (Problem Encoding):</strong> The minimum of $C(\boldsymbol{\theta})$ over all $\boldsymbol{\theta}$ corresponds to (or bounds) the solution of the original problem. If we're minimizing molecular energy, $C(\boldsymbol{\theta}) = \langle\psi(\boldsymbol{\theta})|H|\psi(\boldsymbol{\theta})\rangle$ where $H$ is the molecular Hamiltonian, and the variational principle guarantees $C(\boldsymbol{\theta}) \geq E_0$ (ground state energy) for all $\boldsymbol{\theta}$.</li>
+  <li style="margin-bottom:10px"><strong>Estimatable (Quantum Evaluable):</strong> $C(\boldsymbol{\theta})$ can be efficiently estimated using measurements on the quantum device. Typically $C$ is a sum of expectation values of Pauli strings: $C = \sum_k c_k \langle P_k\rangle$ where $P_k \in \{I,X,Y,Z\}^{\otimes n}$. Each such term is estimated by repeated measurement in the appropriate basis.</li>
+  <li style="margin-bottom:10px"><strong>Trainable:</strong> The gradient $\nabla_{\boldsymbol{\theta}} C$ can be computed (or approximated) efficiently so that classical optimizers can minimize $C$. This is the source of the barren plateau problem.</li>
+</ol>
+</div>
+
+<h3 class="sub" id="s1c">The Ansatz: Parameterized Quantum Circuits</h3>
+
+<p>The <strong>ansatz</strong> (German for "starting point" or "approach") is the parameterized quantum circuit $U(\boldsymbol{\theta})$ that prepares the trial state $|\psi(\boldsymbol{\theta})\rangle = U(\boldsymbol{\theta})|0\rangle^n$. Choosing a good ansatz is the central challenge in VQA design.</p>
+
+<table class="cmp-table">
+<thead><tr><th>Ansatz Type</th><th>Structure</th><th>Pros</th><th>Cons</th></tr></thead>
+<tbody>
+<tr><td><strong>Problem-Inspired</strong></td><td>Circuit structure motivated by the problem's physics (e.g. UCCSD for chemistry)</td><td>Few parameters; close to true solution; interpretable</td><td>Requires domain knowledge; hardware expensive</td></tr>
+<tr><td><strong>Hardware-Efficient</strong></td><td>Generic layers of single-qubit rotations + hardware-native 2-qubit gates</td><td>Short depth; hardware-compatible; easy to implement</td><td>May not reach the true solution; prone to barren plateaus</td></tr>
+<tr><td><strong>Adaptive (ADAPT-VQE)</strong></td><td>Start simple, greedily add gates to minimize cost</td><td>Compact; provably converges</td><td>Many classical subroutines; fragile</td></tr>
+</tbody>
+</table>
+
+<p>A typical hardware-efficient ansatz has $L$ "layers," each consisting of parameterized $R_y(\theta)$ and $R_z(\phi)$ rotations on each qubit, followed by a fixed entanglement layer (CNOT gates connecting neighboring qubits):</p>
+
+<div class="circuit">Hardware-efficient ansatz (2 qubits, 2 layers):
+
+q₀: ─Ry(θ₁)─Rz(φ₁)─ ● ─Ry(θ₃)─Rz(φ₃)─ ● ─
+                      │                   │
+q₁: ─Ry(θ₂)─Rz(φ₂)─ ⊕ ─Ry(θ₄)─Rz(φ₄)─ ⊕ ─</div>
+
+<h3 class="sub" id="s1d">The Parameter-Shift Rule: Quantum Gradients</h3>
+
+<p>To minimize $C(\boldsymbol{\theta})$, we need gradients $\frac{\partial C}{\partial \theta_k}$. Unlike in classical neural networks (where backpropagation computes exact gradients), quantum circuits require a different approach: the <strong>parameter-shift rule</strong>.</p>
+
+<div class="card definition">
+<div class="card-title">📐 Parameter-Shift Rule</div>
+<p>For a quantum circuit where gate parameter $\theta_k$ appears as $e^{-i\theta_k P/2}$ for a Pauli operator $P$:</p>
+
+$$\frac{\partial C}{\partial \theta_k} = \frac{C(\theta_k + \frac{\pi}{2}) - C(\theta_k - \frac{\pi}{2})}{2}$$
+
+<p>This is an <strong>exact</strong> analytical gradient, computed using only two circuit evaluations (one with $\theta_k$ shifted by $+\pi/2$, one by $-\pi/2$). It's the quantum analogue of finite differences but exact, not approximate.</p>
+</div>
+
+<p>For a circuit with $m$ parameters, computing the full gradient requires $2m$ circuit evaluations. For VQE on a molecule with 20 qubits and 1000 parameters, this means 2000 circuit evaluations <em>per optimization step</em>. This can be reduced using SPSA (Simultaneous Perturbation Stochastic Approximation), which estimates the gradient from only 2 evaluations per step by perturbing all parameters at once.</p>
+
+<h3 class="sub" id="s1e">Classical Optimizers in VQA</h3>
+
+<table class="cmp-table">
+<thead><tr><th>Optimizer</th><th>Type</th><th>Circuit Evaluations per Step</th><th>Best Used When</th></tr></thead>
+<tbody>
+<tr><td><strong>Gradient Descent (SGD)</strong></td><td>First-order gradient-based</td><td>$2m$ (parameter-shift)</td><td>Small circuits, reliable gradients</td></tr>
+<tr><td><strong>Adam</strong></td><td>Adaptive moment estimation</td><td>$2m$</td><td>Moderate noise; standard choice</td></tr>
+<tr><td><strong>Quantum Natural Gradient (QNG)</strong></td><td>Second-order geometry-aware</td><td>$O(m^2)$</td><td>High quality optimization; expensive</td></tr>
+<tr><td><strong>SPSA</strong></td><td>Gradient-free stochastic</td><td><strong>2</strong> (always!)</td><td>Noisy hardware; many parameters</td></tr>
+<tr><td><strong>COBYLA / Nelder-Mead</strong></td><td>Gradient-free classical</td><td>$O(m)$</td><td>Very noisy settings, simple landscapes</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- VQA Simulator -->
+<div class="viz-container" id="vqa-viz">
+  <div class="viz-title">⚙️ VQA Optimization Loop Simulator</div>
+  <div class="viz-subtitle">Simulate how the cost function changes as the classical optimizer adjusts the circuit parameters. Observe convergence (or barren plateau trapping) on a simple 1-parameter landscape.</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap">
+    <div style="min-width:260px">
+      <div style="font-size:0.8rem;font-weight:600;color:var(--muted);margin-bottom:10px">Cost landscape: $C(\theta) = A\cdot\cos(\theta) + B\cdot\sin(2\theta) + \text{noise}$</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <label style="font-size:0.8rem;color:var(--muted)">Noise level σ = <span id="noiseLevel">0.05</span></label>
+          <input type="range" id="noiseSigma" min="0" max="50" value="5" oninput="updateVQANoise()" style="width:200px;accent-color:var(--accent)">
+        </div>
+        <div>
+          <label style="font-size:0.8rem;color:var(--muted)">Learning rate η = <span id="lrVal">0.1</span></label>
+          <input type="range" id="lrSlider" min="1" max="50" value="10" oninput="updateVQALR()" style="width:200px;accent-color:var(--accent)">
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="ctrl-btn" onclick="startVQA()">▶ Run Optimization</button>
+          <button class="ctrl-btn secondary" onclick="resetVQA()">Reset</button>
+        </div>
+        <div id="vqa-status" style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;background:#fffbeb;border-radius:6px;padding:10px;min-height:60px"></div>
+      </div>
+    </div>
+    <canvas id="vqaCanvas" width="380" height="280" style="border-radius:10px;background:#fffdf5;border:1px solid #fde68a;flex-shrink:0"></canvas>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 2: VQA CHALLENGES                                -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s2">
+<div class="section-header">
+  <div class="section-num">2</div>
+  <h2>VQA Challenges: Barren Plateaus and More</h2>
+</div>
+
+<h3 class="sub">The Barren Plateau Problem</h3>
+
+<p>The barren plateau problem is the most serious obstacle to large-scale VQA. It refers to the phenomenon where the gradient of the cost function <em>vanishes exponentially</em> as the system size grows, making optimization infeasible.</p>
+
+<div class="card warning">
+<div class="card-title">💀 Barren Plateau: The Core Problem</div>
+<p>For a random parameterized quantum circuit on $n$ qubits, the variance of the gradient scales as:</p>
+
+$$\text{Var}\left[\frac{\partial C}{\partial \theta_k}\right] \in O\!\left(\frac{1}{2^n}\right)$$
+
+<p>This means the gradient's magnitude is <strong>exponentially small</strong> in system size. The optimization landscape becomes exponentially flat — like trying to find the lowest point in the Sahara by bumping around randomly. With $n=50$ qubits, the gradient is $\sim 10^{-15}$ — undetectable by any finite number of measurements.</p>
+</div>
+
+<p>The barren plateau problem arises from the concentration of measure phenomenon in high-dimensional spaces. When the ansatz is expressible enough to explore the full unitary group (expressibility), random initialization places you in a region where the cost function is nearly constant in all directions.</p>
+
+<p><strong>Mitigation strategies under active research:</strong></p>
+<ul style="padding-left:24px;margin-bottom:14px">
+  <li style="margin-bottom:6px"><strong>Local cost functions:</strong> Instead of a global cost, use a sum of local terms that only involve a few qubits each. Local costs can avoid exponentially small gradients.</li>
+  <li style="margin-bottom:6px"><strong>Problem-inspired initialization:</strong> Start parameters near a known solution (e.g., UCCSD for chemistry), rather than random.</li>
+  <li style="margin-bottom:6px"><strong>Layer-by-layer training:</strong> Add circuit layers gradually, using each layer's optimized parameters as initialization for the next.</li>
+  <li style="margin-bottom:6px"><strong>Correlation-informed strategies:</strong> Understand the problem structure to design low-depth circuits that avoid barren regions.</li>
+</ul>
+
+<h3 class="sub" id="s2b">Noise-Induced Barren Plateaus</h3>
+
+<p>Even without the high-expressibility issue, hardware noise introduces its own barren plateau. In the presence of noise with a constant error rate $\epsilon$ per gate, after $L$ layers of a circuit with $n$ qubits:</p>
+
+$$\text{Var}\!\left[\frac{\partial C}{\partial \theta_k}\right] \leq e^{-\Omega(\epsilon \cdot n \cdot L)}$$
+
+<p>The gradient decays exponentially in circuit depth $L$, qubit count $n$, and error rate $\epsilon$. This fundamentally limits how deep VQA circuits can be before noise makes optimization impossible — even if the hardware has perfect connectivity.</p>
+
+<h3 class="sub" id="s2c">Measurement Efficiency</h3>
+
+<p>Computing the energy expectation value $\langle H\rangle$ for even a small molecule requires evaluating potentially exponentially many terms. For example, the hydrogen molecule H₂ has a Hamiltonian with $\sim 15$ Pauli terms; a 12-qubit molecule might have thousands.</p>
+
+<div class="card blue">
+<div class="card-title">📊 Key Measurement Techniques</div>
+<ul style="padding-left:20px">
+  <li style="margin-bottom:6px"><strong>Pauli string grouping:</strong> Group commuting Pauli terms and measure them simultaneously. Reduces total circuit executions from $O(K)$ to $O(K/c)$ for grouping factor $c$.</li>
+  <li style="margin-bottom:6px"><strong>Shadow tomography:</strong> Use random measurements to estimate many observables from few circuit executions. With $\mathcal{O}(\log M)$ measurements, estimate $M$ observables simultaneously (Aaronson, 2018).</li>
+  <li style="margin-bottom:6px"><strong>Classical shadows (Huang et al., 2020):</strong> Practical version of shadow tomography using random Clifford circuits. Scales favorably for local observables.</li>
+</ul>
+</div>
+
+<h3 class="sub" id="s2d">Error Mitigation on NISQ Hardware</h3>
+
+<p>Error mitigation is distinct from error correction: mitigation doesn't recover the quantum state, but uses classical post-processing to extrapolate what the <em>noiseless</em> result would have been. Key techniques:</p>
+
+<div class="card definition">
+<div class="card-title">📐 Zero-Noise Extrapolation (ZNE)</div>
+<p>Execute the circuit at <em>amplified</em> noise levels (by stretching gate pulses or inserting gate-inverse pairs) and then extrapolate to zero noise. If the expectation value is $E(\lambda) = E_0 + c_1\lambda + c_2\lambda^2 + \ldots$ where $\lambda$ is the noise scale, running at $\lambda = 1, 2, 3$ lets us extrapolate $E(0) = E_0$.</p>
+</div>
+
+<div class="card definition">
+<div class="card-title">📐 Probabilistic Error Cancellation (PEC)</div>
+<p>Decompose the ideal (noiseless) channel as a quasi-probability distribution over implementable noisy channels. Sample from this distribution and compute a weighted average. The sampling overhead is $\gamma^{2n}$ where $\gamma = (1+\epsilon)$ is the one-norm of the quasi-probability, making it expensive for deep circuits.</p>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 3: VQA APPLICATIONS                             -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s3">
+<div class="section-header">
+  <div class="section-num">3</div>
+  <h2>VQA Applications: VQE, QAOA, qGANs</h2>
+</div>
+
+<h3 class="sub">Variational Quantum Eigensolver (VQE)</h3>
+
+<p>VQE is the flagship application of VQA, targeting one of the most important computational challenges in science: finding the <strong>ground state energy</strong> of a molecular Hamiltonian. This underlies drug discovery, materials science, and quantum chemistry.</p>
+
+<div class="card definition">
+<div class="card-title">📐 The VQE Setup</div>
+<p><strong>Problem:</strong> Given a molecular Hamiltonian $H$ (a Hermitian matrix), find the ground state energy $E_0 = \min_\psi \langle\psi|H|\psi\rangle$ and the corresponding ground state $|\psi_0\rangle$.</p>
+<p><strong>Variational principle:</strong> For any trial state $|\psi(\boldsymbol{\theta})\rangle$:</p>
+$$\langle\psi(\boldsymbol{\theta})|H|\psi(\boldsymbol{\theta})\rangle \geq E_0 \quad \text{for all } \boldsymbol{\theta}$$
+<p>So minimizing $C(\boldsymbol{\theta}) = \langle H\rangle_\theta$ over all parameters gives an upper bound on $E_0$, and approaches $E_0$ as the ansatz becomes more expressive.</p>
+</div>
+
+<h3 class="sub" id="s3b">From Electrons to Qubits: Fermion Mappings</h3>
+
+<p>A molecule's electrons obey fermionic statistics: they must be antisymmetric under exchange (Pauli exclusion principle). This needs to be mapped to qubits, which have different algebraic properties. Three main mappings:</p>
+
+<table class="cmp-table">
+<thead><tr><th>Mapping</th><th>Idea</th><th>Qubit Cost</th><th>Pauli String Weight</th></tr></thead>
+<tbody>
+<tr><td><strong>Jordan-Wigner (JW)</strong></td><td>Each spin-orbital = 1 qubit. Occupation number directly. Requires Z-string to maintain antisymmetry.</td><td>$N$ qubits for $N$ spin-orbitals</td><td>$O(N)$ — grows with system size</td></tr>
+<tr><td><strong>Bravyi-Kitaev (BK)</strong></td><td>Encodes both occupation and parity. Balances local and non-local info.</td><td>$N$ qubits</td><td>$O(\log N)$ — more efficient!</td></tr>
+<tr><td><strong>Parity</strong></td><td>Stores cumulative parities. Two qubits can be tapered off by symmetry.</td><td>$N-2$ qubits (after tapering)</td><td>$O(N)$ some terms, $O(1)$ others</td></tr>
+</tbody>
+</table>
+
+<p>After mapping, the Hamiltonian becomes a sum of Pauli strings:</p>
+$$H = \sum_k c_k P_k, \qquad P_k \in \{I, X, Y, Z\}^{\otimes n}$$
+
+<p>For H₂ in a minimal basis with Jordan-Wigner mapping: $H$ has ~15 terms in a 4-qubit encoding. For larger molecules like BeH₂: $\sim$666 terms in 14 qubits. The ansatz used in VQE is often the Unitary Coupled Cluster Singles and Doubles (UCCSD), which is motivated by the quantum chemistry approximation of the same name.</p>
+
+<h3 class="sub" id="s3c">Quantum GANs (qGANs)</h3>
+
+<p>Quantum Generative Adversarial Networks extend classical GANs to quantum settings. They consist of:</p>
+
+<ul style="padding-left:24px;margin-bottom:14px">
+  <li style="margin-bottom:6px"><strong>Quantum Generator:</strong> A parameterized quantum circuit $G(\boldsymbol{\theta})$ that produces a quantum state $|\psi(\boldsymbol{\theta})\rangle$. When measured, this produces a classical sample from the "learned distribution."</li>
+  <li style="margin-bottom:6px"><strong>Classical Discriminator:</strong> A classical neural network $D$ that tries to distinguish samples from the generator from real data.</li>
+  <li style="margin-bottom:6px"><strong>Training:</strong> Generator minimizes $\log(1-D(G(\boldsymbol{\theta})))$; Discriminator maximizes it. Classical adversarial training.</li>
+</ul>
+
+<div class="card example">
+<div class="card-title">🏦 Application: Option Pricing (Finance)</div>
+<p>A key application of qGANs is <strong>loading probability distributions</strong> into quantum states — the "data loading problem" that is hard classically. For pricing a European call option, we need the risk-neutral distribution of the underlying asset at expiry. A qGAN can learn to encode this distribution efficiently in a quantum state, enabling quantum Monte Carlo acceleration using Grover's algorithm for quadratic speedup in the integration. This is one of the most promising near-term financial applications.</p>
+</div>
+
+<h3 class="sub" id="s3d">QAOA and Other VQA Variants</h3>
+
+<table class="cmp-table">
+<thead><tr><th>Algorithm</th><th>Problem Domain</th><th>Structure</th></tr></thead>
+<tbody>
+<tr><td><strong>QAOA</strong></td><td>Combinatorial optimization (MaxCut, TSP, scheduling)</td><td>Alternating cost and mixing unitaries, $p$ layers</td></tr>
+<tr><td><strong>VQE</strong></td><td>Quantum chemistry, materials</td><td>Chemistry-inspired ansatz, energy expectation value</td></tr>
+<tr><td><strong>qGAN</strong></td><td>Generative modeling, Monte Carlo</td><td>Generator circuit + classical discriminator</td></tr>
+<tr><td><strong>VQC (classifier)</strong></td><td>Machine learning</td><td>Data re-uploading + measurement for classification</td></tr>
+<tr><td><strong>Quantum CNN</strong></td><td>Image classification</td><td>Local unitary + pooling layers</td></tr>
+<tr><td><strong>VQLS</strong></td><td>Linear systems $Ax=b$</td><td>Variational quantum linear solver</td></tr>
+</tbody>
+</table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 4: QUANTUM ERROR CORRECTION                      -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s4">
+<div class="section-header">
+  <div class="section-num">4</div>
+  <h2>Quantum Error Correction (QEC)</h2>
+</div>
+
+<p>Quantum error correction is the theory and practice of protecting quantum information from the inevitable errors that occur during quantum computation. Without QEC, we are forever stuck in the NISQ era — a quantum computer without error correction is like a classical computer without error detection, operating in a world where cosmic rays flip bits randomly. QEC is what enables the third generation of fault-tolerant quantum computation.</p>
+
+<h3 class="sub" id="s4b">DiVincenzo Criteria</h3>
+
+<p>Before discussing errors, let us recall what a quantum computer needs to be. David DiVincenzo (2000) formulated five criteria that any physical system must satisfy to implement quantum computation:</p>
+
+<ol style="padding-left:24px;margin-bottom:14px">
+  <li style="margin-bottom:8px"><strong>Well-characterized qubits:</strong> The system must have a well-defined, scalable set of two-level quantum states.</li>
+  <li style="margin-bottom:8px"><strong>Ability to initialize:</strong> Qubits must be initializable to a simple state (usually $|0\rangle$).</li>
+  <li style="margin-bottom:8px"><strong>Long coherence times:</strong> The system must maintain quantum coherence longer than it takes to perform gates.</li>
+  <li style="margin-bottom:8px"><strong>Universal gate set:</strong> A set of quantum gates sufficient for universal quantum computation must be implementable.</li>
+  <li style="margin-bottom:8px"><strong>Qubit-specific measurement:</strong> The ability to measure individual qubits in the computational basis.</li>
+</ol>
+
+<p>(For quantum communication, two additional criteria about conversion between stationary and flying qubits apply.) The hardest criterion in practice is criterion 3 — maintaining long coherence while implementing fast, precise gates.</p>
+
+<h3 class="sub" id="s4c">Coherence Times and the Decoherence Problem</h3>
+
+<p>The environment surrounds every quantum system and continuously "measures" it through interactions, causing <strong>decoherence</strong>. The qubit loses its quantum superposition as the environment "learns" which state it's in. Mathematically, this is described by <em>quantum channels</em> (completely positive trace-preserving maps).</p>
+
+<p>The key noise channels for qubits:</p>
+
+<table class="cmp-table">
+<thead><tr><th>Error Type</th><th>Mathematical Model</th><th>Kraus Operators</th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td><strong>Bit-flip</strong></td><td>With prob $p$: apply $X$</td><td>$\{K_0=\sqrt{1-p}\,I,\; K_1=\sqrt{p}\,X\}$</td><td>$|0\rangle \leftrightarrow |1\rangle$ randomly</td></tr>
+<tr><td><strong>Phase-flip</strong></td><td>With prob $p$: apply $Z$</td><td>$\{K_0=\sqrt{1-p}\,I,\; K_1=\sqrt{p}\,Z\}$</td><td>$|+\rangle \leftrightarrow |{-}\rangle$ randomly</td></tr>
+<tr><td><strong>Depolarizing</strong></td><td>Apply $I,X,Y,Z$ with prob $1-p,\frac{p}{3},\frac{p}{3},\frac{p}{3}$</td><td>4 Kraus operators</td><td>Random rotation; most general single-qubit noise</td></tr>
+<tr><td><strong>Amplitude damping</strong></td><td>$T_1$ decay</td><td>$K_0=\bigl(\begin{smallmatrix}1&0\\0&\sqrt{1-\gamma}\end{smallmatrix}\bigr)$, $K_1=\bigl(\begin{smallmatrix}0&\sqrt{\gamma}\\0&0\end{smallmatrix}\bigr)$</td><td>$|1\rangle \to |0\rangle$ with prob $\gamma$</td></tr>
+</tbody>
+</table>
+
+<h3 class="sub" id="s4d">Why Classical Error Correction Doesn't Work</h3>
+
+<p>Classical error correction uses redundancy: encode $0 \to 000$ and $1 \to 111$, then take the majority vote after transmission. Simple and effective. Why can't we do the same for qubits?</p>
+
+<div class="card warning">
+<div class="card-title">⚠️ Three Quantum Obstacles to Naive Error Correction</div>
+<ol style="padding-left:20px">
+  <li style="margin-bottom:8px"><strong>No-Cloning Theorem:</strong> We cannot copy an arbitrary quantum state, so classical repetition-code encoding $|\psi\rangle \to |\psi\rangle|\psi\rangle|\psi\rangle$ is impossible.</li>
+  <li style="margin-bottom:8px"><strong>Continuum of Errors:</strong> Quantum errors are not discrete bit-flips — a qubit can undergo a continuous rotation $R_x(\epsilon)$ for any tiny $\epsilon$. Classically we only have two possible errors (0 or 1); quantumly we have infinitely many.</li>
+  <li style="margin-bottom:8px"><strong>Measurement Destroys State:</strong> Classical error correction reads the codeword to identify errors. Measuring a quantum state collapses it — we need to detect errors without learning the encoded quantum state.</li>
+</ol>
+</div>
+
+<p>The solutions to these three obstacles are what make QEC theoretically elegant and practically challenging:</p>
+<ol style="padding-left:24px;margin-bottom:14px">
+  <li style="margin-bottom:8px"><strong>Entanglement instead of copying:</strong> We entangle the logical qubit with ancilla qubits in a specific code structure. The code encodes one logical qubit into multiple physical qubits without violating no-cloning.</li>
+  <li style="margin-bottom:8px"><strong>Discretization of errors:</strong> Any quantum error can be decomposed in terms of Pauli operators $\{I, X, Y, Z\}$. QEC corrects a discrete set of errors (bit-flips $X$ and phase-flips $Z$), and the quantum state "snaps" to correctable states (digitization of errors).</li>
+  <li style="margin-bottom:8px"><strong>Syndrome measurement:</strong> We measure special observables called <em>stabilizers</em> that tell us which error occurred without revealing any information about the encoded state. The measurement result is the <em>error syndrome</em>.</li>
+</ol>
+
+<!-- VIZ: NOISE CHANNEL DEMO -->
+<div class="viz-container" id="qec-viz">
+  <div class="viz-title">💥 Quantum Noise Channel Simulator</div>
+  <div class="viz-subtitle">Simulate what happens to a qubit under different noise channels. Observe how errors accumulate and how the Bloch sphere contracts (loss of coherence).</div>
+  <div style="display:flex;gap:20px;flex-wrap:wrap">
+    <div style="min-width:240px">
+      <div style="margin-bottom:12px">
+        <label style="font-size:0.8rem;font-weight:600;color:var(--muted)">Error type:</label><br>
+        <select id="noiseType" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);font-family:inherit;margin-top:4px" onchange="updateNoiseViz()">
+          <option value="bitflip">Bit-flip (X error)</option>
+          <option value="phaseflip">Phase-flip (Z error)</option>
+          <option value="depolar">Depolarizing</option>
+          <option value="ampdamp">Amplitude Damping (T₁)</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.8rem;font-weight:600;color:var(--muted)">Error probability p = <span id="noiseP">0.10</span></label>
+        <input type="range" id="noisePSlider" min="0" max="100" value="10" oninput="updateNoiseViz()" style="width:200px;accent-color:var(--accent)"><br>
+      </div>
+      <div style="margin-top:10px">
+        <label style="font-size:0.8rem;font-weight:600;color:var(--muted)">Apply N times: <span id="noiseReps">1</span></label>
+        <input type="range" id="noiseRepsSlider" min="1" max="20" value="1" oninput="updateNoiseViz()" style="width:200px;accent-color:var(--accent)">
+      </div>
+      <div id="noise-output" style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;background:#fffbeb;border-radius:8px;padding:12px"></div>
+    </div>
+    <canvas id="noiseCanvas" width="300" height="300"></canvas>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 5: 3-QUBIT BIT-FLIP CODE                        -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s5">
+<div class="section-header">
+  <div class="section-num">5</div>
+  <h2>The 3-Qubit Bit-Flip Code</h2>
+</div>
+
+<p>The 3-qubit bit-flip code is the simplest quantum error correcting code. It is the direct quantum analogue of the classical 3-bit repetition code, adapted to handle quantum states correctly.</p>
+
+<div class="card definition">
+<div class="card-title">📐 Code Definition</div>
+<p>Encode one <strong>logical qubit</strong> into three <strong>physical qubits</strong>:</p>
+$$|\bar{0}\rangle = |000\rangle \qquad |\bar{1}\rangle = |111\rangle$$
+<p>A general logical state $|\bar{\psi}\rangle = \alpha|\bar{0}\rangle + \beta|\bar{1}\rangle = \alpha|000\rangle + \beta|111\rangle$.</p>
+<p>This code protects against a single bit-flip error (X gate applied to any one of the three physical qubits), provided the error probability $p < 1/2$.</p>
+</div>
+
+<h3 class="sub" id="s5b">Encoding Circuit</h3>
+
+<p>We start with $|\psi\rangle = \alpha|0\rangle + \beta|1\rangle$ on qubit 0, and two ancilla qubits in $|0\rangle$:</p>
+
+<div class="circuit">Encoding Circuit (3-qubit bit-flip code):
+
+|ψ⟩ = α|0⟩+β|1⟩ ─── ●──── ●──── → Physical qubit 0
+                      │    │
+|0⟩ ──────────────── ⊕──── │──── → Physical qubit 1
+                            │
+|0⟩ ─────────────────────── ⊕──── → Physical qubit 2
+
+Encoded state: α|000⟩ + β|111⟩ = |ψ̄⟩</div>
+
+<p>Let us verify. Starting from $(\alpha|0\rangle + \beta|1\rangle)|00\rangle$:</p>
+<ul style="padding-left:24px;margin-bottom:14px">
+  <li style="margin-bottom:6px">First CNOT (q0 → q1): $\alpha|000\rangle + \beta|110\rangle$</li>
+  <li style="margin-bottom:6px">Second CNOT (q0 → q2): $\alpha|000\rangle + \beta|111\rangle = |\bar\psi\rangle$ ✓</li>
+</ul>
+
+<h3 class="sub" id="s5c">Error Model and Syndrome Measurement</h3>
+
+<p>Assume each physical qubit independently undergoes a bit-flip error (X) with probability $p$ and no error with probability $1-p$. After the bit-flip channel, the encoded state $|\bar\psi\rangle = \alpha|000\rangle + \beta|111\rangle$ is acted on by one of $2^3 = 8$ possible error patterns. We only need to consider single-qubit errors (correction up to first order in $p$):</p>
+
+<p>The <strong>syndrome</strong> is a pair of classical bits obtained by measuring the observables $Z_1Z_2$ (parity of qubits 1 and 2) and $Z_2Z_3$ (parity of qubits 2 and 3). These are measured <em>without</em> disturbing the encoded information:</p>
+
+<table class="syndrome-table">
+<thead><tr><th>Error</th><th>$Z_1Z_2$ measurement</th><th>$Z_2Z_3$ measurement</th><th>Syndrome</th><th>Correction</th></tr></thead>
+<tbody>
+<tr><td>None (I)</td><td>+1</td><td>+1</td><td>00</td><td>None</td></tr>
+<tr><td>$X_1$ (flip qubit 1)</td><td>-1</td><td>+1</td><td>10</td><td>$X_1$</td></tr>
+<tr><td>$X_2$ (flip qubit 2)</td><td>-1</td><td>-1</td><td>11</td><td>$X_2$</td></tr>
+<tr><td>$X_3$ (flip qubit 3)</td><td>+1</td><td>-1</td><td>01</td><td>$X_3$</td></tr>
+</tbody>
+</table>
+
+<p>All four single-qubit error cases (including no error) give distinct syndromes! This is why we can uniquely identify and correct any single-qubit bit-flip error.</p>
+
+<div class="card insight">
+<div class="card-title">🔍 Why This Is Quantum-Legal</div>
+<p>The syndrome measurement ($Z_1Z_2$ and $Z_2Z_3$) commutes with the logical operators ($\bar{X} = X_1X_2X_3$ and $\bar{Z} = Z_1$) and with the code subspace projector. Crucially, it gives us the error information WITHOUT revealing any information about the encoded state ($\alpha$ and $\beta$). This is the key insight: we measure the "error" but not the "data."</p>
+</div>
+
+<h3 class="sub" id="s5d">Full Error Correction Circuit</h3>
+
+<div class="circuit">Full Syndrome Measurement + Correction Circuit:
+
+q₀ ─────── ● ──── ● ─────────────── [correction based on syndrome]
+           │      │
+q₁ ─────── ⊕──── │─── ● ─── ● ──── [ancilla measurement]
+                  │   │
+q₂ ──────────── ⊕─── │─── ● ──── [ancilla measurement]
+                      │   │
+anc₁ ──────────────── ⊕── │─── [M] → bit 1 of syndrome
+                           │
+anc₂ ────────────────────── ⊕── [M] → bit 2 of syndrome
+
+Step 1: Encode (CNOT circuit above)
+Step 2: Wait (noise acts here)
+Step 3: Syndrome measurement (ancilla qubits)
+Step 4: Classical correction based on syndrome table</div>
+
+<h3 class="sub">Logical Error Rate After Correction</h3>
+
+<p>Before correction: each qubit has error probability $p$. After correcting all single-qubit errors, a logical error occurs only if 2 or 3 qubits are flipped simultaneously. The logical error rate is:</p>
+
+$$p_{\text{logical}} = \binom{3}{2}p^2(1-p) + \binom{3}{3}p^3 = 3p^2 - 2p^3 \approx 3p^2 \text{ for small } p$$
+
+<p>For $p = 0.01$ (1% error): $p_{\text{logical}} \approx 3(0.01)^2 = 0.0003$. The 3-qubit code reduces the error rate by a factor of ~33! The requirement for this to help: $p_{\text{logical}} < p$, which gives $3p^2 < p$, i.e., $p < 1/3$. So the code helps whenever the physical error rate is below 1/3 (≈ 33%).</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  SECTION 6: BEYOND THE 3-QUBIT CODE                      -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="section" id="s6">
+<div class="section-header">
+  <div class="section-num">6</div>
+  <h2>Phase-Flip Code, The Shor Code, and Beyond</h2>
+</div>
+
+<h3 class="sub">The 3-Qubit Phase-Flip Code</h3>
+
+<p>The bit-flip code only corrects $X$ errors. A separate phase-flip code corrects $Z$ errors. In the Hadamard basis $\{|{+}\rangle, |{-}\rangle\}$, a Z error looks like a bit-flip (since $Z|{+}\rangle = |{-}\rangle$). So the phase-flip code encodes:</p>
+
+$$|\bar{0}\rangle = |{+}+{+}\rangle = \left(\frac{|0\rangle+|1\rangle}{\sqrt{2}}\right)^{\otimes 3}, \qquad |\bar{1}\rangle = |{-}{-}{-}\rangle$$
+
+<p>Then applying $X_1X_2X_3$ to measure $Z$-parity in the $X$ basis identifies and corrects single $Z$ errors.</p>
+
+<h3 class="sub">The Shor Code: Correcting All Single-Qubit Errors</h3>
+
+<p>The <strong>Shor code</strong> (1995) was the first QEC code that corrects <em>any</em> single-qubit error — bit-flips ($X$), phase-flips ($Z$), combined errors ($Y = iXZ$), and even partial rotations. It concatenates the bit-flip and phase-flip codes:</p>
+
+$$|\bar{0}\rangle = \frac{(|000\rangle + |111\rangle)^{\otimes 3}}{2\sqrt{2}}, \qquad |\bar{1}\rangle = \frac{(|000\rangle - |111\rangle)^{\otimes 3}}{2\sqrt{2}}$$
+
+<p>This encodes 1 logical qubit into <strong>9 physical qubits</strong>. Each block of 3 qubits protects against bit-flips; the larger structure across blocks protects against phase-flips.</p>
+
+<div class="card definition">
+<div class="card-title">📐 Discretization of Errors: Why Shor Works on All Errors</div>
+<p>Any single-qubit error $E$ can be written as $E = e_0 I + e_1 X + e_2 Y + e_3 Z$. When the QEC syndrome is measured, the error "collapses" to one of the Pauli operators $\{I, X, Y, Z\}$ with probabilities $|e_0|^2, |e_1|^2, |e_2|^2, |e_3|^2$. The syndrome then perfectly identifies which Pauli occurred, and the appropriate correction is applied. The error is <strong>digitized</strong> — an analog rotation becomes a discrete correctable error!</p>
+</div>
+
+<h3 class="sub" id="s6b">The Quantum Hamming Bound</h3>
+
+<p>How many physical qubits do we need to encode 1 logical qubit and correct all $t$ single-qubit errors? The quantum Hamming bound gives a lower limit.</p>
+
+<div class="math-block">
+$$\text{Quantum Hamming Bound: } 2^n \geq (1 + 3n)\cdot 2^k$$
+</div>
+
+<p>For encoding $k=1$ logical qubit and correcting $t=1$ error (any single-qubit error), we need:</p>
+$$2^n \geq 1 + 3n \implies n \geq 5$$
+
+<p>The minimum is $n=5$ physical qubits! The <strong>5-qubit perfect code</strong> achieves this bound exactly — it is the smallest possible QEC code for correcting any single-qubit error. The Shor code (9 qubits) is not optimal in this sense, but was historically important as the first example.</p>
+
+<div class="card example">
+<div class="card-title">✏️ Intuition for the Quantum Hamming Bound</div>
+<p>With $n$ physical qubits, we have $2^n$ possible states. We need to accommodate $1 + 3n$ error patterns (no error: 1 pattern; $X, Y, Z$ on each of $n$ qubits: $3n$ patterns) for each of $2^k$ logical codewords. Each error pattern for each logical state must map to a distinct state (otherwise we can't distinguish them during syndrome measurement). This gives the bound $2^n \geq (1+3n)\cdot 2^k$.</p>
+</div>
+
+<h3 class="sub" id="s6c">The Path to Fault-Tolerant Quantum Computing</h3>
+
+<div class="card highlight">
+<div class="card-title">🗺️ IBM and Google Roadmaps</div>
+<p><strong>IBM Quantum roadmap (2024):</strong> The goal is to achieve 100 "error-free" logical qubits with quantum error correction by ~2029 using the Flamingo/Kookaburra processor families. Key milestone: demonstrating that adding more physical qubits reduces the logical error rate (showing "below threshold" behavior).</p>
+
+<p><strong>Google Willow (2024):</strong> The Willow chip (105 qubits) demonstrated for the first time that as the surface code distance $d$ increases from 3→5→7, the logical error rate decreases — confirming below-threshold operation and validating the feasibility of scaling to fault tolerance.</p>
+</div>
+
+<p>The threshold theorem is the theoretical foundation of fault-tolerant QC: if physical error rates are below a certain threshold (typically $\sim 0.1-1\%$ for the surface code), then logical error rates can be made arbitrarily small by using larger codes. Current hardware (IBM, Google) is approaching or crossing this threshold for 2-qubit gate fidelities.</p>
+
+<p>The overhead, however, is enormous: the <strong>surface code</strong> (the leading candidate for fault-tolerant QC) requires $\sim 1000$ physical qubits per logical qubit at practical error rates. Running Shor's algorithm on a 2048-bit RSA number would need $\sim 4$ million physical qubits — many orders of magnitude beyond current capability. The path from today's 1000-qubit chips to millions of qubits requires breakthroughs in fabrication, control electronics, dilution refrigerators at scale, and more.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- JavaScript                                                  -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<script>
+// ─── Generation Tabs ─────────────────────────────────────────────────────────
+function showGen(i){
+  [0,1,2].forEach(j=>{
+    document.getElementById('gen-'+j).classList.toggle('active',i===j);
+    document.querySelectorAll('.gen-tab')[j].classList.toggle('active',i===j);
+  });
+}
+
+// ─── VQA Optimizer Simulation ──────────────────────────────────────────────
+let vqaTheta=Math.random()*2*Math.PI, vqaNoise=0.05, vqaLR=0.1, vqaHistory=[], vqaRunning=false;
+
+function vqaCost(theta, sigma){
+  // C(θ) = cos(θ) + 0.3·sin(2θ) + noise
+  return Math.cos(theta) + 0.3*Math.sin(2*theta) + (Math.random()*2-1)*sigma;
+}
+
+function vqaGrad(theta, sigma){
+  // Parameter shift rule: [C(θ+π/2) - C(θ-π/2)] / 2 + noise
+  const cp = vqaCost(theta+Math.PI/2, sigma);
+  const cm = vqaCost(theta-Math.PI/2, sigma);
+  return (cp-cm)/2;
+}
+function clampTheta(t){ 
+  // Keep theta within a few periods so canvas mapping stays sane
+  return ((t % (4*Math.PI)) + 4*Math.PI) % (4*Math.PI) - 2*Math.PI;
+}
+
+function updateVQANoise(){
+  vqaNoise = parseFloat(document.getElementById('noiseSigma').value)/100;
+  document.getElementById('noiseLevel').textContent = vqaNoise.toFixed(2);
+}
+
+function updateVQALR(){
+  vqaLR = parseFloat(document.getElementById('lrSlider').value)/100;
+  document.getElementById('lrVal').textContent = vqaLR.toFixed(2);
+}
+
+function resetVQA(){
+  vqaRunning=false;
+  vqaTheta=Math.random()*2*Math.PI;
+  vqaHistory=[];
+  document.getElementById('vqa-status').innerHTML='';
+  drawVQA();
+}
+
+function startVQA(){
+  vqaRunning=true;
+  vqaHistory=[{theta:vqaTheta, cost:vqaCost(vqaTheta,0)}];
+  let step=0;
+  function iterate(){
+    if(!vqaRunning||step>=80) return;
+    const g=vqaGrad(vqaTheta,vqaNoise);
+    vqaTheta = clampTheta(vqaTheta - vqaLR*g);
+    const c=vqaCost(vqaTheta,0);
+    vqaHistory.push({theta:vqaTheta, cost:c});
+    step++;
+    const el=document.getElementById('vqa-status');
+    el.innerHTML=`Step ${step}: θ=${vqaTheta.toFixed(3)}, C=${c.toFixed(4)}<br>${step>=80?'<span style="color:#166534">Converged!</span>':'Optimizing...'}`;
+    drawVQA();
+    if(vqaRunning&&step<80) setTimeout(iterate,50);
+  }
+  iterate();
+}
+
+function drawVQA(){
+  const canvas=document.getElementById('vqaCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const mx=40, my=20, pw=W-2*mx, ph=H-my-50;
+
+  // Draw cost landscape
+  const pts=200;
+  ctx.beginPath(); ctx.strokeStyle='#b45309'; ctx.lineWidth=2.5;
+  for(let i=0;i<=pts;i++){
+    const t=-Math.PI+2*Math.PI*i/pts;
+    const c=Math.cos(t)+0.3*Math.sin(2*t);
+    const x=mx+pw*(i/pts);
+    const y=my+ph*(1-(c+1.4)/2.8);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+
+  // Axes
+  ctx.strokeStyle='#fde68a'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(mx,my); ctx.lineTo(mx,H-50); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(mx,H-50); ctx.lineTo(W-mx,H-50); ctx.stroke();
+  ctx.fillStyle='#94a3b8'; ctx.font='11px Source Sans 3,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('θ (parameter)', W/2, H-15);
+  ctx.fillText('-π', mx, H-38);
+  ctx.fillText('+π', W-mx, H-38);
+
+  // History path
+  if(vqaHistory.length>1){
+    ctx.beginPath(); ctx.strokeStyle='rgba(102,16,242,0.6)'; ctx.lineWidth=1.5;
+    vqaHistory.forEach((h,i)=>{
+      const t=h.theta;
+      const tNorm=(t%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+      const tMapped=tNorm>Math.PI?tNorm-2*Math.PI:tNorm;
+      const x=mx+pw*(tMapped+Math.PI)/(2*Math.PI);
+      const c=Math.cos(t)+0.3*Math.sin(2*t);
+      const y=my+ph*(1-(c+1.4)/2.8);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  }
+
+  // Current point
+  if(vqaHistory.length>0){
+    const h=vqaHistory[vqaHistory.length-1];
+    const t=h.theta;
+    const tNorm=(t%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+    const tMapped=tNorm>Math.PI?tNorm-2*Math.PI:tNorm;
+    const x=mx+pw*(tMapped+Math.PI)/(2*Math.PI);
+    const c=Math.cos(t)+0.3*Math.sin(2*t);
+    const y=my+ph*(1-(c+1.4)/2.8);
+    ctx.beginPath(); ctx.arc(x,y,7,0,2*Math.PI);
+    ctx.fillStyle='#f59e0b'; ctx.fill();
+    ctx.strokeStyle='#78350f'; ctx.lineWidth=2; ctx.stroke();
+  }
+}
+
+resetVQA();
+
+// ─── Noise Channel Demo (Bloch sphere contraction) ──────────────────────────
+function drawBlochNoise(canvasId, rx, ry, rz){
+  const canvas=document.getElementById(canvasId);
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  const cx=W/2, cy=H/2, R=Math.min(W,H)*0.36;
+  ctx.clearRect(0,0,W,H);
+
+  // Sphere outline
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,2*Math.PI);
+  ctx.strokeStyle='#b0bec5'; ctx.lineWidth=1.2; ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(cx,cy,R,R*0.28,0,0,2*Math.PI);
+  ctx.setLineDash([5,4]); ctx.strokeStyle='#cfd8dc'; ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Z-axis
+  ctx.strokeStyle='#78909c'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(cx,cy+R*0.8); ctx.lineTo(cx,cy-R-12); ctx.stroke();
+  ctx.fillStyle='#455a64'; ctx.font='13px Cormorant Garamond,serif';
+  ctx.fillText('z',cx+5,cy-R-14);
+
+  // Decoherence volume as ellipsoid (projected)
+  const ex=R*Math.sqrt(Math.max(0, Math.min(1, (1+Math.abs(rx))/2)));
+  const ez=R*Math.sqrt(Math.max(0, Math.min(1, (1+Math.abs(rz))/2)));
+  ctx.beginPath(); ctx.ellipse(cx,cy,ex,ez,0,0,2*Math.PI);
+  ctx.fillStyle='rgba(180,83,9,0.12)'; ctx.fill();
+  ctx.strokeStyle='rgba(180,83,9,0.5)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  // Original pure state pointer (|+⟩)
+  ctx.strokeStyle='#94a3b8'; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+R,cy); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Mixed state pointer (shrunk)
+  const mixX=cx+rx*R, mixY=cy-rz*R*0.5;
+  ctx.strokeStyle='#b45309'; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(mixX,mixY); ctx.stroke();
+  ctx.beginPath(); ctx.arc(mixX,mixY,5,0,2*Math.PI);
+  ctx.fillStyle='#b45309'; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy,3,0,2*Math.PI);
+  ctx.fillStyle='#78909c'; ctx.fill();
+
+  ctx.fillStyle='#263238'; ctx.font='12px Source Sans 3,sans-serif'; ctx.textAlign='center';
+  ctx.fillText('|0⟩',cx,cy-R-18);
+  ctx.fillText('|1⟩',cx,cy+R+16);
+}
+
+function updateNoiseViz(){
+  const type=document.getElementById('noiseType').value;
+  const p=parseFloat(document.getElementById('noisePSlider').value)/100;
+  const N=parseInt(document.getElementById('noiseRepsSlider').value);
+  document.getElementById('noiseP').textContent=p.toFixed(2);
+  document.getElementById('noiseReps').textContent=N;
+
+  // Compute effective Bloch vector components after N applications
+  let rx,ry,rz;
+  const gamma=1-(1-2*p)**N;
+  if(type==='bitflip'){
+    // X errors: r_x unchanged, r_y and r_z decay by (1-2p)^N per step
+    // Starting from |+⟩ = (rx=1, ry=0, rz=0) — rx preserved, others decay
+    const decay = (1-2*p)**N;
+    rx=1; ry=decay*0.3; rz=decay*0.6; // show typical state decay
+    document.getElementById('noise-output').innerHTML=`Bit-flip channel (N=${N} applications, p=${p.toFixed(2)} per step)<br>r_x: unchanged (flip along x-axis doesn't affect X-component)<br>r_y, r_z: decay as (1-2p)^N = ${decay.toFixed(4)}<br>Coherence remaining: ${(100*Math.abs(decay)).toFixed(1)}%`;
+  } else if(type==='phaseflip'){
+    // Z errors: r_z unchanged, r_x and r_y decay
+    const decay = (1-2*p)**N;
+    rx=decay; ry=decay*0.5; rz=0.7; // z preserved; x,y shrink
+    document.getElementById('noise-output').innerHTML=`Phase-flip channel (N=${N} applications, p=${p.toFixed(2)} per step)<br>r_z: unchanged (Z errors don't affect z-component)<br>r_x, r_y: decay as (1-2p)^N = ${decay.toFixed(4)}<br>Phase coherence remaining: ${(100*Math.abs(decay)).toFixed(1)}%`;
+  } else if(type==='depolar'){
+    const decay=Math.max(-1, (1-4*p/3)**N);
+    rx=decay; ry=decay*0.7; rz=decay*0.5;
+    document.getElementById('noise-output').innerHTML=`Depolarizing channel (N=${N} applications, p=${p.toFixed(2)} per step)<br>All Bloch components decay uniformly: r → (1-4p/3)^N · r = ${decay.toFixed(4)}<br>Coherence remaining: ${(100*Math.abs(decay)).toFixed(1)}%<br>Shrinks toward completely mixed state (center of Bloch sphere)`;
+  } else {
+    // Amplitude damping: r_x,r_y → sqrt(1-γ)·r; r_z → (1-γ)·r_z + γ
+    // Physical formula: starting from |+⟩ → (1,0,0). Under N amp-damp steps:
+    // r_x,r_y → sqrt(1-γ_single)^N * r_xy; r_z → γ_eff (drift toward |0⟩ = +z)
+    const sqrtG=Math.sqrt(Math.max(0, 1-Math.min(gamma,0.9999)));
+    rx=sqrtG; ry=sqrtG*0.8; rz=Math.min(0.9, gamma); // rz grows toward +1 (|0⟩ pole)
+    document.getElementById('noise-output').innerHTML=`Amplitude damping (T₁ decay): N=${N} steps, γ_total=${gamma.toFixed(3)}<br>r_x, r_y shrink as √(1-γ)^N = ${sqrtG.toFixed(4)}<br>r_z drifts → +1 (toward |0⟩ ground state): r_z = ${rz.toFixed(3)}<br>Excited state |1⟩ spontaneously decays to ground |0⟩`;
+  }
+  drawBlochNoise('noiseCanvas', rx, ry, rz);
+}
+updateNoiseViz();
+
+// Sidebar scroll highlight
+const sections=document.querySelectorAll('.section');
+const navLinks=document.querySelectorAll('nav a');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  sections.forEach(s=>{ if(window.scrollY>=s.offsetTop-80) cur=s.id; });
+  navLinks.forEach(a=>{ a.classList.toggle('active',a.getAttribute('href')==='#'+cur); });
+});
+</script>
+</main>
+</body>
+</html>
