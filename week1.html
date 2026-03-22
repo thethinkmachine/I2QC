@@ -1,1192 +1,1165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Week 1 — Quantum Mechanics & Computing Foundations</title>
-<meta name="description" content="Week 1 course notes: Dirac notation, qubits, Bloch sphere, postulates of QM, quantum gates, and multi-qubit systems.">
-<script>MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],tags:'ams'},options:{skipHtmlTags:['script','noscript','style','textarea','pre']}};
-</script>
-<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
-<style>
-  :root { --accent: #1a4e8a; --accent2: #2d7dd2; }
-  .hero { background: linear-gradient(135deg, #0f2444 0%, #1a4e8a 60%, #2d7dd2 100%); }
-  .hero .week-badge { color: #93c5fd; }
-  .hero p { color: #bfdbfe; }
-</style>
-<script src="theme.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 1 — Quantum Mechanics & Computing Foundations</title>
+  <link rel="stylesheet" href="css/main.css">
+  <!-- MathJax -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        displayMath: [['$$','$$'], ['\\[','\\]']],
+        tags: 'ams',
+        macros: {
+          ket: ['\\left|#1\\right\\rangle', 1],
+          bra: ['\\left\\langle#1\\right|', 1],
+          braket: ['\\left\\langle#1\\right\\rangle', 1],
+          expect: ['\\left\\langle #1 \\right\\rangle', 1],
+          norm: ['\\left\\|#1\\right\\|', 1],
+          C: '\\mathbb{C}', R: '\\mathbb{R}',
+          H: '\\mathcal{H}',
+          id: '\\mathbb{I}',
+          hbar: '\\hbar'
+        }
+      },
+      options: { skipHtmlTags: ['script','style','pre','code'] }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <!-- Three.js for Bloch sphere -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
-<body class="week-page">
+<body>
 
-<div class="topnav">
-  <button class="sidebar-toggle" id="sidebar-toggle-btn" title="Toggle sidebar">☰</button>
-  <a href="index.html" class="topnav-brand"><span>⚛</span> I2QC Notes</a>
-  <div class="topnav-links">
-    <a href="index.html" class="topnav-link">Home</a>
-    <a href="week1.html" class="topnav-link current">W1</a>
-    <a href="week2.html" class="topnav-link">W2</a>
-    <a href="week3.html" class="topnav-link">W3</a>
-    <a href="week4.html" class="topnav-link">W4</a>
-  </div>
-  <button class="theme-toggle" id="theme-toggle-btn" title="Toggle theme">🌙</button>
-</div>
-<div class="sidebar-overlay" id="sidebar-overlay"></div>
-<nav id="sidebar">
-  <div class="nav-head">
-    <h2>Intro to Quantum Computing</h2>
-    <p>Week 1 · Foundations</p>
-  </div>
-  <div class="nav-section">Motivation</div>
-  <a href="#s1" class="active">Why Quantum Computing?</a>
-  <a href="#s1b" class="sub">Classical vs Quantum</a>
-  <div class="nav-section">Mathematical Tools</div>
-  <a href="#s2">Dirac Notation</a>
-  <a href="#s2b" class="sub">Inner & Outer Products</a>
-  <div class="nav-section">The Qubit</div>
-  <a href="#s3">Superposition & Qubits</a>
-  <a href="#bloch-viz" class="sub">🔵 Bloch Sphere Explorer</a>
-  <div class="nav-section">Postulates of QM</div>
-  <a href="#s4">Postulate 1: States</a>
-  <a href="#s4b" class="sub">Hilbert Space</a>
-  <a href="#s4c" class="sub">Physical Qubit Systems</a>
-  <a href="#s4d" class="sub">Basis Transformations</a>
-  <a href="#s5">Postulate 2: Observables</a>
-  <a href="#s5b" class="sub">Hermitian Operators</a>
-  <a href="#s5c" class="sub">Pauli Matrices</a>
-  <a href="#s6">Postulate 3: Time Evolution</a>
-  <a href="#s7">Measurement & Born Rule</a>
-  <a href="#meas-viz" class="sub">🎲 Measurement Simulator</a>
-  <a href="#s7b" class="sub">Stern-Gerlach Experiment</a>
-  <a href="#s7c" class="sub">Uncertainty Principle</a>
-  <div class="nav-section">Quantum Gates</div>
-  <a href="#s8">Single-Qubit Gates</a>
-  <a href="#gate-viz" class="sub">⚙️ Gate Explorer</a>
-  <a href="#s8b" class="sub">Quantum Circuits</a>
-  <div class="nav-section">Multi-Qubit Systems</div>
-  <a href="#s9">Tensor Products</a>
-  <a href="#s9b" class="sub">Entanglement</a>
-  <a href="#s9c" class="sub">CNOT & Multi-Qubit Gates</a>
-  <a href="#s9d" class="sub">Universality</a>
-  <a href="#s9e" class="sub">Circuit Identities</a>
+<div class="reading-progress"><div class="reading-progress-bar"></div></div>
+
+<nav class="nav">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-brand-icon">Ψ</div>
+    <span class="nav-brand-text">Quantum Notes</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="week1.html" class="w1 active"><span class="week-dot"></span>Week 1</a></li>
+    <li><a href="week2.html" class="w2"><span class="week-dot"></span>Week 2</a></li>
+    <li><a href="week3.html" class="w3"><span class="week-dot"></span>Week 3</a></li>
+    <li><a href="week4.html" class="w4"><span class="week-dot"></span>Week 4</a></li>
+  </ul>
 </nav>
 
-<main>
-<div class="hero">
-  <div class="week-badge">Week 1</div>
-  <h1>Quantum Mechanics &<br>Computing Foundations</h1>
-  <p>From the motivation for quantum computing all the way through qubits, gates, postulates of quantum mechanics, measurement, and multi-qubit systems — the complete mathematical and physical foundation.</p>
-</div>
+<div class="page-wrapper">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-week-badge w1">⬡ Week 1</div>
+    <h1 class="hero-title">Quantum Mechanics &amp;<br>Computing Foundations</h1>
+    <p class="hero-subtitle">
+      From the motivation behind quantum computing through linear algebra,
+      postulates of quantum mechanics, qubits, gates, and circuits — building
+      the complete mathematical language of the quantum world.
+    </p>
+    <div class="hero-toc-preview">
+      <a href="#s1" class="toc-pill">1. Why Quantum?</a>
+      <a href="#s2" class="toc-pill">2. Linear Algebra</a>
+      <a href="#s3" class="toc-pill">3. Qubits</a>
+      <a href="#s4" class="toc-pill">4. Postulate 1: State</a>
+      <a href="#s5" class="toc-pill">5. Postulate 2: Observables</a>
+      <a href="#s6" class="toc-pill">6. Postulate 3: Evolution</a>
+      <a href="#s7" class="toc-pill">7. Postulate 4: Measurement</a>
+      <a href="#s8" class="toc-pill">8. Quantum Gates</a>
+      <a href="#s9" class="toc-pill">9. Multi-Qubit Systems</a>
+      <a href="#s10" class="toc-pill">10. Circuits</a>
+    </div>
+  </div>
 
-<!-- ══════════════════════════════════════════════════════════ -->
-<!--  SECTION 1: WHY QUANTUM COMPUTING                         -->
-<!-- ══════════════════════════════════════════════════════════ -->
-<div class="section" id="s1">
-<div class="section-header">
-  <div class="section-num">1</div>
-  <h2>Why Quantum Computing?</h2>
-</div>
+  <div class="content-wrapper">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-title">Contents</div>
+        <ul class="sidebar-nav">
+          <li><a href="#s1"><span class="section-num">1.</span> Why Quantum Computing?</a></li>
+          <li><a href="#s2"><span class="section-num">2.</span> Linear Algebra & Dirac Notation</a></li>
+          <li class="sub-item"><a href="#s2-vectors">2.1 Vectors &amp; inner products</a></li>
+          <li class="sub-item"><a href="#s2-operators">2.2 Operators &amp; matrices</a></li>
+          <li class="sub-item"><a href="#s2-dirac">2.3 Dirac bra-ket</a></li>
+          <li><a href="#s3"><span class="section-num">3.</span> Qubits</a></li>
+          <li class="sub-item"><a href="#s3-bloch">3.1 Bloch sphere</a></li>
+          <li><a href="#s4"><span class="section-num">4.</span> Postulate 1: State Space</a></li>
+          <li><a href="#s5"><span class="section-num">5.</span> Postulate 2: Observables</a></li>
+          <li><a href="#s6"><span class="section-num">6.</span> Postulate 3: Evolution</a></li>
+          <li><a href="#s7"><span class="section-num">7.</span> Postulate 4: Measurement</a></li>
+          <li class="sub-item"><a href="#s7-hup">7.1 Heisenberg Uncertainty</a></li>
+          <li><a href="#s8"><span class="section-num">8.</span> Single-Qubit Gates</a></li>
+          <li><a href="#s9"><span class="section-num">9.</span> Multi-Qubit Systems</a></li>
+          <li><a href="#s10"><span class="section-num">10.</span> Multi-Qubit Gates</a></li>
+        </ul>
+      </div>
+    </aside>
 
-<p>Classical computers — from the earliest ENIAC to today's most powerful supercomputers — all share the same underlying model of computation: they manipulate <em>bits</em>, which are either 0 or 1. Over decades, we've gotten extraordinarily good at making these machines faster and more efficient. But there exists a class of problems where even the best classical computer in the world, given until the heat death of the universe, would still not find the answer. These are <strong>intrinsically hard problems</strong>, and they appear everywhere: in cryptography, in simulating the physics and chemistry of molecules, in optimisation over enormous solution spaces.</p>
+    <!-- MAIN ARTICLE -->
+    <article class="article">
 
-<div class="card highlight">
-  <div class="card-title">💡 The Core Idea</div>
-  <p>Quantum computers do not simply run the same algorithm faster. They exploit fundamentally different physical phenomena — <strong>superposition, entanglement, and interference</strong> — to explore solution spaces in ways that are <em>structurally impossible</em> for classical machines.</p>
-</div>
-
-<h3 class="sub" id="s1b">Polynomial vs. Exponential: The Real Problem</h3>
-
-<p>In computer science, we measure the difficulty of a problem by how the time to solve it scales with the size of the input $n$. A problem is considered <strong>tractable</strong> (practically solvable) if it scales polynomially — $O(n^2)$, $O(n^3)$, etc. Problems that scale <strong>exponentially</strong> — $O(2^n)$ — become completely infeasible for large $n$, even on the fastest hardware.</p>
-
-<p>Consider factoring a number $N$ into its prime factors. For small numbers like $15 = 3 \times 5$, this is trivial. But as $N$ grows to hundreds of digits — the scale used in RSA encryption — the best known classical algorithms take time that grows faster than any polynomial. The entire global cryptographic infrastructure rests on this hardness. Shor's quantum algorithm (1994) breaks this in polynomial time.</p>
-
-<table class="cmp-table">
-<thead><tr><th>Property</th><th>Classical Computing</th><th>Quantum Computing</th></tr></thead>
-<tbody>
-<tr><td>Basic unit</td><td>Bit: $b \in \{0, 1\}$</td><td>Qubit: $|\psi\rangle = \alpha|0\rangle + \beta|1\rangle$</td></tr>
-<tr><td>Algebra</td><td>Boolean algebra</td><td>Linear algebra over $\mathbb{C}$</td></tr>
-<tr><td>Gate type</td><td>AND, OR, NOT (irreversible)</td><td>Unitary matrices (reversible)</td></tr>
-<tr><td>State space for $n$ units</td><td>$2^n$ possible states, one at a time</td><td>$2^n$-dimensional Hilbert space, all at once</td></tr>
-<tr><td>Computational model</td><td>Sequential bit manipulation</td><td>Unitary evolution + measurement</td></tr>
-<tr><td>Key resource</td><td>Speed, transistor density</td><td>Superposition, entanglement, interference</td></tr>
-</tbody>
-</table>
-
-<p>The critical phrase above is "all at once." An $n$-qubit quantum system lives in a $2^n$-dimensional space, and a quantum algorithm can, in a sense, explore this entire space simultaneously. The trick — and it is an extraordinarily subtle one — is using <em>interference</em> to make the right answers amplify and the wrong answers cancel, so that measurement has high probability of returning the correct result.</p>
-</div>
-
-<!-- ══════════════════════════════════════════════════════════ -->
-<!--  SECTION 2: DIRAC NOTATION                                -->
-<!-- ══════════════════════════════════════════════════════════ -->
-<div class="section" id="s2">
-<div class="section-header">
-  <div class="section-num">2</div>
-  <h2>Mathematical Foundations: Dirac Notation</h2>
-</div>
-
-<p>Paul Dirac invented a notation for quantum mechanics that is both mathematically precise and remarkably compact. Understanding it is absolutely non-negotiable — every equation from here until the end of the course uses it. The notation is called <strong>bra-ket notation</strong>.</p>
-
-<div class="card definition">
-<div class="card-title">📐 The Ket: A Column Vector</div>
-<p>A <strong>ket</strong> $|\psi\rangle$ is a column vector living in a complex vector space (a <em>Hilbert space</em>). For a qubit, this is a vector in $\mathbb{C}^2$:</p>
-
-$$|\psi\rangle = \begin{pmatrix} \alpha \\ \beta \end{pmatrix}, \quad \alpha, \beta \in \mathbb{C}$$
-
-<p>The ket $|0\rangle$ and $|1\rangle$ are the two <strong>basis kets</strong>:</p>
-
-$$|0\rangle = \begin{pmatrix} 1 \\ 0 \end{pmatrix}, \qquad |1\rangle = \begin{pmatrix} 0 \\ 1 \end{pmatrix}$$
-</div>
-
-<div class="card definition">
-<div class="card-title">📐 The Bra: A Row Vector (Conjugate Transpose)</div>
-<p>The <strong>bra</strong> $\langle\psi|$ is the <em>conjugate transpose</em> (also called the adjoint or Hermitian conjugate, written $\dagger$) of the ket:</p>
-
-$$\langle\psi| = |\psi\rangle^\dagger = \begin{pmatrix} \alpha^* & \beta^* \end{pmatrix}$$
-
-<p>where $\alpha^*$ denotes the complex conjugate of $\alpha$. So if $\alpha = a + bi$, then $\alpha^* = a - bi$.</p>
-</div>
-
-<h3 class="sub" id="s2b">Inner Product: The Bra-Ket ⟨φ|ψ⟩</h3>
-
-<p>When we combine a bra $\langle\phi|$ and a ket $|\psi\rangle$, we get an <strong>inner product</strong> — a single complex number, analogous to the dot product of real vectors. This is written as a "bracket": $\langle\phi|\psi\rangle$.</p>
-
-<div class="card definition">
-<div class="card-title">📐 Inner Product Formula</div>
-<p>For $d$-dimensional vectors:</p>
-
-$$\langle\phi|\psi\rangle = \begin{pmatrix}\phi_1^* & \phi_2^* & \cdots & \phi_d^*\end{pmatrix}\begin{pmatrix}\psi_1\\\psi_2\\\vdots\\\psi_d\end{pmatrix} = \sum_{i=1}^d \phi_i^* \psi_i$$
-
-<p><strong>Key property:</strong> $\langle\phi|\psi\rangle = \langle\psi|\phi\rangle^*$ (complex conjugate when you swap order).</p>
-<p><strong>Norm:</strong> $\langle\psi|\psi\rangle = \sum_i |\psi_i|^2 \geq 0$, and equals 1 for normalized quantum states.</p>
-</div>
-
-<div class="card example">
-<div class="card-title">✏️ Example: Inner Products of Basis States</div>
-<p>The computational basis states $\{|0\rangle, |1\rangle\}$ are <strong>orthonormal</strong>:</p>
-
-$$\langle 0|0\rangle = 1 \cdot 1 + 0 \cdot 0 = 1, \qquad \langle 1|1\rangle = 1$$
-$$\langle 0|1\rangle = 1 \cdot 0 + 0 \cdot 1 = 0, \qquad \langle 1|0\rangle = 0$$
-
-<p>Orthogonal means $\langle i|j\rangle = \delta_{ij}$ (Kronecker delta — 1 if equal, 0 otherwise). This is exactly the quantum analogue of perpendicular unit vectors.</p>
-</div>
-
-<h3 class="sub">Outer Product: The Ket-Bra $|\psi\rangle\langle\phi|$</h3>
-
-<p>Reversing the order gives not a scalar but a <strong>matrix</strong> — called an outer product. It acts as a linear transformation on quantum states:</p>
-
-$$|v\rangle\langle w| = \begin{pmatrix}v_1\\v_2\end{pmatrix}\begin{pmatrix}w_1^* & w_2^*\end{pmatrix} = \begin{pmatrix}v_1 w_1^* & v_1 w_2^* \\ v_2 w_1^* & v_2 w_2^*\end{pmatrix}$$
-
-<div class="card example">
-<div class="card-title">✏️ Outer Products as Building Blocks of Operators</div>
-<p>The four outer products of basis vectors form a complete set of $2 \times 2$ matrices:</p>
-
-$$|0\rangle\langle 0| = \begin{pmatrix}1&0\\0&0\end{pmatrix},\quad |0\rangle\langle 1| = \begin{pmatrix}0&1\\0&0\end{pmatrix},\quad |1\rangle\langle 0| = \begin{pmatrix}0&0\\1&0\end{pmatrix},\quad |1\rangle\langle 1| = \begin{pmatrix}0&0\\0&1\end{pmatrix}$$
-
-<p>Any $2\times 2$ matrix can be written as a linear combination of these. This representation is powerful: the <strong>identity operator</strong> is $I = |0\rangle\langle 0| + |1\rangle\langle 1|$, and the Hadamard gate (to be introduced shortly) is $H = |{+}\rangle\langle 0| + |{-}\rangle\langle 1|$.</p>
-</div>
-
-<div class="card insight">
-<div class="card-title">🔍 Why Complex Numbers?</div>
-<p>You might wonder why we need complex amplitudes and not just real ones. The answer lies in <strong>interference</strong>. Complex amplitudes have a <em>phase</em> — an angle in the complex plane — and it is this phase that allows two probability amplitudes to interfere destructively (cancel out) or constructively (reinforce). This interference, harnessed by quantum algorithms, is what provides computational advantage. Without complex numbers, quantum mechanics simply doesn't work.</p>
-</div>
-</div>
-
-<!-- ══════════════════════════════════════════════════════════ -->
-<!--  SECTION 3: QUBITS AND BLOCH SPHERE                      -->
-<!-- ══════════════════════════════════════════════════════════ -->
-<div class="section" id="s3">
-<div class="section-header">
-  <div class="section-num">3</div>
-  <h2>The Qubit — Superposition and Representation</h2>
-</div>
-
-<p>The <strong>quantum bit</strong>, or <em>qubit</em>, is the fundamental unit of quantum information. Unlike a classical bit which must be 0 or 1, a qubit can exist in a <em>superposition</em> of both simultaneously — until it is measured.</p>
-
-<div class="card definition">
-<div class="card-title">📐 General Qubit State</div>
-
-$$|\psi\rangle = \alpha|0\rangle + \beta|1\rangle, \qquad \alpha,\beta \in \mathbb{C}$$
-
-<p>with the <strong>normalization constraint</strong>: $|\alpha|^2 + |\beta|^2 = 1$.</p>
-
-<p>Here $\alpha$ and $\beta$ are called <strong>probability amplitudes</strong>. They are complex numbers, and their squared moduli give the probabilities of measurement outcomes:</p>
-
-$$P(\text{measure }|0\rangle) = |\alpha|^2, \qquad P(\text{measure }|1\rangle) = |\beta|^2$$
-
-<p>Since probabilities must sum to 1, the normalization condition follows immediately.</p>
-</div>
-
-<div class="card insight">
-<div class="card-title">🔍 What Does Superposition Really Mean?</div>
-<p>The qubit is NOT "secretly" in either $|0\rangle$ or $|1\rangle$ — it is genuinely in both states simultaneously. This is not merely a statement of our ignorance (like a coin spinning in the air). It is a fundamental property of quantum systems, confirmed by countless experiments. The qubit "collapses" to one definite state only when measured, and this collapse is irreversible and random (but with well-defined probabilities).</p>
-</div>
-
-<h3 class="sub">Global Phase vs. Relative Phase</h3>
-
-<p>If we multiply an entire qubit state by a complex number of modulus 1 — a "global phase" $e^{i\gamma}$ — the physical state is unchanged:</p>
-$$e^{i\gamma}|\psi\rangle \text{ is physically identical to } |\psi\rangle$$
-
-<p>However, a <strong>relative phase</strong> between $\alpha$ and $\beta$ <em>does</em> matter. The state $|0\rangle + |1\rangle$ is physically different from $|0\rangle - |1\rangle$ even though both have equal measurement probabilities. The difference manifests in interference experiments. This is why qubits have two real degrees of freedom (not two complex degrees of freedom, which would be four real numbers).</p>
-
-<h3 class="sub">Bloch Sphere Parametrization</h3>
-
-<p>Since the global phase is irrelevant, and we have the normalization constraint, any qubit state can be written with just two real parameters $\theta$ and $\phi$:</p>
-
-<div class="math-block">
-$$|\psi\rangle = \cos\!\left(\frac{\theta}{2}\right)|0\rangle + e^{i\phi}\sin\!\left(\frac{\theta}{2}\right)|1\rangle, \qquad \theta \in [0,\pi],\quad \phi \in [0, 2\pi)$$
-</div>
-
-<p>This maps the state to a point on the surface of a unit sphere in 3D space — the <strong>Bloch sphere</strong> — with Cartesian coordinates:</p>
-
-$$x = \sin\theta\cos\phi, \qquad y = \sin\theta\sin\phi, \qquad z = \cos\theta$$
-
-<p>The north pole ($\theta = 0$) corresponds to $|0\rangle$; the south pole ($\theta = \pi$) to $|1\rangle$. The equator ($\theta = \pi/2$) gives states with equal measurement probabilities, differing only in phase $\phi$. The important $|{+}\rangle$ and $|{-}\rangle$ states lie on the equator at $\phi = 0$ and $\phi = \pi$ respectively.</p>
-
-<!-- ============================================================ -->
-<!-- VIZ 1: BLOCH SPHERE EXPLORER                                 -->
-<!-- ============================================================ -->
-<div class="viz-container" id="bloch-viz">
-  <div class="viz-title">🔵 Interactive Bloch Sphere Explorer</div>
-  <div class="viz-subtitle">Drag the sliders to move the qubit state on the Bloch sphere. Watch the state vector move and the state label update in real time.</div>
-  <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
-    <canvas id="blochCanvas" width="340" height="340" style="border-radius:10px;background:#f8faff;flex-shrink:0"></canvas>
-    <div style="flex:1;min-width:220px">
-      <div id="bloch-state-display">State: |0⟩</div>
-      <div class="viz-controls" style="flex-direction:column;border:none;padding:0;margin-top:16px">
-        <div class="ctrl-group">
-          <label>Polar angle θ (from |0⟩ to |1⟩) = <span class="ctrl-val" id="thetaVal">0°</span></label>
-          <input type="range" id="thetaSlider" min="0" max="180" value="0" step="1">
+      <!-- ══════════════════════════════════════════════════════ -->
+      <section class="section" id="s1">
+        <div class="section-header">
+          <span class="section-number">01</span>
+          <h2 class="section-title">Why Quantum Computing?</h2>
         </div>
-        <div class="ctrl-group">
-          <label>Azimuthal angle φ (phase) = <span class="ctrl-val" id="phiVal">0°</span></label>
-          <input type="range" id="phiSlider" min="0" max="360" value="0" step="1">
+
+        <p>
+          Classical computers have served us extraordinarily well for decades, following Moore's Law
+          in doubling transistor density roughly every 18–24 months. But as transistors approach the
+          atomic scale, quantum mechanical effects — once a nuisance — become dominant. Quantum
+          computing is not simply "faster classical computing"; it is a fundamentally different
+          computational paradigm that exploits quantum phenomena to perform certain computations
+          that are <em>provably intractable</em> on classical hardware.
+        </p>
+
+        <div class="callout insight">
+          <div class="callout-header">🔑 Core Insight</div>
+          <p>
+            A classical bit is either 0 <em>or</em> 1. A qubit can exist in a <strong>superposition</strong>
+            of both simultaneously. Crucially, $n$ qubits can encode $2^n$ amplitudes simultaneously —
+            an exponential advantage in state-space representation.
+          </p>
         </div>
-        <div style="margin-top:12px">
-          <div style="font-size:0.8rem;font-weight:600;color:var(--muted);margin-bottom:8px">Notable States:</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px">
-            <button class="ctrl-btn secondary" onclick="setBlochState(0,0)">|0⟩</button>
-            <button class="ctrl-btn secondary" onclick="setBlochState(180,0)">|1⟩</button>
-            <button class="ctrl-btn secondary" onclick="setBlochState(90,0)">|+⟩</button>
-            <button class="ctrl-btn secondary" onclick="setBlochState(90,180)">|−⟩</button>
-            <button class="ctrl-btn secondary" onclick="setBlochState(90,90)">|+i⟩</button>
-            <button class="ctrl-btn secondary" onclick="setBlochState(90,270)">|−i⟩</button>
+
+        <div class="subsection">
+          <h3 class="subsection-title">The State Space Argument</h3>
+          <p>
+            To describe the state of $n$ classical bits, you need $n$ numbers (each 0 or 1).
+            To describe the state of $n$ qubits, you generally need $2^n$ complex amplitudes.
+            For $n = 300$, this is $2^{300}$ — far more than the estimated number of atoms
+            in the observable universe ($\approx 10^{80}$). Classical computers cannot even
+            <em>store</em> a general 300-qubit state, let alone simulate its evolution.
+          </p>
+          <p>
+            This exponential state space is precisely what quantum algorithms harness. By
+            carefully engineering <strong>interference</strong> — amplifying paths leading to
+            correct answers and cancelling paths leading to wrong ones — quantum algorithms
+            can solve specific problems with dramatically fewer operations.
+          </p>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Landmark Quantum Speedups</h3>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Problem</th><th>Classical Best</th><th>Quantum Best</th><th>Speedup</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Integer Factoring</td><td>$O(e^{n^{1/3}})$ (sub-exp)</td><td>$O(n^3)$ (Shor)</td><td>Exponential</td></tr>
+                <tr><td>Unstructured Search</td><td>$O(N)$</td><td>$O(\sqrt{N})$ (Grover)</td><td>Quadratic</td></tr>
+                <tr><td>Simulating Quantum Systems</td><td>Exponential</td><td>Polynomial</td><td>Exponential</td></tr>
+                <tr><td>Discrete Log</td><td>$O(e^{n^{1/3}})$</td><td>$O(n^3)$ (Shor)</td><td>Exponential</td></tr>
+                <tr><td>Linear Systems (HHL)</td><td>$O(N \log N)$</td><td>$O(\text{polylog}(N))$</td><td>Exponential (conditional)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            These are not all equivalent speedups — Grover's is "merely" quadratic, while
+            Shor's factoring is exponential. But in practice, factoring large numbers is the
+            basis of RSA encryption; a scalable quantum computer running Shor's algorithm
+            would break much of modern public-key cryptography.
+          </p>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Physical Implementations</h3>
+          <p>
+            Qubits can be physically realized in many systems, each with trade-offs:
+          </p>
+          <ul style="list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin:1rem 0;">
+            <li style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:0.75rem;">
+              <span style="color:var(--cyan);font-family:var(--font-mono);font-size:0.75rem;">SUPERCONDUCTING</span><br>
+              <span style="font-size:0.85rem;color:var(--text-dim);">IBM, Google — fast gates, short coherence (~100μs)</span>
+            </li>
+            <li style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:0.75rem;">
+              <span style="color:var(--purple);font-family:var(--font-mono);font-size:0.75rem;">TRAPPED ION</span><br>
+              <span style="font-size:0.85rem;color:var(--text-dim);">IonQ, Quantinuum — long coherence, slower gates</span>
+            </li>
+            <li style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:0.75rem;">
+              <span style="color:var(--gold);font-family:var(--font-mono);font-size:0.75rem;">PHOTONIC</span><br>
+              <span style="font-size:0.85rem;color:var(--text-dim);">PsiQuantum — room-temp, hard multi-photon gates</span>
+            </li>
+            <li style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:0.75rem;">
+              <span style="color:var(--green);font-family:var(--font-mono);font-size:0.75rem;">SPIN (SILICON)</span><br>
+              <span style="font-size:0.85rem;color:var(--text-dim);">Intel — fab-compatible, longer coherence potential</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <section class="section" id="s2">
+        <div class="section-header">
+          <span class="section-number">02</span>
+          <h2 class="section-title">Linear Algebra &amp; Dirac Notation</h2>
+        </div>
+
+        <p>
+          Quantum mechanics is formulated in the language of linear algebra over the complex numbers.
+          Before we can speak of qubits and gates, we must build fluency with this mathematical
+          language — especially Paul Dirac's elegant bra-ket notation, which makes quantum
+          calculations remarkably compact.
+        </p>
+
+        <div class="subsection" id="s2-vectors">
+          <h3 class="subsection-title">Hilbert Spaces, Vectors, and Inner Products</h3>
+
+          <div class="callout definition">
+            <div class="callout-header">📐 Definition — Hilbert Space</div>
+            <p>
+              A <strong>Hilbert space</strong> $\mathcal{H}$ is a complete inner product space over $\mathbb{C}$.
+              For a single qubit, $\mathcal{H} = \mathbb{C}^2$. For $n$ qubits, $\mathcal{H} = \mathbb{C}^{2^n}$.
+            </p>
+          </div>
+
+          <p>A <strong>ket</strong> $\ket{\psi}$ denotes a column vector in $\mathcal{H}$:</p>
+          <div class="math-block">
+            $$\ket{\psi} = \begin{pmatrix} \alpha \\ \beta \end{pmatrix} \in \mathbb{C}^2, \quad \alpha, \beta \in \mathbb{C}$$
+          </div>
+
+          <p>
+            The <strong>computational basis</strong> for a single qubit consists of two orthonormal vectors:
+          </p>
+          <div class="math-block">
+            $$\ket{0} = \begin{pmatrix} 1 \\ 0 \end{pmatrix}, \qquad \ket{1} = \begin{pmatrix} 0 \\ 1 \end{pmatrix}$$
+          </div>
+
+          <p>
+            A general qubit state is a <em>linear combination</em> (superposition) of these basis states:
+            $\ket{\psi} = \alpha\ket{0} + \beta\ket{1}$ where $\alpha, \beta \in \mathbb{C}$.
+          </p>
+
+          <h4 class="subsubsection-title">The Inner Product</h4>
+          <p>
+            The <strong>bra</strong> $\bra{\psi}$ is the conjugate-transpose (Hermitian conjugate / "dagger") of the ket:
+          </p>
+          <div class="math-block">
+            $$\bra{\psi} = \ket{\psi}^\dagger = \begin{pmatrix} \alpha^* & \beta^* \end{pmatrix}$$
+          </div>
+          <p>The <strong>inner product</strong> of $\ket{\phi}$ and $\ket{\psi}$ is the <em>bra-ket</em>:</p>
+          <div class="math-block">
+            $$\braket{\phi|\psi} = \sum_i \phi_i^* \psi_i \in \mathbb{C}$$
+          </div>
+          <p>Key properties of the inner product:</p>
+          <ul style="margin:0.5rem 0 1rem 1rem;color:var(--text-dim);">
+            <li style="margin:0.3rem 0;"><strong style="color:var(--text);">Conjugate symmetry:</strong> $\braket{\phi|\psi} = \braket{\psi|\phi}^*$</li>
+            <li style="margin:0.3rem 0;"><strong style="color:var(--text);">Linearity:</strong> $\bra{\phi}(\alpha\ket{\psi_1}+\beta\ket{\psi_2}) = \alpha\braket{\phi|\psi_1}+\beta\braket{\phi|\psi_2}$</li>
+            <li style="margin:0.3rem 0;"><strong style="color:var(--text);">Positive definiteness:</strong> $\braket{\psi|\psi} \geq 0$, with equality iff $\ket{\psi} = 0$</li>
+            <li style="margin:0.3rem 0;"><strong style="color:var(--text);">Orthonormality:</strong> $\braket{0|0} = \braket{1|1} = 1$, $\braket{0|1} = \braket{1|0} = 0$</li>
+          </ul>
+
+          <h4 class="subsubsection-title">The Outer Product and Projection Operators</h4>
+          <p>
+            The <strong>outer product</strong> $\ket{\psi}\bra{\phi}$ is an operator (matrix) mapping $\mathcal{H} \to \mathcal{H}$:
+          </p>
+          <div class="math-block">
+            $$\ket{0}\bra{0} = \begin{pmatrix}1\\0\end{pmatrix}\begin{pmatrix}1&0\end{pmatrix} = \begin{pmatrix}1&0\\0&0\end{pmatrix}$$
+          </div>
+          <p>
+            This is the <strong>projection operator</strong> onto $\ket{0}$. The completeness relation states that
+            for any orthonormal basis $\{\ket{i}\}$:
+          </p>
+          <div class="math-block highlighted">
+            $$\sum_i \ket{i}\bra{i} = \mathbb{I} \qquad \text{(Resolution of Identity)}$$
+          </div>
+          <p>
+            This identity is perhaps the single most frequently used tool in quantum calculations. Any operator
+            or state can be expanded using it: $\ket{\psi} = \mathbb{I}\ket{\psi} = \sum_i \ket{i}\braket{i|\psi}$,
+            recovering the fact that $\braket{i|\psi}$ is the component of $\ket{\psi}$ along $\ket{i}$.
+          </p>
+        </div>
+
+        <div class="subsection" id="s2-operators">
+          <h3 class="subsection-title">Operators and Matrices</h3>
+          <p>
+            A <strong>linear operator</strong> $A: \mathcal{H} \to \mathcal{H}$ is represented as a matrix once we
+            fix a basis. The <strong>adjoint</strong> (Hermitian conjugate) $A^\dagger$ is defined by
+            $\bra{\phi}A\ket{\psi} = \braket{A^\dagger\phi|\psi}$, i.e., $(A^\dagger)_{ij} = A_{ji}^*$.
+          </p>
+
+          <div class="callout definition">
+            <div class="callout-header">📐 Key Operator Classes</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.5rem;">
+              <div>
+                <strong style="color:var(--cyan);">Hermitian (self-adjoint):</strong> $A^\dagger = A$<br>
+                <span style="color:var(--text-dim);font-size:0.88rem;">Real eigenvalues → physical observables</span>
+              </div>
+              <div>
+                <strong style="color:var(--purple);">Unitary:</strong> $U^\dagger U = UU^\dagger = \mathbb{I}$<br>
+                <span style="color:var(--text-dim);font-size:0.88rem;">Preserves norm → quantum gates</span>
+              </div>
+              <div>
+                <strong style="color:var(--gold);">Normal:</strong> $A^\dagger A = AA^\dagger$<br>
+                <span style="color:var(--text-dim);font-size:0.88rem;">Diagonalizable; includes both above</span>
+              </div>
+              <div>
+                <strong style="color:var(--green);">Projection:</strong> $P^2 = P = P^\dagger$<br>
+                <span style="color:var(--text-dim);font-size:0.88rem;">Used in measurement theory</span>
+              </div>
+            </div>
+          </div>
+
+          <h4 class="subsubsection-title">Tensor Products</h4>
+          <p>
+            For a system composed of two subsystems with Hilbert spaces $\mathcal{H}_A$ and $\mathcal{H}_B$,
+            the combined space is the <strong>tensor product</strong> $\mathcal{H}_A \otimes \mathcal{H}_B$.
+            Concretely, for column vectors:
+          </p>
+          <div class="math-block">
+            $$\begin{pmatrix}a_1\\a_2\end{pmatrix} \otimes \begin{pmatrix}b_1\\b_2\end{pmatrix}
+            = \begin{pmatrix}a_1 b_1 \\ a_1 b_2 \\ a_2 b_1 \\ a_2 b_2\end{pmatrix}$$
+          </div>
+          <p>
+            For operators, the Kronecker product: $(A \otimes B)$ acts as $A$ on the first subsystem
+            and $B$ on the second. The dimension multiplies: $\dim(\mathcal{H}_A \otimes \mathcal{H}_B) = \dim(\mathcal{H}_A) \cdot \dim(\mathcal{H}_B)$.
+            So $n$ qubits live in $(\mathbb{C}^2)^{\otimes n} = \mathbb{C}^{2^n}$.
+          </p>
+        </div>
+
+        <div class="subsection" id="s2-dirac">
+          <h3 class="subsection-title">Dirac Notation Quick Reference</h3>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Notation</th><th>Name</th><th>Meaning</th></tr></thead>
+              <tbody>
+                <tr><td>$\ket{\psi}$</td><td>Ket</td><td>Column vector (state vector)</td></tr>
+                <tr><td>$\bra{\psi}$</td><td>Bra</td><td>Row vector = $\ket{\psi}^\dagger$ (conjugate transpose)</td></tr>
+                <tr><td>$\braket{\phi|\psi}$</td><td>Bra-ket (bracket)</td><td>Inner product — a complex number</td></tr>
+                <tr><td>$\ket{\psi}\bra{\phi}$</td><td>Ket-bra</td><td>Outer product — an operator (matrix)</td></tr>
+                <tr><td>$\bra{\phi}A\ket{\psi}$</td><td>Matrix element</td><td>$\braket{\phi|A|\psi}$ — a complex number</td></tr>
+                <tr><td>$\ket{\psi} \otimes \ket{\phi}$</td><td>Tensor product</td><td>Joint state, often written $\ket{\psi\phi}$ or $\ket{\psi}\ket{\phi}$</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
-        <div style="margin-top:16px;color:#0c4a6e;background:#f0f7ff;border-radius:8px;padding:12px;font-size:0.83rem">
-          <strong>Probability of measuring |0⟩:</strong> <span id="prob0">1.000</span><br>
-          <strong>Probability of measuring |1⟩:</strong> <span id="prob1">0.000</span>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <section class="section" id="s3">
+        <div class="section-header">
+          <span class="section-number">03</span>
+          <h2 class="section-title">Qubits</h2>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<div class="card example">
-<div class="card-title">✏️ Important Named Qubit States</div>
-<p>The six "poles" of the Bloch sphere along each axis have important names:</p>
+        <p>
+          The quantum bit, or <strong>qubit</strong>, is the fundamental unit of quantum information.
+          Unlike a classical bit which is definitively 0 or 1, a qubit can exist in any
+          <em>superposition</em> of the two computational basis states $\ket{0}$ and $\ket{1}$.
+        </p>
 
-$$|{+}\rangle = \frac{|0\rangle + |1\rangle}{\sqrt{2}} \quad (+x\text{ axis}), \qquad |{-}\rangle = \frac{|0\rangle - |1\rangle}{\sqrt{2}} \quad (-x\text{ axis})$$
-
-$$|{+i}\rangle = \frac{|0\rangle + i|1\rangle}{\sqrt{2}} \quad (+y\text{ axis}), \qquad |{-i}\rangle = \frac{|0\rangle - i|1\rangle}{\sqrt{2}} \quad (-y\text{ axis})$$
-
-$$|0\rangle \quad (+z\text{ axis}), \qquad |1\rangle \quad (-z\text{ axis})$$
-
-<p>Note the crucial factor of $\theta/2$ (not $\theta$) in the Bloch sphere parametrization: to go from $|0\rangle$ to $|1\rangle$ on the sphere (a rotation of $180°$ = $\pi$ radians), the quantum state parameter $\theta$ goes from $0$ to $\pi$, but $\theta/2$ goes from $0$ to $\pi/2$. So two orthogonal quantum states ($\langle 0|1\rangle = 0$) are <em>antipodal</em> (opposite poles) on the Bloch sphere.</p>
-</div>
-</div>
-
-<!-- ══════════════════════════════════════════════════════════ -->
-<!--  SECTION 4: POSTULATES OF QM                             -->
-<!-- ══════════════════════════════════════════════════════════ -->
-<div class="section" id="s4">
-<div class="section-header">
-  <div class="section-num">4</div>
-  <h2>Postulate 1 — The State of a Quantum System</h2>
-</div>
-
-<p>Quantum mechanics is built on a set of fundamental postulates — axioms that cannot be derived from more basic principles but are accepted because they make extraordinarily accurate predictions. Let us go through them systematically. We begin with the question: how do we describe the state of a quantum system?</p>
-
-<div class="card definition">
-<div class="card-title">📋 Postulate 1 — Quantum States</div>
-<p>The state of a quantum system at any given time is completely described by a <strong>unit vector</strong> (called the <em>state vector</em> or <em>ket</em>) in a complex inner product space called a <strong>Hilbert space</strong> $\mathcal{H}$.</p>
-</div>
-
-<h3 class="sub" id="s4b">What is a Hilbert Space?</h3>
-
-<p>A <strong>Hilbert space</strong> $\mathcal{H}$ is a complete, complex inner product space. For finite-dimensional quantum systems (like qubits), it is simply $\mathbb{C}^d$ — the space of $d$-dimensional complex column vectors — equipped with the standard inner product. Concretely, for a qubit, $\mathcal{H} = \mathbb{C}^2$.</p>
-
-<p>For a complex linear vector space, the following properties hold:</p>
-<ol style="padding-left:24px;margin-bottom:14px">
-  <li style="margin-bottom:8px">If $|v\rangle \in \mathcal{H}$ and $\lambda \in \mathbb{C}$, then $\lambda|v\rangle \in \mathcal{H}$ (closed under scalar multiplication)</li>
-  <li style="margin-bottom:8px">If $|v\rangle, |w\rangle \in \mathcal{H}$ and $\alpha, \beta \in \mathbb{C}$, then $\alpha|v\rangle + \beta|w\rangle \in \mathcal{H}$ (closed under addition — <strong>superposition principle</strong>)</li>
-  <li style="margin-bottom:8px">A $d$-dimensional space has $d$ linearly independent basis vectors</li>
-</ol>
-
-<p>The <strong>superposition principle</strong> (point 2) is the mathematical statement of the physical phenomenon of superposition: any valid quantum state, plus any other valid quantum state, combined linearly, gives another valid quantum state.</p>
-
-<div class="card insight">
-<div class="card-title">🔍 Physical Meaning of "State Space"</div>
-<p>Two state vectors $|v\rangle$ and $|w\rangle$ represent the <em>same physical state</em> if and only if $|v\rangle = e^{i\gamma}|w\rangle$ for some real $\gamma$ (global phase). So the physical state space is not quite $\mathbb{C}^2$ but the <em>projective Hilbert space</em> $\mathbb{C}P^1$, which for a qubit is topologically a 2-sphere — the Bloch sphere!</p>
-</div>
-
-<h3 class="sub" id="s4c">Physical Qubit Systems</h3>
-
-<p>The abstract mathematics of qubits is realized by many different physical systems. The key requirement is that the system must have two well-defined, distinguishable quantum states:</p>
-
-<table class="cmp-table">
-<thead><tr><th>Physical System</th><th>$|0\rangle$</th><th>$|1\rangle$</th><th>Notes</th></tr></thead>
-<tbody>
-<tr><td>Photon polarization</td><td>Horizontal $|H\rangle$</td><td>Vertical $|V\rangle$</td><td>Easy to generate; hard to store</td></tr>
-<tr><td>Electron spin (spin-½)</td><td>Spin-up $|\uparrow\rangle$</td><td>Spin-down $|\downarrow\rangle$</td><td>Long coherence; hard to entangle at distance</td></tr>
-<tr><td>Two-level atom</td><td>Ground state $|g\rangle$</td><td>Excited state $|e\rangle$</td><td>Coherent manipulation via lasers (trapped ions)</td></tr>
-<tr><td>Superconducting circuit</td><td>Ground state</td><td>First excited state</td><td><strong>Artificial atoms</strong> — backbone of IBM Q, Google, etc.</td></tr>
-</tbody>
-</table>
-
-<p>Superconducting qubits work at millikelvin temperatures (colder than outer space) and are built on chip. They behave as artificial atoms: two energy levels of a superconducting circuit (a Josephson junction) are selected as $|0\rangle$ and $|1\rangle$. Microwave pulses implement quantum gates. This is the technology underlying IBM's quantum computers accessed via Qiskit.</p>
-
-<h3 class="sub" id="s4d">Basis States and Basis Transformations</h3>
-
-<p>The <strong>computational basis</strong> $\{|0\rangle, |1\rangle\}$ is the most natural choice for a qubit, but it is not unique. We can choose any pair of orthonormal vectors as a basis. The three standard Bloch sphere bases correspond to the $x$, $y$, $z$ axes:</p>
-
-<div class="math-block">
-$$\text{Z-basis (computational): } \{|0\rangle,\, |1\rangle\}$$
-$$\text{X-basis (Hadamard): } \left\{|{+}\rangle = \frac{|0\rangle+|1\rangle}{\sqrt{2}},\; |{-}\rangle = \frac{|0\rangle-|1\rangle}{\sqrt{2}}\right\}$$
-$$\text{Y-basis: } \left\{|{+i}\rangle = \frac{|0\rangle+i|1\rangle}{\sqrt{2}},\; |{-i}\rangle = \frac{|0\rangle-i|1\rangle}{\sqrt{2}}\right\}$$
-</div>
-
-<p>We can convert between bases. For example, going from the Z-basis to the X-basis:</p>
-
-$$|0\rangle = \frac{|{+}\rangle + |{-}\rangle}{\sqrt{2}}, \qquad |1\rangle = \frac{|{+}\rangle - |{-}\rangle}{\sqrt{2}}$$
-
-<p>This transformation is represented by the operator $U$ defined by $U|0\rangle = |{+}\rangle$ and $U|1\rangle = |{-}\rangle$, whose matrix is:</p>
-
-$$U = \frac{1}{\sqrt{2}}\begin{pmatrix}1 & 1\\1 & -1\end{pmatrix}$$
-
-<p>This is precisely the <strong>Hadamard gate</strong> $H$ — one of the most important gates in quantum computing. Notice that $U$ is a <strong>unitary matrix</strong> ($U^\dagger U = I$), which brings us to the next postulate.</p>
-</div>
-
-<!-- ══════════════════════════════════════════════════════════ -->
-<!--  SECTION 5: OBSERVABLES                                   -->
-<!-- ══════════════════════════════════════════════════════════ -->
-<div class="section" id="s5">
-<div class="section-header">
-  <div class="section-num">5</div>
-  <h2>Postulate 2 — Observables and Hermitian Operators</h2>
-</div>
-
-<p>Classical mechanics has a clean notion of "physical quantity": position $x$, momentum $p$, energy $E$ — these are all real numbers that a particle "has" at any moment. In quantum mechanics, this picture fails. Physical quantities — now called <strong>observables</strong> — are represented not by numbers but by operators.</p>
-
-<div class="card definition">
-<div class="card-title">📋 Postulate 2 — Observables</div>
-<p>Every observable of a quantum system (position, momentum, spin, energy, ...) corresponds to a <strong>Hermitian (self-adjoint) operator</strong> $A$ on the Hilbert space $\mathcal{H}$: </p>
-$$A = A^\dagger \quad \Leftrightarrow \quad A = (A^*)^T$$
-<p>The possible measurement outcomes of an observable are its <strong>eigenvalues</strong>, which are always real numbers for Hermitian operators.</p>
-</div>
-
-<h3 class="sub" id="s5b">Hermitian Operators: Properties</h3>
-
-<p>An operator $A$ is <strong>Hermitian</strong> if $A^\dagger = A$, i.e., it equals its own conjugate transpose. Key properties:</p>
-<ul style="padding-left:24px;margin-bottom:14px">
-  <li style="margin-bottom:6px"><strong>Real eigenvalues:</strong> If $A|a\rangle = a|a\rangle$, then $a \in \mathbb{R}$. This is essential — measurement outcomes must be real numbers.</li>
-  <li style="margin-bottom:6px"><strong>Orthogonal eigenvectors:</strong> Eigenvectors belonging to different eigenvalues are orthogonal: $\langle a_i|a_j\rangle = \delta_{ij}$.</li>
-  <li style="margin-bottom:6px"><strong>Completeness:</strong> The eigenvectors form a complete orthonormal basis for the Hilbert space.</li>
-</ul>
-
-<h3 class="sub" id="s5c">The Pauli Matrices</h3>
-
-<p>For a qubit (a spin-½ system), the most important observables are the three <strong>Pauli matrices</strong> $X$, $Y$, $Z$ (or equivalently $\sigma_x$, $\sigma_y$, $\sigma_z$). They represent the spin angular momentum components along the $x$, $y$, $z$ axes respectively (up to a factor of $\hbar/2$):</p>
-
-<div class="math-block">
-$$X = \sigma_x = \begin{pmatrix}0 & 1\\1 & 0\end{pmatrix}, \quad Y = \sigma_y = \begin{pmatrix}0 & -i\\i & 0\end{pmatrix}, \quad Z = \sigma_z = \begin{pmatrix}1 & 0\\0 & -1\end{pmatrix}$$
-</div>
-
-<p>Each Pauli matrix is <strong>both Hermitian and unitary</strong> ($X^\dagger = X$ and $X^\dagger X = I$, similarly for $Y, Z$). Their eigenvalues are $\pm 1$, and their eigenstates are the Bloch sphere axis poles:</p>
-
-<div class="math-block">
-$$Z|0\rangle = +1\cdot|0\rangle, \quad Z|1\rangle = -1\cdot|1\rangle \quad \text{(Z-eigenstates are }|0\rangle,|1\rangle)$$
-$$X|{+}\rangle = +1\cdot|{+}\rangle, \quad X|{-}\rangle = -1\cdot|{-}\rangle \quad \text{(X-eigenstates are }|{\pm}\rangle)$$
-$$Y|{+i}\rangle = +1\cdot|{+i}\rangle, \quad Y|{-i}\rangle = -1\cdot|{-i}\rangle \quad \text{(Y-eigenstates are }|{\pm i}\rangle)$$
-</div>
-
-<p>The physical spin observables are $S_x = \frac{\hbar}{2}X$, $S_y = \frac{\hbar}{2}Y$, $S_z = \frac{\hbar}{2}Z$. The eigenvalues of $S_z$ are $\pm\hbar/2$, corresponding to spin-up ($|0\rangle$) and spin-down ($|1\rangle$).</p>
-
-<div class="card insight">
-<div class="card-title">🔍 Pauli Matrices as Quantum Gates</div>
-<p>Here is a beautiful duality: the Pauli matrices are <em>simultaneously</em> observables (Hermitian, real eigenvalues) <em>and</em> quantum gates (Unitary, reversible transformations). As gates, $X$ is the quantum NOT gate (flips $|0\rangle \leftrightarrow |1\rangle$), $Z$ adds a phase flip, and $Y$ does both. This dual role arises from the deep connection between symmetry and dynamics in quantum mechanics.</p>
-</div>
-</div>
-
-<!-- ══════════════════════════════════════════════════════════ -->
-<!--  SECTION 6: TIME EVOLUTION                               -->
-<!-- ══════════════════════════════════════════════════════════ -->
-<div class="section" id="s6">
-<div class="section-header">
-  <div class="section-num">6</div>
-  <h2>Postulate 3 — Time Evolution</h2>
-</div>
-
-<div class="card definition">
-<div class="card-title">📋 Postulate 3 — Unitary Time Evolution</div>
-<p>The state of a closed (isolated) quantum system evolves in time via a <strong>unitary operator</strong> $U(t, t_0)$:</p>
-
-$$|\psi(t)\rangle = U(t, t_0)|\psi(t_0)\rangle$$
-
-<p>where $U$ satisfies:</p>
-<ol style="padding-left:20px;margin-top:8px">
-  <li>$U(t_0, t_0) = I$ (identity at initial time)</li>
-  <li>$U(t, t_0) = U(t, t_1)U(t_1, t_0)$ for $t \geq t_1 \geq t_0$ (composition)</li>
-  <li>$U(t_0, t) = U(t, t_0)^\dagger$ (reversibility)</li>
-</ol>
-</div>
-
-<p>The critical consequence of unitarity is that the norm of the state vector is preserved: $\langle\psi(t)|\psi(t)\rangle = \langle\psi(t_0)|\psi(t_0)\rangle = 1$. This means total probability is always conserved — which must be true physically.</p>
-
-<h3 class="sub">The Schrödinger Equation</h3>
-
-<p>Time evolution can equivalently be described by the <strong>Schrödinger equation</strong>, a first-order differential equation:</p>
-
-<div class="math-block">
-$$i\hbar \frac{\partial}{\partial t}|\psi(t)\rangle = H(t)|\psi(t)\rangle$$
-</div>
-
-<p>Here $H(t)$ is the <strong>Hamiltonian operator</strong> — the Hermitian operator corresponding to the total energy of the system. It is the generator of time evolution.</p>
-
-<p>When $H$ is independent of time (time-independent Hamiltonian), the solution is:</p>
-
-$$U(t, t_0) = \exp\!\left(\frac{-iH(t-t_0)}{\hbar}\right) \equiv \sum_{m=0}^\infty \frac{1}{m!}\left(\frac{-iH(t-t_0)}{\hbar}\right)^m$$
-
-<div class="card highlight">
-<div class="card-title">⚡ Key Insight: All Quantum Gates are Unitary</div>
-<p>Since time evolution is unitary, every quantum gate — every operation we perform on a qubit — must be representable as a unitary matrix. This is the single most important constraint on quantum computation. It immediately implies that all quantum gates are <strong>reversible</strong>: given the output, you can always recover the input (by applying $U^\dagger$). This is fundamentally different from classical gates like AND or OR, which are irreversible.</p>
-</div>
-</div>
-
-<!-- ══════════════════════════════════════════════════════════ -->
-<!--  SECTION 7: MEASUREMENT                                   -->
-<!-- ══════════════════════════════════════════════════════════ -->
-<div class="section" id="s7">
-<div class="section-header">
-  <div class="section-num">7</div>
-  <h2>The Measurement Postulate and the Born Rule</h2>
-</div>
-
-<div class="card definition">
-<div class="card-title">📋 Postulate 3(a) — Born Rule: Measurement Probabilities</div>
-<p>Let $A$ be a Hermitian observable with eigenvalues $a_1, a_2, \ldots, a_d$ and corresponding orthonormal eigenvectors $|a_1\rangle, |a_2\rangle, \ldots, |a_d\rangle$. When we measure $A$ on a state $|\psi\rangle$, the probability of obtaining outcome $a_i$ is:</p>
-
-$$\boxed{p(a_i) = |\langle a_i|\psi\rangle|^2}$$
-
-<p>This is the <strong>Born rule</strong> — the cornerstone of quantum measurement theory.</p>
-</div>
-
-<div class="card definition">
-<div class="card-title">📋 Postulate 3(b) — State Collapse</div>
-<p>Immediately after a measurement that yields outcome $a_i$, the state of the system <strong>collapses</strong> (projects) to the corresponding eigenstate:</p>
-
-$$|\psi\rangle \xrightarrow{\text{measure }A,\text{ outcome }a_i} |a_i\rangle$$
-
-<p>The state is now $|a_i\rangle$. If we measure $A$ again immediately, we get $a_i$ with certainty.</p>
-</div>
-
-<p>Let us unpack this with a concrete example. Suppose our qubit is in the state:</p>
-$$|\psi\rangle = \frac{\sqrt{3}}{2}|0\rangle + \frac{1}{2}|1\rangle$$
-
-<p>First, check normalization: $\left(\frac{\sqrt{3}}{2}\right)^2 + \left(\frac{1}{2}\right)^2 = \frac{3}{4} + \frac{1}{4} = 1$. ✓</p>
-
-<p>If we measure in the computational basis (i.e., measure $Z$):</p>
-$$p(|0\rangle) = \left|\langle 0|\psi\rangle\right|^2 = \left|\frac{\sqrt{3}}{2}\right|^2 = \frac{3}{4} = 75\%$$
-$$p(|1\rangle) = \left|\langle 1|\psi\rangle\right|^2 = \left|\frac{1}{2}\right|^2 = \frac{1}{4} = 25\%$$
-
-<!-- VIZ 2: MEASUREMENT SIMULATOR -->
-<div class="viz-container" id="meas-viz">
-  <div class="viz-title">🎲 Quantum Measurement Simulator</div>
-  <div class="viz-subtitle">Set the qubit state amplitudes and click "Measure" to simulate the Born rule. Run many shots to see the probability distribution emerge.</div>
-  <div style="display:flex;gap:24px;flex-wrap:wrap">
-    <div style="flex:1;min-width:220px">
-      <div class="viz-controls" style="flex-direction:column;border:none;padding:0">
-        <div class="ctrl-group">
-          <label>θ (polar angle) = <span class="ctrl-val" id="measTheta">0°</span></label>
-          <input type="range" id="measThetaSlider" min="0" max="180" value="0" step="1" oninput="updateMeasViz()">
+        <div class="callout definition">
+          <div class="callout-header">📐 Definition — Qubit State</div>
+          <p>
+            A qubit state is any unit vector in $\mathbb{C}^2$:
+            $$\ket{\psi} = \alpha\ket{0} + \beta\ket{1}, \quad \alpha, \beta \in \mathbb{C}, \quad |\alpha|^2 + |\beta|^2 = 1$$
+            The coefficients $\alpha$ and $\beta$ are called <strong>probability amplitudes</strong>.
+            Upon measurement in the computational basis, the qubit collapses to $\ket{0}$ with
+            probability $|\alpha|^2$ and to $\ket{1}$ with probability $|\beta|^2$.
+          </p>
         </div>
-        <p style="font-size:0.82rem;color:var(--muted);margin:4px 0 12px">Probabilities: |0⟩: <span id="measP0" style="color:var(--accent);font-weight:600">100%</span> &nbsp; |1⟩: <span id="measP1" style="color:#dc2626;font-weight:600">0%</span></p>
-        <div style="margin-bottom:12px">
-          <div class="prob-bar-container">
-            <div class="prob-bar-label"><span>|0⟩</span><span id="measBar0Pct">100%</span></div>
-            <div class="prob-bar-track"><div class="prob-bar-fill" id="measBar0" style="width:100%;background:#1a4e8a">|0⟩</div></div>
+
+        <p>
+          The constraint $|\alpha|^2 + |\beta|^2 = 1$ means the state must be <em>normalized</em> —
+          probabilities must sum to one. Notice that while $\alpha$ and $\beta$ are complex, the
+          probabilities $|\alpha|^2$ and $|\beta|^2$ are real. The complex phases are not directly
+          observable (a global phase $e^{i\theta}$ has no physical meaning) but <em>relative phases</em>
+          between $\alpha$ and $\beta$ critically matter and drive interference.
+        </p>
+
+        <div class="subsection" id="s3-bloch">
+          <h3 class="subsection-title">The Bloch Sphere</h3>
+          <p>
+            Since an overall global phase is unphysical, we can always write any qubit state as:
+          </p>
+          <div class="math-block highlighted">
+            $$\ket{\psi} = \cos\!\tfrac{\theta}{2}\,\ket{0} + e^{i\phi}\sin\!\tfrac{\theta}{2}\,\ket{1}$$
+            <span class="math-label">Bloch parametrisation</span>
           </div>
-          <div class="prob-bar-container" style="margin-top:8px">
-            <div class="prob-bar-label"><span>|1⟩</span><span id="measBar1Pct">0%</span></div>
-            <div class="prob-bar-track"><div class="prob-bar-fill" id="measBar1" style="width:0%;background:#dc2626">|1⟩</div></div>
+          <p>
+            where $\theta \in [0, \pi]$ and $\phi \in [0, 2\pi)$. This maps every pure qubit state
+            bijectively to a point on the surface of a unit sphere — the <strong>Bloch sphere</strong>.
+          </p>
+
+          <!-- BLOCH SPHERE VISUALIZATION -->
+          <div class="viz-container">
+            <div class="viz-header">
+              <div class="viz-title">Interactive Bloch Sphere</div>
+              <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-faint);">Drag to rotate · Use sliders to move state</div>
+            </div>
+            <div class="viz-body" style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:center;">
+              <div id="bloch-container" style="width:100%;aspect-ratio:1;min-height:300px;"></div>
+              <div>
+                <div style="margin-bottom:1.5rem;">
+                  <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-faint);margin-bottom:0.5rem;text-transform:uppercase;">Quick States</div>
+                  <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
+                    <button class="btn" onclick="bloch.setState('|0⟩');updateBlochDisplay(0,0)">|0⟩</button>
+                    <button class="btn" onclick="bloch.setState('|1⟩');updateBlochDisplay(Math.PI,0)">|1⟩</button>
+                    <button class="btn" onclick="bloch.setState('|+⟩');updateBlochDisplay(Math.PI/2,0)">|+⟩</button>
+                    <button class="btn" onclick="bloch.setState('|-⟩');updateBlochDisplay(Math.PI/2,Math.PI)">|-⟩</button>
+                    <button class="btn" onclick="bloch.setState('|i⟩');updateBlochDisplay(Math.PI/2,Math.PI/2)">|i⟩</button>
+                    <button class="btn" onclick="bloch.setState('|-i⟩');updateBlochDisplay(Math.PI/2,-Math.PI/2)">|-i⟩</button>
+                  </div>
+                </div>
+                <div style="margin-bottom:1rem;">
+                  <div class="ctrl-group">
+                    <span class="ctrl-label">θ</span>
+                    <input type="range" id="theta-slider" min="0" max="314" value="0" style="width:140px;">
+                    <span class="val-display" id="theta-val">0°</span>
+                  </div>
+                </div>
+                <div style="margin-bottom:1.5rem;">
+                  <div class="ctrl-group">
+                    <span class="ctrl-label">φ</span>
+                    <input type="range" id="phi-slider" min="-314" max="314" value="0" style="width:140px;">
+                    <span class="val-display" id="phi-val">0°</span>
+                  </div>
+                </div>
+                <div style="background:var(--bg-3);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:var(--font-mono);font-size:0.82rem;">
+                  <div style="color:var(--text-faint);font-size:0.68rem;text-transform:uppercase;margin-bottom:0.5rem;">State vector</div>
+                  <div id="bloch-state-display" style="color:var(--cyan);">|ψ⟩ = |0⟩</div>
+                  <div id="bloch-probs" style="color:var(--text-dim);margin-top:0.4rem;font-size:0.75rem;">P(|0⟩) = 1.00 · P(|1⟩) = 0.00</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p>
+            Key special states on the Bloch sphere:
+          </p>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>State</th><th>$\theta$</th><th>$\phi$</th><th>Location</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td>$\ket{0}$</td><td>$0$</td><td>—</td><td>North Pole</td><td>Computational basis $\ket{0}$</td></tr>
+                <tr><td>$\ket{1}$</td><td>$\pi$</td><td>—</td><td>South Pole</td><td>Computational basis $\ket{1}$</td></tr>
+                <tr><td>$\ket{+} = \frac{\ket{0}+\ket{1}}{\sqrt{2}}$</td><td>$\pi/2$</td><td>$0$</td><td>+x axis</td><td>Equal superposition, phase 0</td></tr>
+                <tr><td>$\ket{-} = \frac{\ket{0}-\ket{1}}{\sqrt{2}}$</td><td>$\pi/2$</td><td>$\pi$</td><td>-x axis</td><td>Equal superposition, phase $\pi$</td></tr>
+                <tr><td>$\ket{i} = \frac{\ket{0}+i\ket{1}}{\sqrt{2}}$</td><td>$\pi/2$</td><td>$\pi/2$</td><td>+y axis</td><td>Equal superposition, phase $\pi/2$</td></tr>
+                <tr><td>$\ket{-i} = \frac{\ket{0}-i\ket{1}}{\sqrt{2}}$</td><td>$\pi/2$</td><td>$-\pi/2$</td><td>-y axis</td><td>Equal superposition, phase $-\pi/2$</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout insight">
+            <div class="callout-header">💡 Why is it a Sphere?</div>
+            <p>
+              $\ket{\psi} = \alpha\ket{0} + \beta\ket{1}$ has 4 real degrees of freedom (real and imaginary parts of $\alpha$ and $\beta$).
+              Normalization removes one, and global phase invariance removes another,
+              leaving 2 real degrees of freedom — enough to parameterise a sphere ($S^2$).
+            </p>
+            <p>
+              More formally: the physical state space is not $\mathbb{C}^2$ but the <strong>projective Hilbert space</strong> $\mathbb{C}P^1$ (the space of complex lines through the origin in $\mathbb{C}^2$, i.e. rays), which is topologically a 2-sphere. The Bloch sphere is precisely this projective space — every point on $S^2$ corresponds to a unique physical state.
+            </p>
+          </div>
+
+          <div class="callout insight">
+            <div class="callout-header">💡 The θ/2 Factor: Why Orthogonal States are Antipodal</div>
+            <p>
+              There is a subtle but important factor of 2 in the Bloch sphere parametrisation. The state $\ket{0}$ sits at the north pole ($\theta=0$) and $\ket{1}$ at the south pole ($\theta=\pi$) — they are <em>antipodal</em> (180° apart on the sphere). Yet geometrically, two antipodal points are not "perpendicular" — they are <em>opposite</em>. Meanwhile, quantum mechanically, $\braket{0|1}=0$ means they are <em>orthogonal</em> (perpendicular as vectors in $\mathbb{C}^2$).
+            </p>
+            <p>
+              This is because the Bloch parametrisation uses $\cos(\theta/2)$ and $\sin(\theta/2)$, not $\cos\theta$ and $\sin\theta$. A rotation of $\theta=\pi$ (pole to pole, 180° on the sphere) corresponds to a rotation by $\theta/2 = \pi/2$ in the Hilbert space — exactly what it takes to go from $\ket{0}$ to $\ket{i\ket{1}}$ (up to global phase, i.e., $\ket{1}$). <strong>Two states are orthogonal iff they are antipodal on the Bloch sphere.</strong> To go from one pole to the opposite takes a half-turn in Hilbert space but a full-turn (180°) on the sphere. A full turn in Hilbert space ($\theta = 2\pi$) brings you back to the same state with a sign: $e^{i\pi}\ket{0} = -\ket{0}$ (a global phase, unphysical). You need a $4\pi$ rotation in physical space to return to the identical quantum state — this is the spinor nature of qubits.
+            </p>
+          </div>
+
+          <h4 class="subsubsection-title">The Three Standard Qubit Bases</h4>
+          <p>
+            While the computational ($z$) basis is most natural, any pair of antipodal Bloch sphere points forms a valid orthonormal basis. The three axis-aligned bases arise naturally from the three Pauli operators:
+          </p>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Basis name</th><th>Axis</th><th>States</th><th>Measurement operator</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Computational ($Z$-basis)</strong></td><td>$\hat{z}$</td><td>$\ket{0},\,\ket{1}$</td><td>$Z = \ket{0}\bra{0} - \ket{1}\bra{1}$</td></tr>
+                <tr><td><strong>Hadamard ($X$-basis)</strong></td><td>$\hat{x}$</td><td>$\ket{+} = \frac{\ket{0}+\ket{1}}{\sqrt{2}},\; \ket{-} = \frac{\ket{0}-\ket{1}}{\sqrt{2}}$</td><td>$X = \ket{+}\bra{+} - \ket{-}\bra{-}$</td></tr>
+                <tr><td><strong>Circular ($Y$-basis)</strong></td><td>$\hat{y}$</td><td>$\ket{i} = \frac{\ket{0}+i\ket{1}}{\sqrt{2}},\; \ket{-i} = \frac{\ket{0}-i\ket{1}}{\sqrt{2}}$</td><td>$Y = \ket{i}\bra{i} - \ket{-i}\bra{-i}$</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            The bases are related by explicit conversion formulas — each basis can be expressed in terms of any other:
+          </p>
+          <div class="math-block">
+            $$\ket{0} = \frac{\ket{+}+\ket{-}}{\sqrt{2}} = \frac{\ket{i}+\ket{-i}}{\sqrt{2}}, \qquad
+              \ket{1} = \frac{\ket{+}-\ket{-}}{\sqrt{2}} = \frac{\ket{i}-\ket{-i}}{i\sqrt{2}}$$
+          </div>
+          <div class="math-block">
+            $$\ket{+} = \frac{\ket{0}+\ket{1}}{\sqrt{2}}, \qquad \ket{-} = \frac{\ket{0}-\ket{1}}{\sqrt{2}}$$
+          </div>
+          <p>
+            These conversions are crucial for understanding measurement basis choice: measuring in the $X$-basis means applying $H$ first (to rotate $X$-eigenstates to $Z$-eigenstates) then measuring in the computational basis. This is precisely how IBM quantum hardware executes measurements in non-standard bases.
+          </p>
+
+          <h4 class="subsubsection-title">The Hadamard as a Basis Change</h4>
+          <p>
+            The Hadamard gate $H$ maps the $z$-basis ($\ket{0}, \ket{1}$) to the $x$-basis ($\ket{+}, \ket{-}$):
+            geometrically, it is a $180°$ rotation about the axis midway between $x$ and $z$. This
+            makes the Hadamard a fundamental tool for creating superpositions — applying $H$ to $\ket{0}$
+            creates a perfect equal superposition:
+            $H\ket{0} = \ket{+} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})$.
+          </p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <section class="section" id="s4">
+        <div class="section-header">
+          <span class="section-number">04</span>
+          <h2 class="section-title">Postulate 1 — State Space</h2>
+        </div>
+
+        <div class="callout postulate">
+          <div class="callout-header">📜 Postulate 1</div>
+          <p>
+            Associated with any isolated physical system is a complex vector space with inner product
+            (a Hilbert space $\mathcal{H}$), known as the <strong>state space</strong> of the system.
+            The system is completely described at any time by its <strong>state vector</strong>,
+            a unit vector $\ket{\psi} \in \mathcal{H}$.
+          </p>
+        </div>
+
+        <p>
+          For a qubit, $\mathcal{H} = \mathbb{C}^2$. The state space of $n$ qubits is $\mathbb{C}^{2^n}$.
+          This postulate tells us <em>where</em> quantum states live, but not yet what they mean
+          physically or how they evolve.
+        </p>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Physical Realizations of a Qubit</h3>
+          <p>
+            Any two-level quantum system can serve as a qubit. The mathematical structure
+            $\mathbb{C}^2$ maps onto physics as follows:
+          </p>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>System</th><th>$\ket{0}$ Physical State</th><th>$\ket{1}$ Physical State</th></tr></thead>
+              <tbody>
+                <tr><td>Photon polarization</td><td>Horizontal $|\leftrightarrow\rangle$</td><td>Vertical $|\updownarrow\rangle$</td></tr>
+                <tr><td>Electron spin</td><td>Spin-up $|\uparrow\rangle$</td><td>Spin-down $|\downarrow\rangle$</td></tr>
+                <tr><td>Two-level atom</td><td>Ground state $|g\rangle$</td><td>Excited state $|e\rangle$</td></tr>
+                <tr><td>Superconducting circuit</td><td>Cooper pair absent $|0\rangle$</td><td>Cooper pair present $|1\rangle$</td></tr>
+                <tr><td>Trapped ion (electronic)</td><td>Hyperfine ground state</td><td>Excited hyperfine state</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Regardless of the physical realization, the abstract mathematics of $\mathbb{C}^2$
+            captures all behaviour. This universality is the power of the abstract formalism.
+          </p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <section class="section" id="s5">
+        <div class="section-header">
+          <span class="section-number">05</span>
+          <h2 class="section-title">Postulate 2 — Observables</h2>
+        </div>
+
+        <div class="callout postulate">
+          <div class="callout-header">📜 Postulate 2</div>
+          <p>
+            Every physically measurable quantity (observable) corresponds to a
+            <strong>Hermitian operator</strong> $A = A^\dagger$ on the state space.
+            The possible measurement outcomes are the <strong>eigenvalues</strong> of $A$.
+            Hermitian operators always have real eigenvalues, consistent with real measurement results.
+          </p>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">The Pauli Matrices</h3>
+          <p>
+            The three Pauli matrices are the central observables of a two-level system.
+            They represent spin angular momentum along each axis (in units of $\hbar/2$):
+          </p>
+          <div class="math-block highlighted">
+            $$\sigma_x = X = \begin{pmatrix}0&1\\1&0\end{pmatrix}, \quad
+              \sigma_y = Y = \begin{pmatrix}0&-i\\i&0\end{pmatrix}, \quad
+              \sigma_z = Z = \begin{pmatrix}1&0\\0&-1\end{pmatrix}$$
+          </div>
+          <p>Each Pauli matrix has eigenvalues $\pm 1$, and they satisfy the algebra:</p>
+          <div class="math-block">
+            $$[X, Y] = XY - YX = 2iZ, \quad [Y, Z] = 2iX, \quad [Z, X] = 2iY$$
+          </div>
+          <div class="math-block">
+            $$X^2 = Y^2 = Z^2 = \mathbb{I}, \qquad XYZ = i\mathbb{I}$$
+          </div>
+
+          <div class="callout example">
+            <div class="callout-header">🧪 Example — Z Eigenstates</div>
+            <p>
+              The $Z$ operator has eigenvectors $\ket{0}$ (eigenvalue $+1$) and $\ket{1}$ (eigenvalue $-1$):
+              $$Z\ket{0} = \begin{pmatrix}1&0\\0&-1\end{pmatrix}\begin{pmatrix}1\\0\end{pmatrix} = \begin{pmatrix}1\\0\end{pmatrix} = +1\cdot\ket{0}$$
+              $$Z\ket{1} = \begin{pmatrix}1&0\\0&-1\end{pmatrix}\begin{pmatrix}0\\1\end{pmatrix} = \begin{pmatrix}0\\-1\end{pmatrix} = -1\cdot\ket{1}$$
+              So measuring $Z$ on a qubit in state $\ket{0}$ always gives $+1$; measuring on $\ket{1}$ always gives $-1$.
+            </p>
+          </div>
+
+          <h4 class="subsubsection-title">X Eigenstates: The ±x Basis</h4>
+          <p>
+            The Pauli $X$ matrix has eigenstates:
+            $$\ket{+} = \frac{1}{\sqrt{2}}\begin{pmatrix}1\\1\end{pmatrix}, \quad \ket{-} = \frac{1}{\sqrt{2}}\begin{pmatrix}1\\-1\end{pmatrix}$$
+            with eigenvalues $+1$ and $-1$ respectively. These are precisely the states reached
+            from the computational basis by applying the Hadamard gate. This illustrates that
+            the <em>choice of measurement basis</em> is physically significant.
+          </p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <section class="section" id="s6">
+        <div class="section-header">
+          <span class="section-number">06</span>
+          <h2 class="section-title">Postulate 3 — Unitary Evolution</h2>
+        </div>
+
+        <div class="callout postulate">
+          <div class="callout-header">📜 Postulate 3</div>
+          <p>
+            The evolution of a <em>closed</em> quantum system is described by a <strong>unitary transformation</strong>:
+            $$\ket{\psi(t)} = U(t, t_0)\ket{\psi(t_0)}, \quad U^\dagger U = \mathbb{I}$$
+            Equivalently (in continuous time), the state evolves according to the
+            <strong>Schrödinger equation</strong>:
+            $$i\hbar \frac{d}{dt}\ket{\psi(t)} = H\ket{\psi(t)}$$
+            where $H = H^\dagger$ is the Hamiltonian (energy operator) of the system.
+          </p>
+        </div>
+
+        <p>
+          The connection between the Schrödinger equation and unitarity: if $H$ is time-independent,
+          the solution is $\ket{\psi(t)} = e^{-iHt/\hbar}\ket{\psi(0)}$. Since $H$ is Hermitian,
+          $e^{-iHt/\hbar}$ is unitary. This ensures that <em>probabilities are conserved</em>:
+          $|\braket{\psi(t)|\psi(t)}| = 1$ at all times.
+        </p>
+
+        <div class="callout insight">
+          <div class="callout-header">💡 The Group Structure of Quantum Evolution</div>
+          <p>
+            The family of time-evolution operators $\{U(t,t_0)\}$ has an important algebraic structure — they form a <strong>group</strong> under composition, satisfying three properties:
+          </p>
+          <ul>
+            <li style="margin:.3rem 0;color:var(--text-dim)"><strong style="color:var(--text)">Identity:</strong> $U(t_0,t_0) = \mathbb{I}$ — no evolution in zero time</li>
+            <li style="margin:.3rem 0;color:var(--text-dim)"><strong style="color:var(--text)">Composition:</strong> $U(t,t_0) = U(t,t_1)\,U(t_1,t_0)$ for any intermediate $t_1$ — two consecutive evolutions compose correctly</li>
+            <li style="margin:.3rem 0;color:var(--text-dim)"><strong style="color:var(--text)">Inverse:</strong> $U(t_0,t) = U(t,t_0)^\dagger$ — time reversal is just taking the adjoint</li>
+          </ul>
+          <p>
+            The composition property is the quantum statement that <em>the laws of physics don't change with time</em>. A gate sequence $G_1 G_2 G_3$ applied to a qubit is physically the same as computing a single unitary $U = G_3 G_2 G_1$ and applying it once. This is why quantum circuits — which are just compositions of unitaries — correctly model sequential quantum operations.
+          </p>
+        </div>
+
+        <div class="callout insight">
+          <div class="callout-header">💡 Unitarity = Reversibility</div>
+          <p>
+            Because $U^\dagger U = \mathbb{I}$, the inverse of any quantum gate is $U^\dagger$.
+            This means quantum computation is <strong>inherently reversible</strong> —
+            no information is ever destroyed by a quantum gate (only by measurement).
+            This is in sharp contrast to classical irreversible gates like NAND or AND,
+            and has implications for fault-tolerant computing.
+          </p>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Hamiltonian Evolution on the Bloch Sphere</h3>
+          <p>
+            For a spin-$\frac{1}{2}$ particle in a magnetic field $\mathbf{B} = B\hat{z}$,
+            the Hamiltonian is $H = -\gamma B \hat{S}_z = -\frac{\hbar\omega_0}{2}Z$
+            (where $\omega_0 = \gamma B$ is the Larmor frequency).
+            The solution $e^{-iHt/\hbar} = e^{i\omega_0 t Z/2}$ represents a rotation
+            around the $z$-axis of the Bloch sphere at angular frequency $\omega_0$.
+          </p>
+          <p>
+            This "Larmor precession" is the physical foundation of NMR (nuclear magnetic resonance),
+            and directly analogous to how quantum gates rotate the Bloch sphere state vector.
+          </p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <section class="section" id="s7">
+        <div class="section-header">
+          <span class="section-number">07</span>
+          <h2 class="section-title">Postulate 4 — Measurement (Born Rule)</h2>
+        </div>
+
+        <div class="callout postulate">
+          <div class="callout-header">📜 Postulate 4 — Born Rule</div>
+          <p>
+            Quantum measurements are described by a collection of <strong>measurement operators</strong>
+            $\{M_m\}$ satisfying $\sum_m M_m^\dagger M_m = \mathbb{I}$.
+            For a system in state $\ket{\psi}$, the probability of outcome $m$ is:
+            $$p(m) = \bra{\psi} M_m^\dagger M_m \ket{\psi}$$
+            After obtaining outcome $m$, the post-measurement state is:
+            $$\ket{\psi'} = \frac{M_m\ket{\psi}}{\sqrt{p(m)}}$$
+            For a projective measurement onto the orthonormal basis $\{\ket{a_i}\}$,
+            $M_i = \ket{a_i}\bra{a_i}$, and the probability of obtaining eigenvalue $a_i$ is:
+            $$\boxed{p(a_i) = |\braket{a_i|\psi}|^2}$$
+          </p>
+        </div>
+
+        <p>
+          This is the <strong>Born Rule</strong> — the probability of observing outcome $a_i$ equals
+          the squared modulus of the corresponding amplitude. It is one of the most empirically
+          well-tested laws in physics, verified to extraordinary precision in countless experiments.
+        </p>
+
+        <div class="subsection">
+          <h3 class="subsection-title">The Stern-Gerlach Experiment</h3>
+          <p>
+            The canonical demonstration of quantum measurement. Silver atoms (with spin-$\frac{1}{2}$)
+            pass through an inhomogeneous magnetic field oriented along $z$. The force $F_z \propto \partial B/\partial z$
+            deflects atoms based on their $z$-spin projection. Classically, we expect a continuous
+            smear of deflections. Quantum mechanically — and confirmed by experiment — only two
+            discrete spots appear, corresponding to $m_s = +\frac{1}{2}$ (spin-up) and
+            $m_s = -\frac{1}{2}$ (spin-down).
+          </p>
+          <p>
+            The remarkable finding: if you then pass spin-up atoms through a <em>second</em>
+            Stern-Gerlach apparatus oriented along $x$ instead of $z$, you again get two outcomes
+            with equal probability — demonstrating that the $x$-spin is maximally uncertain when
+            the $z$-spin is known, a manifestation of the Heisenberg Uncertainty Principle.
+          </p>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Sequential Measurements</h3>
+          <p>
+            A beautiful and counterintuitive consequence of the measurement postulate:
+            measuring a spin-up state $\ket{\uparrow_z}$ in the $x$-direction collapses it to
+            either $\ket{+}$ or $\ket{-}$ with equal probability $\frac{1}{2}$. If you then
+            re-measure in the $z$-direction, you again get up or down with equal probability —
+            the original $z$-information has been <em>destroyed</em> by the intermediate $x$-measurement.
+          </p>
+          <p>
+            Mathematically: measuring $X$ on $\ket{\uparrow_z} = \ket{0}$ collapses it to
+            $\ket{+}$ or $\ket{-}$. Both of these have equal $Z$-components:
+            $|\braket{0|+}|^2 = |\braket{0|-}|^2 = \frac{1}{2}$.
+          </p>
+        </div>
+
+        <div class="subsection" id="s7-hup">
+          <h3 class="subsection-title">The Heisenberg Uncertainty Principle</h3>
+
+          <div class="callout theorem">
+            <div class="callout-header">⚡ Robertson Uncertainty Relation</div>
+            <p>
+              For any two observables $A$ and $B$, and any state $\ket{\psi}$:
+              $$\sigma_A \sigma_B \geq \frac{1}{2}|\braket{[A,B]}|$$
+              where $\sigma_A = \sqrt{\braket{A^2} - \braket{A}^2}$ is the standard deviation,
+              and $[A,B] = AB - BA$ is the commutator.
+            </p>
+          </div>
+
+          <p>
+            For spin operators, $[S_z, S_x] = i\hbar S_y$, so:
+            $$\sigma_{S_z}\,\sigma_{S_x} \geq \frac{\hbar}{2}|\braket{S_y}|$$
+          </p>
+          <p>
+            The more famous position-momentum version: $[x, p] = i\hbar$ gives:
+            $$\sigma_x \sigma_p \geq \frac{\hbar}{2}$$
+            This is not about experimental imprecision — it is a fundamental feature of nature.
+            A quantum particle simply <em>does not have</em> a simultaneously sharp position and momentum;
+            these are incompatible observables.
+          </p>
+
+          <div class="callout insight">
+            <div class="callout-header">💡 Commuting vs Non-Commuting Observables</div>
+            <p>
+              If $[A, B] = 0$ (they commute), they share eigenstates and can be measured
+              simultaneously without disturbing each other. If $[A, B] \neq 0$, they cannot —
+              measuring one disturbs the other. This is precisely why $Z$ and $X$ cannot both
+              be simultaneously sharp: $[Z, X] = 2iY \neq 0$.
+            </p>
           </div>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="ctrl-btn" onclick="doMeasure()">Measure Once</button>
-          <button class="ctrl-btn secondary" onclick="doManyMeasure()">1000 Shots</button>
-          <button class="ctrl-btn secondary" onclick="resetMeasStats()">Reset</button>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <section class="section" id="s8">
+        <div class="section-header">
+          <span class="section-number">08</span>
+          <h2 class="section-title">Single-Qubit Gates</h2>
         </div>
-        <div class="meas-result" id="measResult">—</div>
-        <div id="measStats" style="font-size:0.82rem;color:var(--muted);font-family:'JetBrains Mono',monospace"></div>
-      </div>
-    </div>
-    <div style="flex:1;min-width:220px">
-      <canvas id="measHistCanvas" width="280" height="200" style="border-radius:8px;background:#f8faff;border:1px solid var(--border)"></canvas>
-      <p style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:6px">Empirical frequency histogram</p>
-    </div>
-  </div>
-</div>
 
-<h3 class="sub" id="s7b">The Stern-Gerlach Experiment</h3>
+        <p>
+          A quantum gate is a <strong>unitary operator</strong> $U$ applied to one or more qubits.
+          Single-qubit gates are $2 \times 2$ unitary matrices. Every single-qubit gate corresponds
+          to a <em>rotation of the Bloch sphere</em> — an elegant geometric interpretation.
+        </p>
 
-<p>The measurement postulate is not merely an abstract mathematical prescription — it was first concretely demonstrated by the celebrated <strong>Stern-Gerlach experiment</strong> (1922), one of the most profound experiments in the history of physics.</p>
+        <div class="subsection">
+          <h3 class="subsection-title">The Fundamental Single-Qubit Gates</h3>
 
-<div class="card highlight">
-<div class="card-title">🧪 Setup</div>
-<p>Otto Stern and Walther Gerlach sent a collimated beam of silver atoms through an <strong>inhomogeneous magnetic field</strong>. Each silver atom has one unpaired electron, giving it a net spin (magnetic moment). A non-uniform magnetic field exerts a force on a magnetic dipole proportional to its orientation relative to the field.</p>
-</div>
+          <h4 class="subsubsection-title">Pauli Gates</h4>
+          <div class="math-block">
+            $$X = \begin{pmatrix}0&1\\1&0\end{pmatrix} \quad \text{(bit-flip, 180° around x-axis)}$$
+            $$Y = \begin{pmatrix}0&-i\\i&0\end{pmatrix} \quad \text{(bit+phase flip, 180° around y-axis)}$$
+            $$Z = \begin{pmatrix}1&0\\0&-1\end{pmatrix} \quad \text{(phase-flip, 180° around z-axis)}$$
+          </div>
+          <p>
+            $X$ is the quantum analogue of a classical NOT gate. $Z$ adds a phase flip: $Z\ket{0} = \ket{0}$,
+            $Z\ket{1} = -\ket{1}$. These $\pm 1$ phase differences have no classical analogue and
+            are crucial for quantum interference.
+          </p>
 
-<p><strong>Classical prediction:</strong> The electron's magnetic dipole could point in any direction (continuously distributed over a sphere). The force on each atom would vary continuously, producing a smooth smear on a detector screen.</p>
+          <h4 class="subsubsection-title">The Hadamard Gate</h4>
+          <div class="math-block highlighted">
+            $$H = \frac{1}{\sqrt{2}}\begin{pmatrix}1&1\\1&-1\end{pmatrix}$$
+          </div>
+          <p>
+            The Hadamard is arguably the most important single-qubit gate. Its key actions:
+            $$H\ket{0} = \frac{\ket{0}+\ket{1}}{\sqrt{2}} = \ket{+}, \qquad H\ket{1} = \frac{\ket{0}-\ket{1}}{\sqrt{2}} = \ket{-}$$
+            $$H\ket{+} = \ket{0}, \qquad H\ket{-} = \ket{1}$$
+            It maps between the $z$ and $x$ bases. Geometrically: 180° rotation about the axis
+            $\frac{1}{\sqrt{2}}(\hat{x}+\hat{z})$ on the Bloch sphere. Note $H = H^\dagger$ and $H^2 = \mathbb{I}$
+            (self-inverse).
+          </p>
 
-<p><strong>Quantum reality:</strong> What was observed was two discrete spots — no smear, no intermediate values. The spin component along the magnetic field direction is <strong>quantized</strong>: it can only be $+\hbar/2$ (spin-up, $|0\rangle$) or $-\hbar/2$ (spin-down, $|1\rangle$).</p>
+          <h4 class="subsubsection-title">S and T Phase Gates</h4>
+          <div class="math-block">
+            $$S = \begin{pmatrix}1&0\\0&i\end{pmatrix}, \qquad T = \begin{pmatrix}1&0\\0&e^{i\pi/4}\end{pmatrix}$$
+          </div>
+          <p>
+            Both leave $\ket{0}$ unchanged and add a phase to $\ket{1}$: $S$ adds phase $i = e^{i\pi/2}$
+            (quarter turn around $z$-axis), $T$ adds $e^{i\pi/4}$ (eighth turn). Note $S = T^2$ and $Z = S^2 = T^4$.
+            The set $\{H, T, \text{CNOT}\}$ is <strong>universal</strong> for quantum computation.
+          </p>
 
-<p>If the atoms are prepared in the state $|\psi\rangle = \alpha|0\rangle + \beta|1\rangle$, then:</p>
-<ul style="padding-left:24px;margin-bottom:14px">
-  <li>A fraction $|\alpha|^2$ appears in the spin-up beam</li>
-  <li>A fraction $|\beta|^2$ appears in the spin-down beam</li>
-  <li>Sending one atom at a time: each atom lands in one of the two spots, randomly, with probabilities $|\alpha|^2$ and $|\beta|^2$</li>
-</ul>
-
-<h3 class="sub">Sequential Measurements and the Uncertainty Principle</h3>
-
-<p>Consider this sequence: prepare atoms in $|0\rangle$, pass through a $Z$-SG device (selects spin-up), then pass through an $X$-SG device, then through a $Z$-SG device again. What happens to the final $Z$-SG?</p>
-
-<div class="steps">
-<div class="step"><div class="step-num">1</div><div class="step-body">After first $Z$-SG: atoms are in $|0\rangle$. Probability of spin-up is 100%.</div></div>
-<div class="step"><div class="step-num">2</div><div class="step-body">After $X$-SG: $|0\rangle = \frac{1}{\sqrt{2}}(|{+}\rangle + |{-}\rangle)$. So the $X$-SG splits it 50/50 into $|{+}\rangle$ and $|{-}\rangle$ beams. Select the $|{+}\rangle$ beam.</div></div>
-<div class="step"><div class="step-num">3</div><div class="step-body">Now $|{+}\rangle = \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)$. The final $Z$-SG splits it 50/50 into $|0\rangle$ and $|1\rangle$!</div></div>
-</div>
-
-<p>The intermediate $X$-measurement has <strong>destroyed</strong> the information about the $Z$-spin, even though we started with a definite $Z$-spin. This is the Stern-Gerlach demonstration of the <strong>Heisenberg Uncertainty Principle</strong>.</p>
-
-<div class="card definition">
-<div class="card-title">📐 Non-commuting Observables and the Commutator</div>
-<p>For two Hermitian operators $A$ and $B$, the <strong>commutator</strong> is $[A, B] = AB - BA$. When $[A, B] = 0$, the operators <em>commute</em> — measuring $A$ then $B$ gives the same result as measuring $B$ then $A$. When $[A, B] \neq 0$, measuring one disturbs the other.</p>
-<p>For the Pauli matrices:</p>
-$$[S_z, S_x] = S_z S_x - S_x S_z = i\hbar S_y \neq 0$$
-<p>Since $Z$ and $X$ do not commute, $Z$-spin and $X$-spin cannot be simultaneously determined with certainty — this is the content of the Heisenberg Uncertainty Principle for spin.</p>
-</div>
-</div>
-
-<!-- ══════════════════════════════════════════════════════════ -->
-<!--  SECTION 8: QUANTUM GATES                                 -->
-<!-- ══════════════════════════════════════════════════════════ -->
-<div class="section" id="s8">
-<div class="section-header">
-  <div class="section-num">8</div>
-  <h2>Single-Qubit Quantum Gates</h2>
-</div>
-
-<p>A quantum gate is a unitary operator acting on a qubit (or qubits). Just as classical logic gates manipulate bits, quantum gates manipulate qubit states. The crucial difference: all quantum gates are <em>reversible</em> and correspond to rotations of the Bloch sphere.</p>
-
-<p>Every single-qubit gate is a $2 \times 2$ unitary matrix $U$ (satisfying $U^\dagger U = I$). The most important ones are:</p>
-
-<div class="gate-grid">
-  <div class="gate-card">
-    <div class="gate-name">Pauli-X (NOT)</div>
-    <div class="gate-sym">X</div>
-    $X = \begin{pmatrix}0&1\\1&0\end{pmatrix}$
-    <p style="font-size:0.8rem;margin-top:8px;color:var(--muted)">$X|0\rangle=|1\rangle$, $X|1\rangle=|0\rangle$<br>180° rotation around x-axis</p>
-  </div>
-  <div class="gate-card">
-    <div class="gate-name">Pauli-Y</div>
-    <div class="gate-sym">Y</div>
-    $Y = \begin{pmatrix}0&-i\\i&0\end{pmatrix}$
-    <p style="font-size:0.8rem;margin-top:8px;color:var(--muted)">$Y|0\rangle=i|1\rangle$, $Y|1\rangle=-i|0\rangle$<br>180° rotation around y-axis</p>
-  </div>
-  <div class="gate-card">
-    <div class="gate-name">Pauli-Z</div>
-    <div class="gate-sym">Z</div>
-    $Z = \begin{pmatrix}1&0\\0&-1\end{pmatrix}$
-    <p style="font-size:0.8rem;margin-top:8px;color:var(--muted)">$Z|0\rangle=|0\rangle$, $Z|1\rangle=-|1\rangle$<br>180° rotation around z-axis</p>
-  </div>
-  <div class="gate-card">
-    <div class="gate-name">Hadamard</div>
-    <div class="gate-sym">H</div>
-    $H = \frac{1}{\sqrt{2}}\begin{pmatrix}1&1\\1&-1\end{pmatrix}$
-    <p style="font-size:0.8rem;margin-top:8px;color:var(--muted)">$H|0\rangle=|{+}\rangle$, $H|1\rangle=|{-}\rangle$<br>90° around x+z axis; <strong>H²=I</strong></p>
-  </div>
-  <div class="gate-card">
-    <div class="gate-name">S (Phase)</div>
-    <div class="gate-sym">S</div>
-    $S = \begin{pmatrix}1&0\\0&i\end{pmatrix}$
-    <p style="font-size:0.8rem;margin-top:8px;color:var(--muted)">$S|0\rangle=|0\rangle$, $S|1\rangle=i|1\rangle$<br>90° rotation around z-axis</p>
-  </div>
-  <div class="gate-card">
-    <div class="gate-name">T (π/8 gate)</div>
-    <div class="gate-sym">T</div>
-    $T = \begin{pmatrix}1&0\\0&e^{i\pi/4}\end{pmatrix}$
-    <p style="font-size:0.8rem;margin-top:8px;color:var(--muted)">$T|0\rangle=|0\rangle$, $T|1\rangle=e^{i\pi/4}|1\rangle$<br>45° rotation around z-axis</p>
-  </div>
-</div>
-
-<!-- VIZ 3: GATE EXPLORER -->
-<div class="viz-container" id="gate-viz">
-  <div class="viz-title">⚙️ Quantum Gate Explorer</div>
-  <div class="viz-subtitle">Select a gate and an input state. See the matrix, the transformation, and the output on the Bloch sphere.</div>
-  <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
-    <div style="min-width:200px">
-      <div class="viz-controls" style="flex-direction:column;border:none;padding:0">
-        <div class="ctrl-group">
-          <label>Input State:</label>
-          <select id="gateInputState" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);font-family:inherit" onchange="updateGateViz()">
-            <option value="0,0">|0⟩</option>
-            <option value="180,0">|1⟩</option>
-            <option value="90,0">|+⟩</option>
-            <option value="90,180">|−⟩</option>
-            <option value="90,90">|+i⟩</option>
-          </select>
+          <h4 class="subsubsection-title">General Rotation Gates</h4>
+          <p>
+            Any $2\times 2$ unitary can be decomposed as a rotation around some axis $\hat{n}$ by angle $\alpha$:
+          </p>
+          <div class="math-block">
+            $$R_{\hat{n}}(\alpha) = e^{-i\alpha\hat{n}\cdot\boldsymbol{\sigma}/2} = \cos\!\tfrac{\alpha}{2}\,\mathbb{I} - i\sin\!\tfrac{\alpha}{2}(n_x X + n_y Y + n_z Z)$$
+          </div>
+          <p>
+            In particular, the rotation gates around the cardinal axes:
+            $$R_x(\theta) = \begin{pmatrix}\cos\frac\theta2 & -i\sin\frac\theta2 \\ -i\sin\frac\theta2 & \cos\frac\theta2\end{pmatrix},\quad R_z(\theta) = \begin{pmatrix}e^{-i\theta/2}&0\\0&e^{i\theta/2}\end{pmatrix}$$
+          </p>
         </div>
-        <div class="ctrl-group">
-          <label>Gate:</label>
-          <select id="gateSelect" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);font-family:inherit" onchange="updateGateViz()">
-            <option value="X">X (Pauli-X / NOT)</option>
-            <option value="Y">Y (Pauli-Y)</option>
-            <option value="Z">Z (Pauli-Z)</option>
-            <option value="H">H (Hadamard)</option>
-            <option value="S">S (Phase)</option>
-            <option value="T">T (T gate)</option>
-          </select>
+
+        <!-- Quantum Circuit Visualization -->
+        <div class="viz-container">
+          <div class="viz-header">
+            <div class="viz-title">Common Single-Qubit Gate Circuits</div>
+          </div>
+          <div class="viz-body" id="gate-circuit-viz">
+            <!-- populated by JS -->
+          </div>
+          <div class="viz-controls">
+            <div class="ctrl-group">
+              <span class="ctrl-label">Circuit:</span>
+              <select id="circuit-select">
+                <option value="basic">Basic Gates (H, X, Z, S)</option>
+                <option value="bell">Bell State Preparation</option>
+                <option value="teleport">Teleportation Circuit</option>
+              </select>
+            </div>
+          </div>
         </div>
-        <div id="gate-result" style="margin-top:12px;font-size:0.85rem"></div>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <div style="text-align:center">
-        <canvas id="gateBlochIn" width="210" height="210" style="border-radius:10px;background:#fff8f0;border:1px solid #fddcb5"></canvas>
-        <p style="font-size:0.75rem;color:var(--muted);margin-top:4px">Input State</p>
-      </div>
-      <div style="display:flex;align-items:center;font-size:1.5rem;color:var(--accent)">→</div>
-      <div style="text-align:center">
-        <canvas id="gateBlochOut" width="210" height="210" style="border-radius:10px;background:#f0fff4;border:1px solid #bbf7d0"></canvas>
-        <p style="font-size:0.75rem;color:var(--muted);margin-top:4px">Output State</p>
-      </div>
-    </div>
-  </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <section class="section" id="s9">
+        <div class="section-header">
+          <span class="section-number">09</span>
+          <h2 class="section-title">Multi-Qubit Systems</h2>
+        </div>
+
+        <p>
+          When we combine $n$ qubits, the state space grows exponentially. Two qubits have basis
+          states $\ket{00}, \ket{01}, \ket{10}, \ket{11}$, forming the computational basis of
+          $\mathbb{C}^4 = \mathbb{C}^2 \otimes \mathbb{C}^2$:
+        </p>
+        <div class="math-block">
+          $$\ket{\psi} = \alpha_{00}\ket{00} + \alpha_{01}\ket{01} + \alpha_{10}\ket{10} + \alpha_{11}\ket{11}$$
+        </div>
+        <p>with normalization $\sum_{x \in \{00,01,10,11\}} |\alpha_x|^2 = 1$. For $n$ qubits:</p>
+        <div class="math-block highlighted">
+          $$\ket{\psi} = \sum_{x \in \{0,1\}^n} \alpha_x \ket{x}, \qquad \sum_{x}|\alpha_x|^2 = 1$$
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Product vs. Entangled States</h3>
+          <p>
+            A state $\ket{\psi} \in \mathcal{H}_A \otimes \mathcal{H}_B$ is a <strong>product state</strong>
+            if it can be written as $\ket{\psi} = \ket{\phi}_A \otimes \ket{\chi}_B$ for some
+            $\ket{\phi}_A \in \mathcal{H}_A$ and $\ket{\chi}_B \in \mathcal{H}_B$. Otherwise,
+            it is <strong>entangled</strong>.
+          </p>
+          <div class="callout example">
+            <div class="callout-header">🧪 Example — Product vs Entangled</div>
+            <p>
+              <strong style="color:var(--green);">Product state:</strong>
+              $\ket{+}\ket{0} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\otimes\ket{0} = \frac{1}{\sqrt{2}}(\ket{00}+\ket{10})$<br><br>
+              <strong style="color:var(--cyan);">Entangled state:</strong>
+              $\ket{\Phi^+} = \frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$
+              — this <em>cannot</em> be written as any product $\ket{\phi}\otimes\ket{\chi}$.
+              Measuring qubit 1 instantly determines qubit 2's state, regardless of distance.
+            </p>
+          </div>
+          <p>
+            To see why $\ket{\Phi^+}$ is entangled: suppose $\ket{\Phi^+} = (\alpha\ket{0}+\beta\ket{1})\otimes(\gamma\ket{0}+\delta\ket{1})$.
+            Expanding: $\alpha\gamma\ket{00} + \alpha\delta\ket{01} + \beta\gamma\ket{10} + \beta\delta\ket{11}$.
+            For this to equal $\frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$, we need $\alpha\delta = 0$ and $\beta\gamma = 0$,
+            but also $\alpha\gamma = \beta\delta = \frac{1}{\sqrt{2}} \neq 0$. These are contradictory — so no product
+            state decomposition exists.
+          </p>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">The Q-Sphere</h3>
+          <p>
+            For $n > 1$ qubits, the Bloch sphere generalizes to the <strong>Q-sphere</strong>,
+            which visualizes the amplitudes of all $2^n$ computational basis states. Each basis state
+            occupies a point on the sphere determined by its Hamming weight (number of 1s), and the
+            amplitude is represented by the size and color of a circle at that point.
+          </p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <section class="section" id="s10">
+        <div class="section-header">
+          <span class="section-number">10</span>
+          <h2 class="section-title">Multi-Qubit Gates &amp; Universality</h2>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">The CNOT Gate</h3>
+          <p>
+            The <strong>Controlled-NOT (CNOT)</strong> is the fundamental two-qubit gate. It flips the
+            <em>target</em> qubit if and only if the <em>control</em> qubit is $\ket{1}$:
+          </p>
+          <div class="math-block">
+            $$\text{CNOT} = \begin{pmatrix}1&0&0&0\\0&1&0&0\\0&0&0&1\\0&0&1&0\end{pmatrix}, \quad
+            \text{CNOT}\ket{c,t} = \ket{c, c \oplus t}$$
+          </div>
+          <p>
+            where $\oplus$ denotes XOR (addition mod 2). Its action on basis states:
+            $\ket{00}\to\ket{00}$, $\ket{01}\to\ket{01}$, $\ket{10}\to\ket{11}$, $\ket{11}\to\ket{10}$.
+          </p>
+          <div class="callout insight">
+            <div class="callout-header">💡 CNOT Creates Entanglement</div>
+            <p>
+              Applying CNOT with control on qubit 1 to $\ket{+}\ket{0} = \frac{1}{\sqrt{2}}(\ket{00}+\ket{10})$:
+              $$\text{CNOT}\cdot\frac{1}{\sqrt{2}}(\ket{00}+\ket{10}) = \frac{1}{\sqrt{2}}(\ket{00}+\ket{11}) = \ket{\Phi^+}$$
+              One Hadamard plus one CNOT creates a maximally entangled Bell state — the most fundamental entangling circuit.
+            </p>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Other Multi-Qubit Gates</h3>
+          <h4 class="subsubsection-title">CZ (Controlled-Z)</h4>
+          <div class="math-block">
+            $$\text{CZ} = \begin{pmatrix}1&0&0&0\\0&1&0&0\\0&0&1&0\\0&0&0&-1\end{pmatrix}$$
+          </div>
+          <p>
+            CZ adds a phase of $-1$ if and only if both qubits are $\ket{1}$. Unlike CNOT, CZ is
+            <em>symmetric</em> — control and target play equal roles. Circuit identity:
+            CZ = (H on target) CNOT (H on target).
+          </p>
+
+          <h4 class="subsubsection-title">SWAP Gate</h4>
+          <div class="math-block">
+            $$\text{SWAP}\ket{a,b} = \ket{b,a}, \qquad \text{SWAP} = \begin{pmatrix}1&0&0&0\\0&0&1&0\\0&1&0&0\\0&0&0&1\end{pmatrix}$$
+          </div>
+          <p>SWAP can be decomposed into three CNOTs:</p>
+          <div class="math-block">
+            $$\text{SWAP} = \text{CNOT}_{1\to2} \cdot \text{CNOT}_{2\to1} \cdot \text{CNOT}_{1\to2}$$
+          </div>
+
+          <h4 class="subsubsection-title">Toffoli (CCX) Gate</h4>
+          <p>
+            A three-qubit gate with two controls and one target:
+            $\text{Toffoli}\ket{c_1, c_2, t} = \ket{c_1, c_2, t \oplus (c_1 \text{ AND } c_2)}$.
+            The Toffoli gate is <strong>universal for classical reversible computation</strong>
+            — it can implement any classical logic gate reversibly. Combined with the Hadamard,
+            $\{H, \text{Toffoli}\}$ is universal for quantum computation.
+          </p>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Universality</h3>
+          <div class="key-result">
+            <div class="key-result-title">Universal Gate Sets</div>
+            <p>
+              A set of gates is <strong>universal</strong> if any unitary operation on any number
+              of qubits can be approximated to arbitrary precision using only those gates.
+            </p>
+            <ul style="margin-top:0.75rem;list-style:none;">
+              <li style="margin:0.3rem 0;color:var(--text-dim);">• $\{H, T, \text{CNOT}\}$ — Most common universal set for quantum computing</li>
+              <li style="margin:0.3rem 0;color:var(--text-dim);">• $\{H, \text{Toffoli}\}$ — Universal for quantum computation</li>
+              <li style="margin:0.3rem 0;color:var(--text-dim);">• $\{\text{Toffoli}\}$ alone — Universal for classical (reversible) computation</li>
+            </ul>
+            <p style="margin-top:0.75rem;color:var(--text-dim);font-size:0.9rem;">
+              The Solovay-Kitaev theorem guarantees that any unitary can be approximated with
+              $O(\log^c(1/\epsilon))$ gates from a universal set, to accuracy $\epsilon$.
+            </p>
+          </div>
+        </div>
+
+        <!-- Multi-qubit circuit viz -->
+        <div class="viz-container" id="multiqubit-viz">
+          <div class="viz-header">
+            <div class="viz-title">Multi-Qubit Gate Circuits</div>
+          </div>
+          <div class="viz-body" id="mqcircuit-body">
+          </div>
+          <div class="viz-controls">
+            <div class="ctrl-group">
+              <span class="ctrl-label">Circuit:</span>
+              <select id="mq-circuit-select">
+                <option value="cnot">CNOT Demo</option>
+                <option value="swap">SWAP Decomposition</option>
+                <option value="bell-prep">Bell State Prep</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection">
+          <h3 class="subsection-title">Circuit Identities</h3>
+          <p>Several important circuit identities for simplification and compilation:</p>
+          <div class="math-block">
+            $$HXH = Z, \quad HYH = -Y, \quad HZH = X$$
+          </div>
+          <div class="math-block">
+            $$\text{CZ} = (I \otimes H)\,\text{CNOT}\,(I \otimes H)$$
+          </div>
+          <div class="math-block">
+            $$\text{CNOT}_{1\to2} = (H\otimes H)\,\text{CNOT}_{2\to1}\,(H\otimes H)$$
+          </div>
+          <p>
+            These identities allow us to change the "direction" of a controlled gate or switch
+            between controlled-$X$ and controlled-$Z$ using only Hadamard gates — very useful
+            in practice when hardware only natively supports certain gate types.
+          </p>
+        </div>
+      </section>
+
+    </article>
+  </div><!-- end content-wrapper -->
+
+  <footer class="page-footer">
+    Week 1 · NPTEL Quantum Computing · Based on IIT Madras Lecture Materials<br>
+    References: Nielsen &amp; Chuang Ch. 2 · Sakurai Modern QM Ch. 1 · Feynman Lectures Vol. III
+  </footer>
 </div>
 
-<h3 class="sub" id="s8b">Quantum Circuits</h3>
-
-<p>Quantum circuits are the language of quantum algorithms. We read them left-to-right, with each wire representing a qubit and each box a gate. The overall computation is the matrix product of all the gates applied in sequence (matrix multiplication order: rightmost first).</p>
-
-<div class="qc-title">Example 2-qubit circuit:</div>
-<div class="qc-circuit" style="align-items:center">
-  <div class="qc-wire-label"><div>q₀</div><div>q₁</div></div>
-  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
-    <div class="qc-cell"><div class="qc-gate h">H</div></div>
-    <div class="qc-cell"></div>
-  </div>
-  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
-    <div class="qc-cell"><div class="qc-gate t">T</div></div>
-    <div class="qc-cell"></div>
-  </div>
-  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
-    <div class="qc-cell"><div class="qc-gate h">H</div></div>
-    <div class="qc-cell"></div>
-  </div>
-  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
-    <div class="qc-ctrl-line" style="top:28px; bottom:28px"></div>
-    <div class="qc-cell"><div class="qc-ctrl"></div></div>
-    <div class="qc-cell"><div class="qc-gate x">X</div></div>
-  </div>
-  <div class="qc-step"><div class="qc-wire-classic" style="top:28px; width:50%"></div><div class="qc-wire-classic" style="top:84px; width:50%"></div>
-    <div class="qc-cell"><div class="qc-gate m"></div></div>
-    <div class="qc-cell"><div class="qc-gate m"></div></div>
-  </div>
-</div>
-
-<p>Key facts about quantum circuits:</p>
-<ul style="padding-left:24px;margin-bottom:14px">
-  <li style="margin-bottom:6px">Every circuit computes a <strong>unitary transformation</strong> of the input state</li>
-  <li style="margin-bottom:6px">Gates must be applied in order but can operate on different qubits <em>simultaneously</em> (in parallel)</li>
-  <li style="margin-bottom:6px">Measurement (the "M" box) is the only non-unitary step and produces a classical bit</li>
-  <li style="margin-bottom:6px">We always assume qubits start in $|0\rangle$ unless stated otherwise</li>
-</ul>
-</div>
-
-<!-- ══════════════════════════════════════════════════════════ -->
-<!--  SECTION 9: MULTI-QUBIT SYSTEMS                          -->
-<!-- ══════════════════════════════════════════════════════════ -->
-<div class="section" id="s9">
-<div class="section-header">
-  <div class="section-num">9</div>
-  <h2>Multi-Qubit Systems and Quantum Circuits</h2>
-</div>
-
-<h3 class="sub">Tensor Products: Combining Qubits</h3>
-
-<p>To describe a system of multiple qubits, we use the <strong>tensor product</strong>. If qubit 1 is in state $|\psi_1\rangle$ and qubit 2 is in state $|\psi_2\rangle$, the combined 2-qubit system is in state $|\psi_1\rangle \otimes |\psi_2\rangle$, written $|\psi_1\psi_2\rangle$ or $|\psi_1\rangle|\psi_2\rangle$ for short.</p>
-
-<div class="card definition">
-<div class="card-title">📐 Tensor Product of Qubit States</div>
-<p>For states $|a\rangle = \begin{pmatrix}a_0\\a_1\end{pmatrix}$ and $|b\rangle = \begin{pmatrix}b_0\\b_1\end{pmatrix}$:</p>
-
-$$|a\rangle \otimes |b\rangle = \begin{pmatrix}a_0 b_0\\ a_0 b_1\\ a_1 b_0\\ a_1 b_1\end{pmatrix}$$
-
-<p>The 2-qubit computational basis is $\{|00\rangle, |01\rangle, |10\rangle, |11\rangle\}$, corresponding to the four basis vectors of $\mathbb{C}^4$.</p>
-</div>
-
-<p>This is the exponential scaling that gives quantum computing its power. $n$ qubits require $2^n$ complex amplitudes to fully describe. For $n=300$, this is more than the number of atoms in the observable universe. Yet a quantum computer with 300 qubits <em>implicitly manipulates all $2^{300}$ amplitudes simultaneously</em>.</p>
-
-<h3 class="sub" id="s9b">Entanglement: When Tensor Products Fail</h3>
-
-<div class="card definition">
-<div class="card-title">📐 Product States vs. Entangled States</div>
-<p>A 2-qubit state $|\Psi\rangle$ is a <strong>product state</strong> if it can be written as $|\psi_1\rangle \otimes |\psi_2\rangle$ for some single-qubit states. Otherwise, it is <strong>entangled</strong>.</p>
-
-<p><strong>Product state example:</strong> $|{+0}\rangle = \frac{1}{\sqrt{2}}(|00\rangle + |10\rangle) = |{+}\rangle \otimes |0\rangle$. The qubits are independent.</p>
-
-<p><strong>Entangled state example:</strong> $\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$. This <em>cannot</em> be written as any $|\psi_1\rangle \otimes |\psi_2\rangle$.</p>
-</div>
-
-<p>Why can't $\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$ be a product state? Suppose it could: $\begin{pmatrix}a_0\\a_1\end{pmatrix}\otimes\begin{pmatrix}b_0\\b_1\end{pmatrix} = \begin{pmatrix}a_0 b_0\\ a_0 b_1\\ a_1 b_0\\ a_1 b_1\end{pmatrix} = \begin{pmatrix}1/\sqrt{2}\\ 0\\ 0\\ 1/\sqrt{2}\end{pmatrix}$. Then $a_0 b_0 = 1/\sqrt{2} \neq 0$, so $a_0 \neq 0$ and $b_0 \neq 0$. But $a_0 b_1 = 0 \Rightarrow b_1 = 0$ (since $a_0 \neq 0$), and $a_1 b_0 = 0 \Rightarrow a_1 = 0$ (since $b_0 \neq 0$). Then $a_1 b_1 = 0 \neq 1/\sqrt{2}$. Contradiction! ∎</p>
-
-<p>Entanglement is arguably the most non-classical feature of quantum mechanics. When two qubits are entangled, measuring one <em>instantaneously</em> determines the measurement outcome of the other, regardless of the physical distance between them. Yet no information travels faster than light — this is the mystery and the power of entanglement.</p>
-
-<h3 class="sub" id="s9c">Multi-Qubit Gates: CNOT and Friends</h3>
-
-<p>Multi-qubit gates operate on two or more qubits simultaneously. The most important 2-qubit gate is the <strong>Controlled-NOT (CNOT, or CX)</strong>:</p>
-
-<div class="card definition">
-<div class="card-title">📐 The CNOT Gate</div>
-<p>The CNOT gate has a <strong>control qubit</strong> and a <strong>target qubit</strong>. It flips (X gate) the target if and only if the control is $|1\rangle$:</p>
-
-$$\text{CNOT}|00\rangle = |00\rangle, \quad \text{CNOT}|01\rangle = |01\rangle, \quad \text{CNOT}|10\rangle = |11\rangle, \quad \text{CNOT}|11\rangle = |10\rangle$$
-
-<p>Matrix form (in the basis $\{|00\rangle, |01\rangle, |10\rangle, |11\rangle\}$):</p>
-
-$$\text{CNOT} = \begin{pmatrix}1&0&0&0\\0&1&0&0\\0&0&0&1\\0&0&1&0\end{pmatrix}$$
-</div>
-
-<p>The CNOT is the quantum analogue of the XOR gate. Combined with the Hadamard gate, it can create entanglement. Circuit notation:</p>
-
-<div class="qc-title">H + CNOT → Bell state:</div>
-<div class="qc-circuit" style="align-items:center">
-  <div class="qc-wire-label"><div>q₀</div><div>q₁</div></div>
-  <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
-    <div class="qc-cell"><div class="qc-gate h">H</div></div>
-    <div class="qc-cell"></div>
-  </div>
-  <div class="qc-step"><div class="qc-wire" style="top:28px;width:150%"></div><div class="qc-wire" style="top:84px;width:150%"></div>
-    <div class="qc-ctrl-line" style="top:28px; bottom:28px"></div>
-    <div class="qc-cell"><div class="qc-ctrl"></div></div>
-    <div class="qc-cell"><div class="qc-targ"></div></div>
-  </div>
-</div>
-
-<p>Starting from $|00\rangle$: Apply $H$ to $q_0$: $\frac{1}{\sqrt{2}}(|00\rangle + |10\rangle)$. Then CNOT (control: $q_0$, target: $q_1$):</p>
-$$\frac{1}{\sqrt{2}}(|00\rangle + |10\rangle) \xrightarrow{\text{CNOT}} \frac{1}{\sqrt{2}}(|00\rangle + |11\rangle) = |\Phi^+\rangle$$
-
-<p>This is a <strong>Bell state</strong> — maximally entangled! We'll study Bell states in detail in Week 2.</p>
-
-<p>Other important multi-qubit gates:</p>
-<ul style="padding-left:24px;margin-bottom:14px">
-  <li style="margin-bottom:6px"><strong>SWAP:</strong> Exchanges the states of two qubits: $|ab\rangle \to |ba\rangle$. Matrix: block diagonal with X on the off-diagonal.</li>
-  <li style="margin-bottom:6px"><strong>Toffoli (CCX):</strong> Two control qubits; flips target iff both controls are $|1\rangle$. This is the quantum analogue of NAND and is classically universal.</li>
-  <li style="margin-bottom:6px"><strong>CZ (Controlled-Z):</strong> Applies a Z gate to the target iff control is $|1\rangle$. Applies a phase of $-1$ to $|11\rangle$ only.</li>
-</ul>
-
-<h3 class="sub" id="s9d">Universality in Quantum Computing</h3>
-
-<p>A <strong>universal gate set</strong> is a set of gates sufficient to approximate any unitary transformation to arbitrary precision. The analogy with classical: $\{\text{AND, OR, NOT}\}$ (or just NAND alone) is classically universal.</p>
-
-<table class="cmp-table">
-<thead><tr><th>Domain</th><th>Universal Gate Set(s)</th><th>What They Can Compute</th></tr></thead>
-<tbody>
-<tr><td>Classical</td><td>$\{$AND, OR, NOT$\}$; NAND alone; NOR alone</td><td>Any Boolean function</td></tr>
-<tr><td>Quantum (2-qubit)</td><td>$\{H, T, \text{CNOT}\}$</td><td>Any unitary on $n$ qubits (approximately)</td></tr>
-<tr><td>Quantum (alt.)</td><td>$\{H, \text{Toffoli}\}$</td><td>Any unitary on $n$ qubits (approximately)</td></tr>
-</tbody>
-</table>
-
-<p>The fact that a <em>finite</em> set of gates can implement any quantum computation is remarkable and non-obvious. It follows from the Solovay-Kitaev theorem, which shows that any unitary can be approximated to within $\epsilon$ using $O(\text{polylog}(1/\epsilon))$ gates from a universal set.</p>
-
-<h3 class="sub" id="s9e">Circuit Identities</h3>
-
-<p>Not all gates can be directly implemented in hardware. But we can often derive one gate from others. A critical example: IBM quantum hardware supports CX (CNOT) directly, but not CZ (Controlled-Z). We can derive CZ from CX:</p>
-
-<p><strong>Key insight:</strong> $Z = HXH$ (sandwiching X between two Hadamards converts between X and Z bases). Therefore, if we want to conditionally apply Z on the target, we can: apply H to the target, then CNOT, then H to the target again.</p>
-
-<div class="qc-title">CZ circuit identity:  CZ = (I⊗H) · CNOT · (I⊗H)</div>
-<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
-  <div class="qc-circuit" style="align-items:center;margin:0;flex:0 0 auto">
-    <div class="qc-wire-label"><div>q₀</div><div>q₁</div></div>
-    <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
-      <div class="qc-cell"></div>
-      <div class="qc-cell"><div class="qc-gate h">H</div></div>
-    </div>
-    <div class="qc-step"><div class="qc-wire" style="top:28px"></div><div class="qc-wire" style="top:84px"></div>
-      <div class="qc-ctrl-line" style="top:28px; bottom:28px"></div>
-      <div class="qc-cell"><div class="qc-ctrl"></div></div>
-      <div class="qc-cell"><div class="qc-targ"></div></div>
-    </div>
-    <div class="qc-step"><div class="qc-wire" style="top:28px;width:150%"></div><div class="qc-wire" style="top:84px;width:150%"></div>
-      <div class="qc-cell"></div>
-      <div class="qc-cell"><div class="qc-gate h">H</div></div>
-    </div>
-  </div>
-  <div style="font-family:'JetBrains Mono',monospace;font-size:1.2rem;color:var(--muted);font-weight:700">=</div>
-  <div class="qc-circuit" style="align-items:center;margin:0;flex:0 0 auto">
-    <div class="qc-wire-label"><div>q₀</div><div>q₁</div></div>
-    <div class="qc-step"><div class="qc-wire" style="top:28px;width:150%"></div><div class="qc-wire" style="top:84px;width:150%"></div>
-      <div class="qc-ctrl-line" style="top:28px; bottom:28px"></div>
-      <div class="qc-cell"><div class="qc-ctrl"></div></div>
-      <div class="qc-cell"><div class="qc-ctrl"></div></div>
-    </div>
-  </div>
-  <div class="qc-caption"><div>CZ gate</div></div>
-</div>
-
-<p>Let us verify with matrix multiplication:</p>
-$$(I \otimes H)\cdot\text{CNOT}\cdot(I\otimes H) = \text{CZ}$$
-
-<p>This is not just a curiosity — it is essential engineering. Hardware limitations force us to decompose every gate into a supported basis set of gates, and circuit identities give us the decomposition rules.</p>
-</div>
-
-<!-- ══════════════════════════════════════════════════════════ -->
-<!-- JavaScript: All Visualizations                            -->
-<!-- ══════════════════════════════════════════════════════════ -->
+<script src="js/bloch-sphere.js"></script>
+<script src="js/visualizations.js"></script>
+<script src="js/main.js"></script>
 <script>
-// ─── Bloch Sphere Drawing Utility ───────────────────────────────────────────
-function drawBloch(canvasId, theta_deg, phi_deg, opts={}) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const cx = W/2, cy = H/2;
-  const R = Math.min(W,H)*0.36;
-  const thetaRad = theta_deg * Math.PI / 180;
-  const phiRad = phi_deg * Math.PI / 180;
-
-  ctx.clearRect(0, 0, W, H);
-
-  // Sphere outline
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, R, 0, 2*Math.PI);
-  ctx.strokeStyle = opts.sphereColor || '#b0bec5';
-  ctx.lineWidth = 1.2;
-  ctx.stroke();
-
-  // Equator (dashed)
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, R, R*0.28, 0, 0, 2*Math.PI);
-  ctx.setLineDash([5,4]);
-  ctx.strokeStyle = '#b0bec5';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  // Meridian circle (perspective, dashed)
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, R*0.28, R, 0, 0, 2*Math.PI);
-  ctx.setLineDash([4,4]);
-  ctx.strokeStyle = '#cfd8dc';
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
-
-  // Axes
-  const arrowLen = 15;
-  function drawAxis(x1,y1,x2,y2,color,label,lx,ly){
-    ctx.save();
-    ctx.strokeStyle = color; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
-    // arrowhead
-    const ang = Math.atan2(y2-y1, x2-x1);
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(x2,y2);
-    ctx.lineTo(x2-arrowLen*Math.cos(ang-0.35), y2-arrowLen*Math.sin(ang-0.35));
-    ctx.lineTo(x2-arrowLen*Math.cos(ang+0.35), y2-arrowLen*Math.sin(ang+0.35));
-    ctx.fill();
-    ctx.font = 'bold 13px Cormorant Garamond, serif';
-    ctx.fillText(label, lx, ly);
-    ctx.restore();
+// ── Bloch Sphere Init ──
+let bloch = null;
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.THREE) {
+    bloch = initBlochSphere('bloch-container', { theta: 0, phi: 0 });
   }
-  const axLen = R*0.95;
-  drawAxis(cx, cy+axLen*0.7, cx, cy-axLen-18, '#455a64', 'z', cx+5, cy-axLen-20);
-  drawAxis(cx-axLen*0.8, cy, cx+axLen+18, cy, '#455a64', 'x', cx+axLen+10, cy+15);
-  // y-axis (isometric)
-  const ylen = axLen*0.55;
-  ctx.save(); ctx.strokeStyle='#455a64'; ctx.lineWidth=1.2;
-  ctx.setLineDash([4,3]);
-  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx-ylen*0.55, cy+ylen*0.22); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
 
-  // Pole labels
-  ctx.fillStyle = '#263238'; ctx.font = '13px Source Sans 3, sans-serif';
-  ctx.fillText('|0⟩', cx+6, cy-axLen+4);
-  ctx.fillText('|1⟩', cx+6, cy+axLen+15);
-  ctx.fillText('|+⟩', cx+axLen+6, cy+5);
+  function updateBlochDisplay(theta, phi) {
+    document.getElementById('theta-slider').value = Math.round(theta * 100);
+    document.getElementById('phi-slider').value = Math.round(phi * 100);
+    const tDeg = (theta * 180 / Math.PI).toFixed(0);
+    const pDeg = (phi  * 180 / Math.PI).toFixed(0);
+    document.getElementById('theta-val').textContent = tDeg + '°';
+    document.getElementById('phi-val').textContent   = pDeg + '°';
+    const p0 = (Math.cos(theta/2)**2).toFixed(2);
+    const p1 = (Math.sin(theta/2)**2).toFixed(2);
+    document.getElementById('bloch-probs').textContent = `P(|0⟩) = ${p0} · P(|1⟩) = ${p1}`;
 
-  // 3D Bloch vector
-  const sinT = Math.sin(thetaRad), cosT = Math.cos(thetaRad);
-  const sinP = Math.sin(phiRad), cosP = Math.cos(phiRad);
-  const bx3 = sinT*cosP, by3 = sinT*sinP, bz3 = cosT;
-  // Oblique projection: y goes into screen, slightly downward and to left
-  const px = cx + R*(bx3 - by3*0.42);
-  const py = cy - R*(bz3 + by3*0.12);
-
-  // Dashed projection lines
-  ctx.save(); ctx.strokeStyle='#90a4ae'; ctx.lineWidth=0.8; ctx.setLineDash([3,3]);
-  ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(cx + R*(bx3-by3*0.42), cy); ctx.stroke(); // down to equatorial plane
-  ctx.beginPath(); ctx.moveTo(cx + R*(bx3-by3*0.42), cy); ctx.lineTo(cx,cy); ctx.stroke(); // to center
-  ctx.setLineDash([]);
-  ctx.restore();
-
-  // State vector
-  ctx.save();
-  const grad = ctx.createLinearGradient(cx,cy,px,py);
-  grad.addColorStop(0, opts.vecColor || '#1a4e8a');
-  grad.addColorStop(1, opts.vecColor2 || '#2d7dd2');
-  ctx.strokeStyle = grad; ctx.lineWidth = 2.5;
-  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py); ctx.stroke();
-  const vang = Math.atan2(py-cy, px-cx);
-  ctx.fillStyle = opts.vecColor2 || '#2d7dd2';
-  ctx.beginPath();
-  ctx.moveTo(px,py);
-  ctx.lineTo(px-12*Math.cos(vang-0.4), py-12*Math.sin(vang-0.4));
-  ctx.lineTo(px-12*Math.cos(vang+0.4), py-12*Math.sin(vang+0.4));
-  ctx.fill();
-  ctx.restore();
-
-  // State point
-  ctx.beginPath(); ctx.arc(px,py,5,0,2*Math.PI);
-  ctx.fillStyle = opts.vecColor || '#1a4e8a'; ctx.fill();
-  ctx.beginPath(); ctx.arc(cx,cy,3,0,2*Math.PI);
-  ctx.fillStyle = '#78909c'; ctx.fill();
-}
-
-// ─── Bloch State Label ────────────────────────────────────────────────────
-function getBlochStateLabel(theta_deg, phi_deg) {
-  const t=theta_deg, p=phi_deg;
-  const tol=3;
-  if(t<tol) return '|0⟩';
-  if(t>180-tol) return '|1⟩';
-  if(Math.abs(t-90)<tol && p<tol) return '|+⟩';
-  if(Math.abs(t-90)<tol && Math.abs(p-180)<tol) return '|−⟩';
-  if(Math.abs(t-90)<tol && Math.abs(p-90)<tol) return '|+i⟩';
-  if(Math.abs(t-90)<tol && Math.abs(p-270)<tol) return '|−i⟩';
-  const alpha = Math.cos(t*Math.PI/360).toFixed(3);
-  const beta = Math.sin(t*Math.PI/360).toFixed(3);
-  const pRad = phi_deg*Math.PI/180;
-  const re = Math.cos(pRad).toFixed(2), im = Math.sin(pRad).toFixed(2);
-  if(Math.abs(Math.sin(t*Math.PI/180))<0.01) return `${alpha}|0⟩`;
-  if(phi_deg==0) return `${alpha}|0⟩ + ${beta}|1⟩`;
-  return `${alpha}|0⟩ + e^{iφ}${beta}|1⟩  (φ=${phi_deg}°)`;
-}
-
-// ─── Section 1: Bloch Sphere Explorer ──────────────────────────────────────
-let blochTheta=0, blochPhi=0;
-
-function updateBloch(){
-  blochTheta = parseFloat(document.getElementById('thetaSlider').value);
-  blochPhi = parseFloat(document.getElementById('phiSlider').value);
-  document.getElementById('thetaVal').textContent = blochTheta+'°';
-  document.getElementById('phiVal').textContent = blochPhi+'°';
-  const p0 = Math.cos(blochTheta*Math.PI/360)**2;
-  const p1 = 1-p0;
-  document.getElementById('prob0').textContent = p0.toFixed(4);
-  document.getElementById('prob1').textContent = p1.toFixed(4);
-  document.getElementById('bloch-state-display').textContent = 'State: '+getBlochStateLabel(blochTheta, blochPhi);
-  drawBloch('blochCanvas', blochTheta, blochPhi);
-}
-
-function setBlochState(theta, phi){
-  document.getElementById('thetaSlider').value = theta;
-  document.getElementById('phiSlider').value = phi;
-  updateBloch();
-}
-
-document.getElementById('thetaSlider').addEventListener('input', updateBloch);
-document.getElementById('phiSlider').addEventListener('input', updateBloch);
-updateBloch();
-
-// ─── Section 2: Measurement Simulator ─────────────────────────────────────
-let measCounts = {0:0, 1:0};
-
-function updateMeasViz(){
-  const theta = parseFloat(document.getElementById('measThetaSlider').value);
-  document.getElementById('measTheta').textContent = theta+'°';
-  const p0 = Math.cos(theta*Math.PI/360)**2;
-  const p1 = 1-p0;
-  document.getElementById('measP0').textContent = (p0*100).toFixed(1)+'%';
-  document.getElementById('measP1').textContent = (p1*100).toFixed(1)+'%';
-  document.getElementById('measBar0').style.width = (p0*100)+'%';
-  document.getElementById('measBar0Pct').textContent = (p0*100).toFixed(1)+'%';
-  document.getElementById('measBar1').style.width = (p1*100)+'%';
-  document.getElementById('measBar1Pct').textContent = (p1*100).toFixed(1)+'%';
-  drawMeasHist();
-}
-
-function doMeasure(){
-  const theta = parseFloat(document.getElementById('measThetaSlider').value);
-  const p0 = Math.cos(theta*Math.PI/360)**2;
-  const result = Math.random()<p0 ? 0 : 1;
-  measCounts[result]++;
-  const res = document.getElementById('measResult');
-  res.textContent = result===0 ? '|0⟩' : '|1⟩';
-  res.style.color = result===0 ? 'var(--accent)' : '#dc2626';
-  updateMeasStats();
-  drawMeasHist();
-}
-
-function doManyMeasure(){
-  const theta = parseFloat(document.getElementById('measThetaSlider').value);
-  const p0 = Math.cos(theta*Math.PI/360)**2;
-  for(let i=0;i<1000;i++){
-    const result = Math.random()<p0 ? 0 : 1;
-    measCounts[result]++;
+    let label;
+    if (theta < 0.05) label = '|ψ⟩ = |0⟩';
+    else if (theta > 3.09) label = '|ψ⟩ = |1⟩';
+    else {
+      const c = `cos(${(tDeg/2).toFixed(0)}°)`;
+      const s = `e^{i${pDeg}°}·sin(${(tDeg/2).toFixed(0)}°)`;
+      label = `|ψ⟩ = ${c}|0⟩ + ${s}|1⟩`;
+    }
+    document.getElementById('bloch-state-display').textContent = label;
   }
-  updateMeasStats();
-  drawMeasHist();
+  window.updateBlochDisplay = updateBlochDisplay;
+
+  document.getElementById('theta-slider')?.addEventListener('input', function() {
+    const theta = this.value / 100;
+    const phi = document.getElementById('phi-slider').value / 100;
+    if (bloch) bloch.setAngles(theta, phi);
+    updateBlochDisplay(theta, phi);
+  });
+  document.getElementById('phi-slider')?.addEventListener('input', function() {
+    const theta = document.getElementById('theta-slider').value / 100;
+    const phi = this.value / 100;
+    if (bloch) bloch.setAngles(theta, phi);
+    updateBlochDisplay(theta, phi);
+  });
+
+  // Gate circuits
+  renderCircuit('basic');
+  document.getElementById('circuit-select')?.addEventListener('change', function() {
+    renderCircuit(this.value);
+  });
+
+  renderMQCircuit('cnot');
+  document.getElementById('mq-circuit-select')?.addEventListener('change', function() {
+    renderMQCircuit(this.value);
+  });
+});
+
+function renderCircuit(type) {
+  const el = document.getElementById('gate-circuit-viz');
+  if (!el) return;
+  const circuits = {
+    basic: [
+      { type: 'H', q: 0 },
+      { type: 'X', q: 0 },
+      { type: 'Z', q: 0 },
+      { type: 'S', q: 0 },
+      { type: 'H', q: 0 },
+    ],
+    bell: [
+      { type: 'H', q: 0 },
+      { type: 'CNOT', control: 0, target: 1 },
+    ],
+    teleport: [
+      { type: 'H', q: 1 },
+      { type: 'CNOT', control: 1, target: 2 },
+      { type: 'CNOT', control: 0, target: 1 },
+      { type: 'H', q: 0 },
+      { type: 'M', q: 0 },
+      { type: 'M', q: 1 },
+    ]
+  };
+  const nq = type === 'basic' ? 1 : 3;
+  el.innerHTML = buildCircuitSVG(circuits[type], nq, el.offsetWidth || 700, 60);
 }
 
-function resetMeasStats(){
-  measCounts={0:0,1:0};
-  document.getElementById('measResult').textContent='—';
-  document.getElementById('measStats').textContent='';
-  drawMeasHist();
+function renderMQCircuit(type) {
+  const el = document.getElementById('mqcircuit-body');
+  if (!el) return;
+  const circuits = {
+    cnot: [
+      { type: 'H', q: 0 },
+      { type: 'CNOT', control: 0, target: 1 },
+      { type: 'Z', q: 0 },
+    ],
+    swap: [
+      { type: 'CNOT', control: 0, target: 1 },
+      { type: 'CNOT', control: 1, target: 0 },
+      { type: 'CNOT', control: 0, target: 1 },
+    ],
+    'bell-prep': [
+      { type: 'H', q: 0 },
+      { type: 'CNOT', control: 0, target: 1 },
+    ]
+  };
+  el.innerHTML = buildCircuitSVG(circuits[type], 2, el.offsetWidth || 700, 70);
 }
-
-function updateMeasStats(){
-  const total = measCounts[0]+measCounts[1];
-  if(total===0) return;
-  const el = document.getElementById('measStats');
-  el.innerHTML = `Shots: ${total} &nbsp;|&nbsp; |0⟩: ${measCounts[0]} (${(measCounts[0]/total*100).toFixed(1)}%) &nbsp;|&nbsp; |1⟩: ${measCounts[1]} (${(measCounts[1]/total*100).toFixed(1)}%)`;
-}
-
-function drawMeasHist(){
-  const canvas = document.getElementById('measHistCanvas');
-  const ctx = canvas.getContext('2d');
-  const W=canvas.width, H=canvas.height;
-  ctx.clearRect(0,0,W,H);
-  const theta = parseFloat(document.getElementById('measThetaSlider').value);
-  const p0 = Math.cos(theta*Math.PI/360)**2;
-  const p1 = 1-p0;
-  const total = measCounts[0]+measCounts[1];
-  const maxH = H-50;
-
-  // Draw bars
-  const barW=70, gap=20, x0=50, x1=x0+barW+gap+20;
-  // Theoretical dashed line
-  ctx.save(); ctx.setLineDash([4,3]);
-  ctx.strokeStyle='rgba(26,78,138,0.35)'; ctx.lineWidth=1.5;
-  ctx.beginPath(); ctx.moveTo(x0, H-30-p0*maxH); ctx.lineTo(x0+barW, H-30-p0*maxH); ctx.stroke();
-  ctx.strokeStyle='rgba(220,38,38,0.35)';
-  ctx.beginPath(); ctx.moveTo(x1, H-30-p1*maxH); ctx.lineTo(x1+barW, H-30-p1*maxH); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
-
-  // Empirical bars
-  const emp0 = total>0 ? measCounts[0]/total : 0;
-  const emp1 = total>0 ? measCounts[1]/total : 0;
-  ctx.fillStyle='#1a4e8a'; ctx.fillRect(x0, H-30-emp0*maxH, barW, emp0*maxH);
-  ctx.fillStyle='#dc2626'; ctx.fillRect(x1, H-30-emp1*maxH, barW, emp1*maxH);
-  // Labels
-  ctx.fillStyle='#263238'; ctx.font='13px Source Sans 3,sans-serif'; ctx.textAlign='center';
-  ctx.fillText('|0⟩', x0+barW/2, H-10);
-  ctx.fillText('|1⟩', x1+barW/2, H-10);
-  ctx.textAlign='left';
-  // Y-axis
-  ctx.strokeStyle='#b0bec5'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(40,10); ctx.lineTo(40,H-30); ctx.stroke();
-  ctx.fillStyle='#607d8b'; ctx.font='11px Source Sans 3,sans-serif';
-  ctx.fillText('1.0', 2, 15);
-  ctx.fillText('0.5', 2, H/2-10);
-  ctx.fillText('0', 25, H-30);
-}
-
-updateMeasViz();
-document.getElementById('measThetaSlider').addEventListener('input', updateMeasViz);
-
-// ─── Section 3: Gate Explorer ───────────────────────────────────────────────
-const GATES = {
-  X: {mat:[[0,1],[1,0]], name:'Pauli-X (NOT)', color:'#b45309'},
-  Y: {mat:[[0,[0,-1]],[[0,1],0]], name:'Pauli-Y', color:'#7c3aed'},
-  Z: {mat:[[1,0],[0,-1]], name:'Pauli-Z', color:'#1a4e8a'},
-  H: {mat:[[1,1],[1,-1]], norm:1/Math.sqrt(2), name:'Hadamard', color:'#166534'},
-  S: {mat:[[1,0],[0,[0,1]]], name:'S (Phase)', color:'#c2410c'},
-  T: {mat:[[1,0],[0,[Math.cos(Math.PI/4),Math.sin(Math.PI/4)]]], name:'T Gate', color:'#9f1239'},
-};
-
-function complexMul(a, b){
-  // a,b can be numbers or [re,im]
-  const ar = Array.isArray(a)?a[0]:a, ai = Array.isArray(a)?a[1]:0;
-  const br = Array.isArray(b)?b[0]:b, bi = Array.isArray(b)?b[1]:0;
-  return [ar*br-ai*bi, ar*bi+ai*br];
-}
-
-function applyGate(gkey, theta_deg, phi_deg){
-  const g = GATES[gkey];
-  const thetaRad = theta_deg*Math.PI/180;
-  const phiRad = phi_deg*Math.PI/180;
-  const alpha = [Math.cos(thetaRad/2), 0];
-  const beta = [Math.sin(thetaRad/2)*Math.cos(phiRad), Math.sin(thetaRad/2)*Math.sin(phiRad)];
-  const mat = g.mat;
-  const norm = g.norm||1;
-  const m00 = mat[0][0], m01 = mat[0][1], m10 = mat[1][0], m11 = mat[1][1];
-  const add = ([a,b],[c,d]) => [a+c, b+d];
-  const newAlpha = add(complexMul(m00, alpha), complexMul(m01, beta));
-  const newBeta  = add(complexMul(m10, alpha), complexMul(m11, beta));
-  const na = [newAlpha[0]*norm, newAlpha[1]*norm];
-  const nb = [newBeta[0]*norm, newBeta[1]*norm];
-  const naAbs = Math.sqrt(na[0]**2+na[1]**2);
-  const newTheta = 2*Math.acos(Math.min(1,naAbs))*180/Math.PI;
-  // Phase: arg(beta) - arg(alpha); guard against alpha≈0 (south pole)
-  const argBeta = Math.atan2(nb[1], nb[0]);
-  const argAlpha = naAbs > 1e-9 ? Math.atan2(na[1], na[0]) : 0;
-  return {theta: newTheta, phi: ((( argBeta - argAlpha)*180/Math.PI)%360+360)%360};
-}
-
-function stateFromAngles(theta_deg, phi_deg){
-  const t = theta_deg*Math.PI/180, p=phi_deg*Math.PI/180;
-  const a = Math.cos(t/2), b = Math.sin(t/2);
-  const br = b*Math.cos(p), bi = b*Math.sin(p);
-  return {alpha:a, beta_re:br, beta_im:bi};
-}
-
-function formatComplex(re, im, tol=0.001){
-  if(Math.abs(im)<tol) return re.toFixed(3);
-  if(Math.abs(re)<tol) return im.toFixed(3)+'i';
-  return `${re.toFixed(3)}${im>=0?'+':''}${im.toFixed(3)}i`;
-}
-
-function updateGateViz(){
-  const sel = document.getElementById('gateInputState').value.split(',');
-  const tIn = parseFloat(sel[0]), pIn = parseFloat(sel[1]);
-  const gkey = document.getElementById('gateSelect').value;
-  const g = GATES[gkey];
-  const result = applyGate(gkey, tIn, pIn);
-  const inS = stateFromAngles(tIn, pIn);
-  const outS = stateFromAngles(result.theta, result.phi);
-
-  drawBloch('gateBlochIn', tIn, pIn, {vecColor:'#b45309',vecColor2:'#f59e0b'});
-  drawBloch('gateBlochOut', result.theta, result.phi, {vecColor:'#166534',vecColor2:'#22c55e'});
-
-  const el = document.getElementById('gate-result');
-  el.innerHTML = `<strong>Gate: ${g.name}</strong><br>
-    Input: ${getBlochStateLabel(tIn,pIn)}<br>
-    Output: ${getBlochStateLabel(result.theta, result.phi)}<br>
-    Output (θ,φ): (${result.theta.toFixed(1)}°, ${result.phi.toFixed(1)}°)`;
-}
-
-updateGateViz();
-
 </script>
-</main>
 </body>
 </html>

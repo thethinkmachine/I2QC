@@ -1,0 +1,23 @@
+{
+  "name": "i2qc",
+  "version": "1.0.0",
+  "description": "Lecture notes on Introduction to Quantum Computing: Quantum Algorithms & Qiskit, adapted by Shreyan Chaubey from the official NPTEL course notes.",
+  "homepage": "https://github.com/thethinkmachine/I2QC#readme",
+  "bugs": {
+    "url": "https://github.com/thethinkmachine/I2QC/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thethinkmachine/I2QC.git"
+  },
+  "license": "CC-BY-SA-4.0",
+  "author": "Shreyan Chaubey",
+  "type": "commonjs",
+  "main": "js/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "serve": "^14.2.6"
+  }
+}
