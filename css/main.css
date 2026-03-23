@@ -1199,7 +1199,21 @@ canvas {
   animation: fadeInUp 0.3s ease;
 }
 
-/* Scrollytelling */
+/* Derivation Container */
+.derivation-container {
+  margin: 2.5rem 0;
+}
+.derivation-container .subsubsection-title {
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: var(--cyan);
+}
+.derivation-container p {
+  margin-bottom: 1rem;
+}
+
+
+/* Scrollytelling (Legacy/Other) */
 .scrolly-container {
   display: grid;
   grid-template-columns: 1fr 1fr;

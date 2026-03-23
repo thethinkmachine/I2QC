@@ -418,147 +418,133 @@
             <div class="subsection" id="s2-proof">
               <h3 class="subsection-title">Full Protocol Derivation</h3>
 
-              <div class="scrolly-container">
-                <div class="scrolly-graphic">
-                  <div
-                    class="viz-container"
-                    style="margin: 0; height: 100%; display: flex; flex-direction: column"
-                  >
-                    <div class="viz-header">
-                      <div class="viz-title">State Vector Tracker</div>
-                      <div
-                        style="
-                          font-family: var(--font-mono);
-                          font-size: 0.72rem;
-                          color: var(--text-faint);
-                        "
-                      >
-                        Scroll to see the state evolve
-                      </div>
-                    </div>
-                    <div
-                      class="viz-body"
-                      id="teleport-track-viz"
-                      style="
-                        flex: 1;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        padding: 1.5rem;
-                        min-height: 280px;
-                      "
-                    >
-                      <!-- JS Populated -->
-                    </div>
-                  </div>
-                </div>
+            <div class="derivation-container">
+              <p>
+                To see how teleportation works, let's track the composite 3-qubit state through
+                every transformation. We have three qubits: Alice's unknown message qubit (1), and
+                the Bell pair shared between Alice (2) and Bob (3).
+              </p>
 
-                <div class="scrolly-text">
-                  <div class="scrolly-step active" data-step="0">
-                    <p>Expanding the initial 3-qubit state:</p>
-                    <div class="math-block">
-                      $$\ket{\text{init}} =
-                      \frac{1}{\sqrt{2}}(\alpha\ket{000}+\alpha\ket{011}+\beta\ket{100}+\beta\ket{111})_{123}$$
-                    </div>
-                  </div>
-
-                  <div class="scrolly-step" data-step="1">
-                    <h4 class="subsubsection-title">
-                      Step 1: Alice applies CNOT (control: q1, target: q2)
-                    </h4>
-                    <div class="math-block">
-                      $$\frac{1}{\sqrt{2}}(\alpha\ket{000}+\alpha\ket{011}+\beta\ket{110}+\beta\ket{101})$$
-                    </div>
-                  </div>
-
-                  <div class="scrolly-step" data-step="2">
-                    <h4 class="subsubsection-title">Step 2: Alice applies H to q1</h4>
-                    <p>
-                      Using $H\ket{0} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})$ and $H\ket{1} =
-                      \frac{1}{\sqrt{2}}(\ket{0}-\ket{1})$:
-                    </p>
-                    <div class="math-block highlighted">
-                      $$\ket{\text{after H}} = \frac{1}{2}\Big[ \ket{00}(\alpha\ket{0}+\beta\ket{1})
-                      + \ket{01}(\alpha\ket{1}+\beta\ket{0}) + \ket{10}(\alpha\ket{0}-\beta\ket{1})
-                      + \ket{11}(\alpha\ket{1}-\beta\ket{0}) \Big]$$
-                    </div>
-                  </div>
-
-                  <div class="scrolly-step" data-step="3">
-                    <h4 class="subsubsection-title">Step 3: Alice measures q1 and q2</h4>
-                    <p>
-                      Alice gets one of four equally likely outcomes (probability $\frac{1}{4}$
-                      each). Reading off from the expansion above:
-                    </p>
-                    <div class="table-wrapper">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Alice measures</th>
-                            <th>Bob's qubit collapses to</th>
-                            <th>Bob must apply</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>$\ket{00}$</td>
-                            <td>$\alpha\ket{0}+\beta\ket{1} = \ket{\psi}$</td>
-                            <td>$\mathbb{I}$</td>
-                          </tr>
-                          <tr>
-                            <td>$\ket{01}$</td>
-                            <td>$\alpha\ket{1}+\beta\ket{0} = X\ket{\psi}$</td>
-                            <td>$X$</td>
-                          </tr>
-                          <tr>
-                            <td>$\ket{10}$</td>
-                            <td>$\alpha\ket{0}-\beta\ket{1} = Z\ket{\psi}$</td>
-                            <td>$Z$</td>
-                          </tr>
-                          <tr>
-                            <td>$\ket{11}$</td>
-                            <td>$\alpha\ket{1}-\beta\ket{0} = ZX\ket{\psi}$</td>
-                            <td>$ZX$</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  <div class="scrolly-step" data-step="4">
-                    <h4 class="subsubsection-title">Step 4: Alice sends 2 classical bits to Bob</h4>
-                    <p>
-                      Alice sends her two measurement outcomes (00, 01, 10, or 11) via a classical
-                      channel. Bob applies the correction gate (I, X, Z, or ZX respectively). Bob's
-                      qubit now equals $\ket{\psi}$ — Alice's original unknown state has been
-                      "teleported"!
-                    </p>
-
-                    <div class="key-result" style="margin-top: 2rem">
-                      <div class="key-result-title">Key Properties of Teleportation</div>
-                      <ul style="list-style: none; color: var(--text-dim)">
-                        <li style="margin: 0.4rem 0">
-                          • Alice's original qubit is
-                          <strong style="color: #fff">destroyed</strong> (she measured it) —
-                          consistent with no-cloning
-                        </li>
-                        <li style="margin: 0.4rem 0">
-                          • Bob cannot learn $\ket{\psi}$ until he receives Alice's 2 classical bits
-                          — no FTL communication
-                        </li>
-                        <li style="margin: 0.4rem 0">
-                          • Alice need not know $\alpha$ or $\beta$ — teleportation works for any
-                          unknown state
-                        </li>
-                        <li style="margin: 0.4rem 0">
-                          • The Bell pair is consumed — one entangled pair needed per teleported
-                          qubit
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
+              <h4 class="subsubsection-title">Step 0: The Initial Configuration</h4>
+              <p>
+                The unknown state to be teleported is $\ket{\psi}_1 = \alpha\ket{0} + \beta\ket{1}$.
+                Alice and Bob share the Bell pair $\ket{\Phi^+}_{23} = \frac{1}{\sqrt{2}}(\ket{00} +
+                \ket{11})$. The initial global state $\ket{\Psi_0}$ is the tensor product of these
+                two independent states:
+              </p>
+              <div class="math-block">
+                $$\ket{\Psi_0} = \ket{\psi}_1 \otimes \ket{\Phi^+}_{23} = (\alpha\ket{0} +
+                \beta\ket{1}) \otimes \frac{1}{\sqrt{2}}(\ket{00} + \ket{11})$$
               </div>
+              <p>Performing the multiplication (tensor product) explicitly gives 4 terms:</p>
+              <div class="math-block">
+                $$\ket{\Psi_0} = \frac{1}{\sqrt{2}} \Big[ \alpha\ket{0}(\ket{00} + \ket{11}) +
+                \beta\ket{1}(\ket{00} + \ket{11}) \Big] = \frac{1}{\sqrt{2}} \left[
+                \alpha\ket{000} + \alpha\ket{011} + \beta\ket{100} + \beta\ket{111} \right]_{123}$$
+              </div>
+
+              <h4 class="subsubsection-title">Step 1: Alice's First Interaction (CNOT)</h4>
+              <p>
+                Alice applies a CNOT gate with qubit 1 (her message) as the control and qubit 2
+                (her share of the Bell pair) as the target. This operation entangles the unknown
+                state with the shared resource:
+              </p>
+              <div class="math-block">
+                $$\ket{\Psi_1} = \text{CNOT}_{12}\ket{\Psi_0} = \frac{1}{\sqrt{2}} \left[
+                \alpha\ket{000} + \alpha\ket{011} + \beta\ket{110} + \beta\ket{101} \right]_{123}$$
+              </div>
+              <p style="font-size: 0.9rem; color: var(--text-dim); margin-top: 0.5rem">
+                Note: In the last two terms, where qubit 1 is $\ket{1}$, the second qubit has been
+                flipped ($0 \to 1$ and $1 \to 0$).
+              </p>
+
+              <h4 class="subsubsection-title">Step 2: Rotating the Basis (Hadamard)</h4>
+              <p>
+                Alice now applies a Hadamard gate to qubit 1. This effectively transforms her local
+                basis from $\{|0\rangle, |1\rangle\}$ to the "sign" basis $\{|+\rangle,
+                |-\rangle\}$. Using $H\ket{0} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})$ and
+                $H\ket{1} = \frac{1}{\sqrt{2}}(\ket{0}-\ket{1})$, we substitute these into
+                $\ket{\Psi_1}$:
+              </p>
+              <div class="math-block">
+                $$\ket{\Psi_2} = \frac{1}{2} \Big[ \alpha(\ket{0}+\ket{1})\ket{00} +
+                \alpha(\ket{0}+\ket{1})\ket{11} + \beta(\ket{0}-\ket{1})\ket{10} +
+                \beta(\ket{0}-\ket{1})\ket{01} \Big]$$
+              </div>
+              <p>Let's distribute the terms to see the individual configurations:</p>
+              <div class="math-block" style="font-size: 0.9rem;">
+                $$\ket{\Psi_2} = \frac{1}{2} \left[ \alpha\ket{000} + \alpha\ket{100} +
+                \alpha\ket{011} + \alpha\ket{111} + \beta\ket{010} - \beta\ket{110} +
+                \beta\ket{001} - \beta\ket{101} \right]$$
+              </div>
+
+              <h4 class="subsubsection-title">Step 3: The "Magic" of Rearrangement</h4>
+              <p>
+                By grouping terms according to the state of Alice's two qubits ($\ket{q_1 q_2}$),
+                we can see what state Bob's qubit ($\ket{q_3}$) "receives" in each scenario:
+              </p>
+              <div class="math-block highlighted">
+                $$\begin{aligned} \ket{\Psi_2} = \frac{1}{2} \Big[ \quad &\ket{00} (\alpha\ket{0} +
+                \beta\ket{1}) \\ +\ &\ket{01} (\alpha\ket{1} + \beta\ket{0}) \\ +\ &\ket{10}
+                (\alpha\ket{0} - \beta\ket{1}) \\ +\ &\ket{11} (\alpha\ket{1} - \beta\ket{0}) \quad
+                \Big] \end{aligned}$$
+              </div>
+              <p>
+                Observe how the coefficients $\alpha$ and $\beta$ have been transferred to Bob's
+                qubit! However, they are potentially scrambled by Pauli matrices ($X, Z$).
+              </p>
+
+              <h4 class="subsubsection-title">Step 4: Measurement and Recovery</h4>
+              <p>
+                Alice measures her two qubits. This collapses the global state into one of four
+                equally likely outcomes. She then communicates her 2-bit result (00, 01, 10, or 11)
+                to Bob classically. Bob uses this information to "unscramble" his qubit:
+              </p>
+
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Alice Measures</th>
+                      <th>Bob's Collapsed State</th>
+                      <th>Relation to $\ket{\psi}$</th>
+                      <th>Bob's Correction</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>$\ket{00}$</td>
+                      <td>$\alpha\ket{0}+\beta\ket{1}$</td>
+                      <td>$\ket{\psi}$</td>
+                      <td>$I$ (No action)</td>
+                    </tr>
+                    <tr>
+                      <td>$\ket{01}$</td>
+                      <td>$\alpha\ket{1}+\beta\ket{0}$</td>
+                      <td>$X\ket{\psi}$</td>
+                      <td>$X$ (Bit flip)</td>
+                    </tr>
+                    <tr>
+                      <td>$\ket{10}$</td>
+                      <td>$\alpha\ket{0}-\beta\ket{1}$</td>
+                      <td>$Z\ket{\psi}$</td>
+                      <td>$Z$ (Phase flip)</td>
+                    </tr>
+                    <tr>
+                      <td>$\ket{11}$</td>
+                      <td>$\alpha\ket{1}-\beta\ket{0}$</td>
+                      <td>$XZ\ket{\psi}$</td>
+                      <td>$ZX$ (Both)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="callout insight" style="margin-top: 1.5rem;">
+                <strong>No-Cloning Intact:</strong> When Alice measures her qubit, the original
+                $\ket{\psi}_1$ is destroyed. Bob creates the replica only after receiving the
+                classical information. No information traveled faster than light!
+              </div>
+            </div>
             </div>
 
             <div class="subsection" id="s2-protocol">
@@ -1292,7 +1278,7 @@ noisy_job = noisy_sim.run(qc, shots=<span class="code-num">1000</span>)
         });
 
         // New Interactive Visualizations
-        if (typeof initTeleportationViz === 'function') initTeleportationViz('teleport-track-viz');
+
         if (typeof initCHSHGameViz === 'function') initCHSHGameViz('chsh-game-viz');
         if (typeof initPhaseKickbackViz === 'function') initPhaseKickbackViz('phase-kickback-viz');
       });
