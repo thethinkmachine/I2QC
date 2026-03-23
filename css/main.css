@@ -1050,3 +1050,218 @@ canvas {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* === PEDAGOGICAL TOOLS === */
+
+/* Details/Math Accordions */
+.math-details {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+.math-details summary {
+  padding: 1rem 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--cyan);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  user-select: none;
+  background: var(--surface);
+  border-bottom: 1px solid transparent;
+  transition: var(--transition);
+}
+.math-details summary::-webkit-details-marker {
+  display: none;
+}
+.math-details summary::before {
+  content: '▶';
+  font-size: 0.75rem;
+  transition: transform 0.2s;
+  color: var(--text-faint);
+}
+.math-details[open] summary {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-2);
+}
+.math-details[open] summary::before {
+  transform: rotate(90deg);
+}
+.math-details-content {
+  padding: 1.5rem;
+}
+
+/* Tooltips */
+.has-tooltip {
+  position: relative;
+  cursor: help;
+  border-bottom: 1px dotted var(--text-dim);
+  transition: border-color var(--transition);
+}
+.has-tooltip:hover {
+  border-bottom-color: var(--cyan);
+}
+.ui-tooltip {
+  position: absolute;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-2);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  max-width: 300px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+}
+.ui-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Micro-Quizzes */
+.micro-quiz {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--purple);
+  border-radius: var(--radius);
+  margin: 2rem 0;
+  overflow: hidden;
+}
+.mq-header {
+  background: var(--surface);
+  padding: 1rem 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--purple);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.mq-body {
+  padding: 1.5rem;
+}
+.mq-question {
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+}
+.mq-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.mq-option {
+  padding: 0.75rem 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.mq-option:hover {
+  border-color: var(--purple-dim);
+  background: var(--surface);
+}
+.mq-option.correct {
+  border-color: var(--green);
+  background: rgba(0, 230, 118, 0.1);
+}
+.mq-option.incorrect {
+  border-color: var(--red);
+  background: rgba(255, 79, 110, 0.1);
+}
+.mq-feedback {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border-radius: 6px;
+  background: var(--surface);
+  font-size: 0.9rem;
+  display: none;
+}
+.mq-feedback.visible {
+  display: block;
+  animation: fadeInUp 0.3s ease;
+}
+
+/* Scrollytelling */
+.scrolly-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin: 3rem 0;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .scrolly-container {
+    grid-template-columns: 1fr;
+  }
+}
+.scrolly-graphic {
+  position: sticky;
+  top: 100px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.scrolly-text {
+  display: flex;
+  flex-direction: column;
+}
+.scrolly-step {
+  min-height: 50vh;
+  padding: 2rem 0;
+  opacity: 0.3;
+  transition: opacity 0.3s;
+}
+@media (max-width: 900px) {
+  .scrolly-step {
+    min-height: auto;
+    padding: 1.5rem 0;
+  }
+  .scrolly-graphic {
+    position: relative;
+    top: 0;
+    margin-bottom: 2rem;
+  }
+}
+.scrolly-step.active {
+  opacity: 1;
+}
+
+/* Math Coloring Variables */
+:root {
+  --color-alice: #4facf7;
+  --color-bob: #f7a04f;
+  --color-eve: #4ff7a0;
+}
+.color-alice {
+  color: var(--color-alice);
+}
+.color-bob {
+  color: var(--color-bob);
+}
+.color-eve {
+  color: var(--color-eve);
+}

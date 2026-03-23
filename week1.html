@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -184,17 +184,24 @@
               <h3 class="subsection-title">The State Space Argument</h3>
               <p>
                 To describe the state of $n$ classical bits, you need $n$ numbers (each 0 or 1). To
-                describe the state of $n$ qubits, you generally need $2^n$ complex amplitudes. For
-                $n = 300$, this is $2^{300}$ — far more than the estimated number of atoms in the
-                observable universe ($\approx 10^{80}$). Classical computers cannot even
-                <em>store</em> a general 300-qubit state, let alone simulate its evolution.
+                describe the state of $n$ qubits, you generally need $2^n$ complex amplitudes.
               </p>
-              <p>
-                This exponential state space is precisely what quantum algorithms harness. By
-                carefully engineering <strong>interference</strong> — amplifying paths leading to
-                correct answers and cancelling paths leading to wrong ones — quantum algorithms can
-                solve specific problems with dramatically fewer operations.
-              </p>
+              <details class="math-details">
+                <summary>Explore the mathematics of the $2^n$ state space</summary>
+                <div class="math-details-content">
+                  <p>
+                    For $n = 300$, this is $2^{300}$ — far more than the estimated number of atoms
+                    in the observable universe ($\approx 10^{80}$). Classical computers cannot even
+                    <em>store</em> a general 300-qubit state, let alone simulate its evolution.
+                  </p>
+                  <p>
+                    This exponential state space is precisely what quantum algorithms harness. By
+                    carefully engineering <strong>interference</strong> — amplifying paths leading
+                    to correct answers and cancelling paths leading to wrong ones — quantum
+                    algorithms can solve specific problems with dramatically fewer operations.
+                  </p>
+                </div>
+              </details>
             </div>
 
             <div class="subsection">
@@ -552,6 +559,27 @@
                     </tr>
                   </tbody>
                 </table>
+              </div>
+
+              <div class="micro-quiz">
+                <div class="mq-header"><span style="font-size: 1.1rem">⚡</span> Quick Check</div>
+                <div class="mq-body">
+                  <div class="mq-question">
+                    If the computational basis states are orthonormal, what is the value of the
+                    inner product $\braket{0|1}$?
+                  </div>
+                  <div class="mq-options">
+                    <div class="mq-option">1 (They are parallel)</div>
+                    <div class="mq-option" data-correct>0 (They are orthogonal)</div>
+                    <div class="mq-option">$\frac{1}{\sqrt{2}}$</div>
+                    <div class="mq-option">$-1$</div>
+                  </div>
+                  <div class="mq-feedback">
+                    <strong>Correct!</strong> The states $\ket{0}$ and $\ket{1}$ are orthogonal,
+                    meaning they share no overlap. In a quantum computer, this means they can be
+                    perfectly distinguished by a measurement.
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -1228,6 +1256,24 @@
                 $\ket{+}$ or $\ket{-}$. Both of these have equal $Z$-components: $|\braket{0|+}|^2 =
                 |\braket{0|-}|^2 = \frac{1}{2}$.
               </p>
+
+              <div class="viz-container">
+                <div class="viz-header">
+                  <div class="viz-title">Sequential Measurement Collapse Demo</div>
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: 0.72rem;
+                      color: var(--text-faint);
+                    "
+                  >
+                    Explore how intermediate measurements destroy information
+                  </div>
+                </div>
+                <div class="viz-body" id="zxz-demo-viz" style="min-height: 200px">
+                  <!-- JS populated -->
+                </div>
+              </div>
             </div>
 
             <div class="subsection" id="s7-hup">
@@ -1338,6 +1384,25 @@
               </p>
             </div>
 
+            <!-- Matrix-Vector Sandbox -->
+            <div class="viz-container">
+              <div class="viz-header">
+                <div class="viz-title">Matrix-Vector Gate Sandbox</div>
+                <div
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: 0.72rem;
+                    color: var(--text-faint);
+                  "
+                >
+                  Click gates to apply to the state vector
+                </div>
+              </div>
+              <div class="viz-body" id="matrix-sandbox-viz" style="min-height: 250px">
+                <!-- JS populated -->
+              </div>
+            </div>
+
             <!-- Quantum Circuit Visualization -->
             <div class="viz-container">
               <div class="viz-header">
@@ -1383,6 +1448,25 @@
               1$$
             </div>
 
+            <!-- Tensor Product Visualizer -->
+            <div class="viz-container">
+              <div class="viz-header">
+                <div class="viz-title">Tensor Product Explorer</div>
+                <div
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: 0.72rem;
+                    color: var(--text-faint);
+                  "
+                >
+                  Watch how two 1-qubit states create a 4-dimensional state space
+                </div>
+              </div>
+              <div class="viz-body" id="tensor-viz" style="min-height: 200px">
+                <!-- JS populated -->
+              </div>
+            </div>
+
             <div class="subsection">
               <h3 class="subsection-title">Product vs. Entangled States</h3>
               <p>
@@ -1417,11 +1501,11 @@
             <div class="subsection">
               <h3 class="subsection-title">The Q-Sphere</h3>
               <p>
-                For $n &gt; 1$ qubits, the Bloch sphere generalizes to the <strong>Q-sphere</strong>,
-                which visualizes the amplitudes of all $2^n$ computational basis states. Each basis
-                state occupies a point on the sphere determined by its Hamming weight (number of
-                1s), and the amplitude is represented by the size and color of a circle at that
-                point.
+                For $n &gt; 1$ qubits, the Bloch sphere generalizes to the
+                <strong>Q-sphere</strong>, which visualizes the amplitudes of all $2^n$
+                computational basis states. Each basis state occupies a point on the sphere
+                determined by its Hamming weight (number of 1s), and the amplitude is represented by
+                the size and color of a circle at that point.
               </p>
             </div>
           </section>
@@ -1567,6 +1651,7 @@
       </footer>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="js/bloch-sphere.js"></script>
     <script src="js/visualizations.js"></script>
     <script src="js/main.js"></script>
@@ -1619,6 +1704,11 @@
         document.getElementById('circuit-select')?.addEventListener('change', function () {
           renderCircuit(this.value);
         });
+
+        // New Interactive Visualizations
+        if (typeof initZXZDemoViz === 'function') initZXZDemoViz('zxz-demo-viz');
+        if (typeof initMatrixSandboxViz === 'function') initMatrixSandboxViz('matrix-sandbox-viz');
+        if (typeof initTensorViz === 'function') initTensorViz('tensor-viz');
 
         renderMQCircuit('cnot');
         document.getElementById('mq-circuit-select')?.addEventListener('change', function () {

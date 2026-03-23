@@ -108,7 +108,8 @@ function initInterferenceViz(canvasId, opts = {}) {
     ctx.fillText(type, W - 110, 38);
   }
 
-  window.addEventListener('resize', resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(canvas.parentElement || canvas);
   resize();
 
   return {
@@ -116,7 +117,7 @@ function initInterferenceViz(canvasId, opts = {}) {
       alpha = a;
       draw();
     },
-    destroy: () => window.removeEventListener('resize', resize),
+    destroy: () => ro.disconnect(),
   };
 }
 
@@ -453,7 +454,8 @@ function initGroverViz(canvasId) {
     ctx.fillText(`P(find target) = ${(prob * 100).toFixed(1)}%`, 16, H - 15);
   }
 
-  window.addEventListener('resize', resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(canvas.parentElement || canvas);
   resize();
 
   return {
@@ -476,7 +478,7 @@ function initGroverViz(canvasId) {
       draw();
     },
     getOptimalSteps: () => getAngles().k,
-    destroy: () => window.removeEventListener('resize', resize),
+    destroy: () => ro.disconnect(),
   };
 }
 
@@ -649,7 +651,8 @@ function initVQAViz(canvasId) {
     draw();
   }
 
-  window.addEventListener('resize', resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(canvas.parentElement || canvas);
   resize();
 
   let optInterval = null;
@@ -674,7 +677,7 @@ function initVQAViz(canvasId) {
       lr = v;
     },
     destroy: () => {
-      window.removeEventListener('resize', resize);
+      ro.disconnect();
       clearInterval(optInterval);
     },
   };
@@ -726,7 +729,7 @@ function initQECViz(containerId) {
           <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
             ${[0, 1]
               .map(
-                (s) => `<button onclick="window.__qec_${containerId}.setLogical(${s})" style="
+                (s) => `<button onclick="window['__qec_${containerId}'].setLogical(${s})" style="
               padding:0.4rem 0.8rem;border-radius:6px;border:1px solid ${logicalState === s ? '#00d4ff' : '#1f3155'};
               background:${logicalState === s ? 'rgba(0,212,255,0.1)' : '#162035'};
               color:${logicalState === s ? '#00d4ff' : '#7a93b8'};cursor:pointer;font-family:inherit;">|${s}L⟩</button>`
@@ -737,7 +740,7 @@ function initQECViz(containerId) {
           <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
             ${[-1, 0, 1, 2]
               .map(
-                (q) => `<button onclick="window.__qec_${containerId}.setError(${q})" style="
+                (q) => `<button onclick="window['__qec_${containerId}'].setError(${q})" style="
               padding:0.35rem 0.7rem;border-radius:6px;border:1px solid ${errorQubit === q ? '#ff4f6e' : '#1f3155'};
               background:${errorQubit === q ? 'rgba(255,79,110,0.1)' : '#162035'};
               color:${errorQubit === q ? '#ff4f6e' : '#7a93b8'};cursor:pointer;font-family:inherit;font-size:0.75rem;">
@@ -783,6 +786,516 @@ function initQECViz(containerId) {
         render();
       },
     };
+  }
+
+  render();
+}
+
+/* ─────────────────────────────────────────────
+   WEEK 1: Z-X-Z Measurement Demo
+───────────────────────────────────────────── */
+function initZXZDemoViz(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+
+  let state = { basis: 'Z', val: 0, hist: ['Z'] }; // 0 = |0> or |+>, 1 = |1> or |->
+
+  function measure(targetBasis) {
+    if (state.basis === targetBasis) {
+      state.hist.push(targetBasis);
+    } else {
+      state.val = Math.random() < 0.5 ? 0 : 1;
+      state.basis = targetBasis;
+      state.hist.push(targetBasis);
+    }
+    render();
+  }
+
+  function render() {
+    let ketStr =
+      state.basis === 'Z' ? (state.val === 0 ? '|0⟩' : '|1⟩') : state.val === 0 ? '|+⟩' : '|-⟩';
+    let color = state.basis === 'Z' ? '#00d4ff' : '#9b5de5';
+
+    let zProb0 = state.basis === 'Z' ? (state.val === 0 ? 1 : 0) : 0.5;
+    let zProb1 = state.basis === 'Z' ? (state.val === 1 ? 1 : 0) : 0.5;
+    let xProb0 = state.basis === 'X' ? (state.val === 0 ? 1 : 0) : 0.5;
+    let xProb1 = state.basis === 'X' ? (state.val === 1 ? 1 : 0) : 0.5;
+
+    c.innerHTML = `
+      <div style="display:flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+        
+        <div style="flex: 1; min-width: 250px;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:#7a93b8; margin-bottom: 0.5rem; text-transform:uppercase;">Current State</div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size: 2.5rem; color:${color}; margin-bottom: 1.5rem; font-weight: bold;">
+            ${ketStr}
+          </div>
+          
+          <div style="display:flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <button class="btn primary" onclick="window['__zxz_${containerId}'].measure('Z')" style="flex:1">Measure Z</button>
+            <button class="btn" onclick="window['__zxz_${containerId}'].measure('X')" style="flex:1; border-color:#9b5de5; color:#9b5de5">Measure X</button>
+          </div>
+          
+          <div style="font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:#3d5278; word-break: break-all;">
+            History: ${state.hist.join(' → ')}
+          </div>
+        </div>
+
+        <div style="flex: 1; min-width: 250px; background: #162035; padding: 1rem; border-radius: 8px; border: 1px solid #1f3155;">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:#7a93b8; margin-bottom: 1rem; text-transform:uppercase;">Knowledge Probabilities</div>
+          
+          <div style="margin-bottom: 1rem;">
+            <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:0.8rem; margin-bottom:0.25rem;">
+              <span style="color:#00d4ff">P(|0⟩)</span> <span>${(zProb0 * 100).toFixed(0)}%</span>
+            </div>
+            <div style="height: 6px; background: #0d1424; border-radius: 3px; overflow: hidden;"><div style="width: ${zProb0 * 100}%; height: 100%; background: #00d4ff; transition: width 0.3s;"></div></div>
+            
+            <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:0.8rem; margin-top:0.5rem; margin-bottom:0.25rem;">
+              <span style="color:#00d4ff">P(|1⟩)</span> <span>${(zProb1 * 100).toFixed(0)}%</span>
+            </div>
+            <div style="height: 6px; background: #0d1424; border-radius: 3px; overflow: hidden;"><div style="width: ${zProb1 * 100}%; height: 100%; background: #00d4ff; transition: width 0.3s;"></div></div>
+          </div>
+
+          <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #1f3155;">
+            <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:0.8rem; margin-bottom:0.25rem;">
+              <span style="color:#9b5de5">P(|+⟩)</span> <span>${(xProb0 * 100).toFixed(0)}%</span>
+            </div>
+            <div style="height: 6px; background: #0d1424; border-radius: 3px; overflow: hidden;"><div style="width: ${xProb0 * 100}%; height: 100%; background: #9b5de5; transition: width 0.3s;"></div></div>
+            
+            <div style="display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:0.8rem; margin-top:0.5rem; margin-bottom:0.25rem;">
+              <span style="color:#9b5de5">P(|-⟩)</span> <span>${(xProb1 * 100).toFixed(0)}%</span>
+            </div>
+            <div style="height: 6px; background: #0d1424; border-radius: 3px; overflow: hidden;"><div style="width: ${xProb1 * 100}%; height: 100%; background: #9b5de5; transition: width 0.3s;"></div></div>
+          </div>
+
+        </div>
+      </div>
+    `;
+    window[`__zxz_${containerId}`] = { measure };
+  }
+
+  render();
+}
+
+/* ─────────────────────────────────────────────
+   WEEK 1: Matrix-Vector Gate Sandbox
+───────────────────────────────────────────── */
+function initMatrixSandboxViz(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+
+  let vec = [1, 0];
+
+  const gates = {
+    H: [
+      [1 / Math.SQRT2, 1 / Math.SQRT2],
+      [1 / Math.SQRT2, -1 / Math.SQRT2],
+    ],
+    X: [
+      [0, 1],
+      [1, 0],
+    ],
+    Z: [
+      [1, 0],
+      [0, -1],
+    ],
+  };
+
+  const gateNames = {
+    H: '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.2rem"><span>1/√2</span><span>1/√2</span><span>1/√2</span><span>-1/√2</span></div>',
+    X: '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.2rem"><span>0</span><span>1</span><span>1</span><span>0</span></div>',
+    Z: '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.2rem"><span>1</span><span>0</span><span>0</span><span>-1</span></div>',
+  };
+
+  let lastGate = null;
+
+  function apply(gate) {
+    const mat = gates[gate];
+    const v0 = mat[0][0] * vec[0] + mat[0][1] * vec[1];
+    const v1 = mat[1][0] * vec[0] + mat[1][1] * vec[1];
+    vec = [v0, v1];
+    lastGate = gate;
+    render();
+  }
+
+  function reset() {
+    vec = [1, 0];
+    lastGate = null;
+    render();
+  }
+
+  function fmt(n) {
+    if (Math.abs(n) < 0.001) return '0';
+    if (Math.abs(n - 1) < 0.001) return '1';
+    if (Math.abs(n + 1) < 0.001) return '-1';
+    if (Math.abs(n - 0.707) < 0.01) return '1/√2';
+    if (Math.abs(n + 0.707) < 0.01) return '-1/√2';
+    return n.toFixed(2);
+  }
+
+  function render() {
+    c.innerHTML = `
+      <div style="display:flex; flex-direction:column; align-items:center;">
+        <div style="display:flex; gap: 0.5rem; margin-bottom: 2rem;">
+          <button class="btn" style="border-color:#00d4ff; color:#00d4ff" onclick="window['__mat_${containerId}'].apply('H')">Apply H</button>
+          <button class="btn" style="border-color:#ff4f6e; color:#ff4f6e" onclick="window['__mat_${containerId}'].apply('X')">Apply X</button>
+          <button class="btn" style="border-color:#f4c430; color:#f4c430" onclick="window['__mat_${containerId}'].apply('Z')">Apply Z</button>
+          <button class="btn" onclick="window['__mat_${containerId}'].reset()" style="margin-left:1rem">Reset |0⟩</button>
+        </div>
+
+        <div style="display:flex; align-items:center; gap: 1rem; font-family:'JetBrains Mono',monospace; font-size:1.2rem;">
+          ${
+            lastGate
+              ? `
+            <div style="display:flex; align-items:center; gap: 0.5rem;">
+              <span style="color:#7a93b8">${lastGate} = </span>
+              <div style="border-left:2px solid #3d5278; border-right:2px solid #3d5278; padding: 0.5rem; border-radius:4px; font-size:0.9rem; text-align:center; color:#cdd9f0;">
+                ${gateNames[lastGate]}
+              </div>
+              <span style="color:#7a93b8; margin: 0 0.5rem;">×</span>
+            </div>
+          `
+              : ''
+          }
+          
+          <div style="display:flex; align-items:center; gap: 0.5rem;">
+            <span style="color:#00e676">|ψ⟩ = </span>
+            <div style="border-left:2px solid #00e676; border-right:2px solid #00e676; padding: 0.5rem; border-radius:4px; display:flex; flex-direction:column; gap:0.5rem; text-align:center; color:#00e676; min-width: 60px;">
+              <span>${fmt(vec[0])}</span>
+              <span>${fmt(vec[1])}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 2rem; color:#7a93b8; font-size:0.85rem; font-family:'JetBrains Mono',monospace;">
+          Probs: P(|0⟩) = ${(vec[0] * vec[0] * 100).toFixed(0)}%, P(|1⟩) = ${(vec[1] * vec[1] * 100).toFixed(0)}%
+        </div>
+      </div>
+    `;
+    window[`__mat_${containerId}`] = { apply, reset };
+  }
+
+  render();
+}
+
+/* ─────────────────────────────────────────────
+   WEEK 1: Tensor Product Visualizer
+───────────────────────────────────────────── */
+function initTensorViz(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+
+  const states = {
+    '|0⟩': [1, 0],
+    '|1⟩': [0, 1],
+    '|+⟩': [1 / Math.SQRT2, 1 / Math.SQRT2],
+    '|-⟩': [1 / Math.SQRT2, -1 / Math.SQRT2],
+  };
+
+  let qA = '|0⟩';
+  let qB = '|0⟩';
+
+  function fmt(n) {
+    if (Math.abs(n) < 0.001) return '0';
+    if (Math.abs(n - 1) < 0.001) return '1';
+    if (Math.abs(n + 1) < 0.001) return '-1';
+    if (Math.abs(n - 0.707) < 0.01) return '1/√2';
+    if (Math.abs(n + 0.707) < 0.01) return '-1/√2';
+    if (Math.abs(n - 0.5) < 0.01) return '1/2';
+    if (Math.abs(n + 0.5) < 0.01) return '-1/2';
+    return n.toFixed(2);
+  }
+
+  function render() {
+    const vA = states[qA];
+    const vB = states[qB];
+
+    const res = [vA[0] * vB[0], vA[0] * vB[1], vA[1] * vB[0], vA[1] * vB[1]];
+
+    const basis = ['|00⟩', '|01⟩', '|10⟩', '|11⟩'];
+
+    c.innerHTML = `
+      <div style="display:flex; gap: 2rem; align-items: center; justify-content: center; flex-wrap: wrap; font-family:'JetBrains Mono',monospace;">
+        
+        <div style="display:flex; flex-direction:column; gap: 1rem;">
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span style="color:var(--color-alice)">Qubit A:</span>
+            <select onchange="window['__tens_${containerId}'].setA(this.value)" style="border-color:var(--color-alice); color:var(--color-alice); outline:none; background:#162035; padding:0.4rem; border-radius:6px;">
+              <option value="|0⟩" ${qA === '|0⟩' ? 'selected' : ''}>|0⟩</option>
+              <option value="|1⟩" ${qA === '|1⟩' ? 'selected' : ''}>|1⟩</option>
+              <option value="|+⟩" ${qA === '|+⟩' ? 'selected' : ''}>|+⟩</option>
+              <option value="|-⟩" ${qA === '|-⟩' ? 'selected' : ''}>|-⟩</option>
+            </select>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span style="color:var(--color-bob)">Qubit B:</span>
+            <select onchange="window['__tens_${containerId}'].setB(this.value)" style="border-color:var(--color-bob); color:var(--color-bob); outline:none; background:#162035; padding:0.4rem; border-radius:6px;">
+              <option value="|0⟩" ${qB === '|0⟩' ? 'selected' : ''}>|0⟩</option>
+              <option value="|1⟩" ${qB === '|1⟩' ? 'selected' : ''}>|1⟩</option>
+              <option value="|+⟩" ${qB === '|+⟩' ? 'selected' : ''}>|+⟩</option>
+              <option value="|-⟩" ${qB === '|-⟩' ? 'selected' : ''}>|-⟩</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="font-size: 2rem; color:#3d5278;">→</div>
+
+        <div style="display:flex; align-items:center; gap: 1rem; color:#cdd9f0; font-size: 1.1rem;">
+          <div style="border-left:2px solid var(--color-alice); border-right:2px solid var(--color-alice); padding: 0.5rem; border-radius:4px; display:flex; flex-direction:column; gap:0.5rem; text-align:center;">
+            <span>${fmt(vA[0])}</span>
+            <span>${fmt(vA[1])}</span>
+          </div>
+          <span style="color:#7a93b8">⊗</span>
+          <div style="border-left:2px solid var(--color-bob); border-right:2px solid var(--color-bob); padding: 0.5rem; border-radius:4px; display:flex; flex-direction:column; gap:0.5rem; text-align:center;">
+            <span>${fmt(vB[0])}</span>
+            <span>${fmt(vB[1])}</span>
+          </div>
+          <span style="color:#7a93b8">=</span>
+          <div style="border-left:2px solid #f4c430; border-right:2px solid #f4c430; padding: 0.5rem; border-radius:4px; display:flex; flex-direction:column; gap:0.2rem; text-align:right;">
+            <div style="display:flex; gap:0.5rem;"><span style="color:#7a93b8; font-size:0.8rem">${basis[0]}</span> <span style="color:#f4c430; min-width:40px">${fmt(res[0])}</span></div>
+            <div style="display:flex; gap:0.5rem;"><span style="color:#7a93b8; font-size:0.8rem">${basis[1]}</span> <span style="color:#f4c430; min-width:40px">${fmt(res[1])}</span></div>
+            <div style="display:flex; gap:0.5rem;"><span style="color:#7a93b8; font-size:0.8rem">${basis[2]}</span> <span style="color:#f4c430; min-width:40px">${fmt(res[2])}</span></div>
+            <div style="display:flex; gap:0.5rem;"><span style="color:#7a93b8; font-size:0.8rem">${basis[3]}</span> <span style="color:#f4c430; min-width:40px">${fmt(res[3])}</span></div>
+          </div>
+        </div>
+        
+      </div>
+    `;
+    window[`__tens_${containerId}`] = {
+      setA: (val) => {
+        qA = val;
+        render();
+      },
+      setB: (val) => {
+        qB = val;
+        render();
+      },
+    };
+  }
+
+  render();
+}
+
+/* ─────────────────────────────────────────────
+   WEEK 2: Teleportation Step-by-Step Tracker
+───────────────────────────────────────────── */
+function initTeleportationViz(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+
+  const stepsHtml = [
+    // Step 0
+    `<div style="font-family:'JetBrains Mono',monospace; font-size:1.5rem; color:#fff;">
+      <span style="color:var(--color-alice)">q₁q₂</span><span style="color:var(--color-bob)">q₃</span><br><br>
+      <span style="color:#7a93b8">1/√2</span> [
+      <span style="color:#00e676">α</span><span style="color:var(--color-alice)">|00⟩</span><span style="color:var(--color-bob)">|0⟩</span> + 
+      <span style="color:#00e676">α</span><span style="color:var(--color-alice)">|01⟩</span><span style="color:var(--color-bob)">|1⟩</span> + 
+      <span style="color:#f4c430">β</span><span style="color:var(--color-alice)">|10⟩</span><span style="color:var(--color-bob)">|0⟩</span> + 
+      <span style="color:#f4c430">β</span><span style="color:var(--color-alice)">|11⟩</span><span style="color:var(--color-bob)">|1⟩</span>
+      ]
+    </div>`,
+
+    // Step 1
+    `<div style="font-family:'JetBrains Mono',monospace; font-size:1.5rem; color:#fff;">
+      <span style="color:var(--color-alice)">q₁q₂</span><span style="color:var(--color-bob)">q₃</span><br><br>
+      <span style="color:#7a93b8">1/√2</span> [
+      <span style="color:#00e676">α</span><span style="color:var(--color-alice)">|00⟩</span><span style="color:var(--color-bob)">|0⟩</span> + 
+      <span style="color:#00e676">α</span><span style="color:var(--color-alice)">|01⟩</span><span style="color:var(--color-bob)">|1⟩</span> + 
+      <span style="color:#f4c430">β</span><span style="color:var(--color-alice)">|11⟩</span><span style="color:var(--color-bob)">|0⟩</span> + 
+      <span style="color:#f4c430">β</span><span style="color:var(--color-alice)">|10⟩</span><span style="color:var(--color-bob)">|1⟩</span>
+      ]
+    </div>`,
+
+    // Step 2
+    `<div style="font-family:'JetBrains Mono',monospace; font-size:1.2rem; color:#fff; line-height:1.6;">
+      <span style="color:var(--color-alice)">q₁q₂</span> (Alice) <br><br>
+      <span style="color:#7a93b8">1/2</span> <span style="color:var(--color-alice)">|00⟩</span> ( <span style="color:#00e676">α</span><span style="color:var(--color-bob)">|0⟩</span> + <span style="color:#f4c430">β</span><span style="color:var(--color-bob)">|1⟩</span> ) <br>
+      + <span style="color:#7a93b8">1/2</span> <span style="color:var(--color-alice)">|01⟩</span> ( <span style="color:#00e676">α</span><span style="color:var(--color-bob)">|1⟩</span> + <span style="color:#f4c430">β</span><span style="color:var(--color-bob)">|0⟩</span> ) <br>
+      + <span style="color:#7a93b8">1/2</span> <span style="color:var(--color-alice)">|10⟩</span> ( <span style="color:#00e676">α</span><span style="color:var(--color-bob)">|0⟩</span> - <span style="color:#f4c430">β</span><span style="color:var(--color-bob)">|1⟩</span> ) <br>
+      + <span style="color:#7a93b8">1/2</span> <span style="color:var(--color-alice)">|11⟩</span> ( <span style="color:#00e676">α</span><span style="color:var(--color-bob)">|1⟩</span> - <span style="color:#f4c430">β</span><span style="color:var(--color-bob)">|0⟩</span> )
+    </div>`,
+
+    // Step 3
+    `<div style="font-family:'JetBrains Mono',monospace; font-size:1.5rem; color:#fff;">
+      Alice arbitrarily measures: <span style="color:var(--color-alice); font-weight:bold;">01</span><br><br>
+      Bob's state collapses to:<br>
+      <span style="font-size:2rem;color:var(--color-bob)">
+        <span style="color:#00e676">α</span>|1⟩ + <span style="color:#f4c430">β</span>|0⟩
+      </span><br>
+      <span style="font-size:0.9rem;color:#7a93b8">(Which is X|ψ⟩)</span>
+    </div>`,
+
+    // Step 4
+    `<div style="font-family:'JetBrains Mono',monospace; font-size:1.5rem; color:#fff; text-align:center;">
+      Bob applies <span style="color:#ff4f6e; font-weight:bold;">X</span> based on "01"<br><br>
+      <span style="color:#ff4f6e">X</span>( <span style="color:#00e676">α</span><span style="color:var(--color-bob)">|1⟩</span> + <span style="color:#f4c430">β</span><span style="color:var(--color-bob)">|0⟩</span> ) <br>
+      = <span style="font-size:2rem;color:#00e676;font-weight:bold;">α|0⟩ + β|1⟩</span><br><br>
+      <span style="font-size:1.2rem;color:#f4c430">🎉 Teleportation Complete!</span>
+    </div>`,
+  ];
+
+  let currentStep = -1;
+
+  setInterval(() => {
+    const steps = document.querySelectorAll('#s2-proof .scrolly-step');
+    let newStep = 0;
+    steps.forEach((st, idx) => {
+      if (st.classList.contains('active')) newStep = idx;
+    });
+
+    if (newStep !== currentStep) {
+      currentStep = newStep;
+      c.style.opacity = 0;
+      setTimeout(() => {
+        c.innerHTML = stepsHtml[currentStep] || stepsHtml[0];
+        c.style.opacity = 1;
+      }, 150);
+      c.style.transition = 'opacity 0.2s ease';
+    }
+  }, 100);
+}
+
+/* ─────────────────────────────────────────────
+   WEEK 2: CHSH Game
+───────────────────────────────────────────── */
+function initCHSHGameViz(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+
+  let classicalWins = 0;
+  let classicalTrials = 0;
+  let quantumWins = 0;
+  let quantumTrials = 0;
+
+  function play(type, n) {
+    const isQuantum = type === 'q';
+    for (let i = 0; i < n; i++) {
+      const x = Math.random() < 0.5 ? 0 : 1;
+      const y = Math.random() < 0.5 ? 0 : 1;
+
+      if (!isQuantum) {
+        // Best classical strategy: always output a=0, b=0
+        const a = 0;
+        const b = 0;
+        const win = (a ^ b) === (x & y);
+        classicalTrials++;
+        if (win) classicalWins++;
+      } else {
+        // Quantum strategy: win w.p. cos^2(pi/8) approx 0.853
+        const win = Math.random() < 0.8535;
+        quantumTrials++;
+        if (win) quantumWins++;
+      }
+    }
+    render();
+  }
+
+  function render() {
+    const cRate = classicalTrials ? ((classicalWins / classicalTrials) * 100).toFixed(1) : 0;
+    const qRate = quantumTrials ? ((quantumWins / quantumTrials) * 100).toFixed(1) : 0;
+
+    c.innerHTML = `
+      <div style="display:flex; gap: 2rem; flex-wrap:wrap;">
+        <div style="flex:1; min-width:250px; background:#162035; padding:1.5rem; border-radius:8px; border:1px solid #1f3155; text-align:center;">
+          <h4 style="margin-top:0; color:#cdd9f0;">Classical Strategy</h4>
+          <p style="font-size:0.85rem; color:#7a93b8; height: 40px;">Alice & Bob pre-agree on deterministic outputs. Max possible win rate: 75%.</p>
+          <div style="font-size:3rem; font-family:'JetBrains Mono'; font-weight:bold; color:#f4c430; margin:1rem 0;">${cRate}%</div>
+          <div style="font-size:0.8rem; color:#7a93b8; margin-bottom:1rem;">Wins: ${classicalWins} / ${classicalTrials}</div>
+          <button class="btn" style="border-color:#f4c430; color:#f4c430;" onclick="window['__chsh_${containerId}'].play('c', 1)">Play 1 Round</button>
+          <button class="btn" style="border-color:#f4c430; color:#f4c430;" onclick="window['__chsh_${containerId}'].play('c', 100)">Play 100 Rounds</button>
+        </div>
+
+        <div style="flex:1; min-width:250px; background:#162035; padding:1.5rem; border-radius:8px; border:1px solid #1f3155; text-align:center;">
+          <h4 style="margin-top:0; color:#cdd9f0;">Quantum Strategy</h4>
+          <p style="font-size:0.85rem; color:#7a93b8; height: 40px;">Alice & Bob share a Bell pair and measure in specific angles. Win rate: ~85.4%.</p>
+          <div style="font-size:3rem; font-family:'JetBrains Mono'; font-weight:bold; color:#00d4ff; margin:1rem 0;">${qRate}%</div>
+          <div style="font-size:0.8rem; color:#7a93b8; margin-bottom:1rem;">Wins: ${quantumWins} / ${quantumTrials}</div>
+          <button class="btn" style="border-color:#00d4ff; color:#00d4ff;" onclick="window['__chsh_${containerId}'].play('q', 1)">Play 1 Round</button>
+          <button class="btn" style="border-color:#00d4ff; color:#00d4ff;" onclick="window['__chsh_${containerId}'].play('q', 100)">Play 100 Rounds</button>
+        </div>
+      </div>
+    `;
+    window[`__chsh_${containerId}`] = { play };
+  }
+
+  render();
+}
+
+/* ─────────────────────────────────────────────
+   WEEK 2: Phase Kickback Demo
+───────────────────────────────────────────── */
+function initPhaseKickbackViz(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+
+  let state = 0;
+
+  function apply() {
+    state = 1;
+    render();
+    setTimeout(() => {
+      state = 2;
+      render();
+    }, 1200);
+  }
+
+  function reset() {
+    state = 0;
+    render();
+  }
+
+  function render() {
+    let q0Str = state === 2 ? '|-⟩' : '|+⟩';
+    let q1Str = '|-⟩';
+
+    let dotPos = state === 1 ? '70%' : state === 2 ? '5%' : '90%';
+    let dotOpacity = state === 1 ? '1' : '0';
+
+    c.innerHTML = `
+      <div style="display:flex; flex-direction:column; align-items:center; font-family:'JetBrains Mono',monospace;">
+        
+        <div style="display:flex; align-items:center; gap: 2rem; margin-bottom: 2rem;">
+          <div style="display:flex; flex-direction:column; gap:1.5rem; text-align:right;">
+            <div style="color:var(--color-alice); font-size:1.2rem;">Q0 (Control): <span style="color:#fff; font-weight:bold;">${q0Str}</span></div>
+            <div style="color:var(--color-bob); font-size:1.2rem;">Q1 (Target): <span style="color:#fff; font-weight:bold;">${q1Str}</span></div>
+          </div>
+          
+          <div style="position:relative; width: 120px; height: 80px; border-left: 2px solid #3d5278; padding-left: 1rem;">
+            <!-- Lines -->
+            <div style="position:absolute; top:12px; left:0; right:0; height:2px; background:#7a93b8;"></div>
+            <div style="position:absolute; bottom:12px; left:0; right:0; height:2px; background:#7a93b8;"></div>
+            
+            <!-- CNOT Vertical Line -->
+            <div style="position:absolute; top:12px; bottom:12px; left:60px; width:2px; background:#00d4ff;"></div>
+            
+            <!-- Control Dot -->
+            <div style="position:absolute; top:8px; left:56px; width:10px; height:10px; border-radius:50%; background:#00d4ff;"></div>
+            
+            <!-- Target Cross -->
+            <div style="position:absolute; bottom:2px; left:49px; width:22px; height:22px; border-radius:50%; border:2px solid #00d4ff; background:#162035; display:flex; align-items:center; justify-content:center;">
+              <div style="width:2px; height:12px; background:#00d4ff;"></div>
+              <div style="position:absolute; width:12px; height:2px; background:#00d4ff;"></div>
+            </div>
+
+            <!-- Animating Phase -->
+            <div style="position:absolute; left:68px; top:${dotPos}; opacity:${dotOpacity}; transition: top 1s ease-in-out, opacity 0.2s; color:#ff4f6e; font-weight:bold; font-size:1.4rem;">
+              -1
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap: 1rem;">
+          <button class="btn primary" onclick="window['__pk_${containerId}'].apply()" ${state !== 0 ? 'disabled' : ''}>Apply CNOT</button>
+          <button class="btn" onclick="window['__pk_${containerId}'].reset()">Reset</button>
+        </div>
+        
+        <div style="margin-top:1.5rem; text-align:center; color:#7a93b8; font-size:0.9rem; max-width:400px; line-height:1.5;">
+          ${state === 0 ? 'Initial state: |+⟩⊗|-⟩.' : ''}
+          ${state === 1 ? "CNOT acts on Q1's |-⟩ state. The resulting global phase of -1 is 'kicked back' to Q0..." : ''}
+          ${state === 2 ? 'Q0 becomes |-⟩! The target Q1 remains |-⟩ unchanged.' : ''}
+        </div>
+      </div>
+    `;
+    window[`__pk_${containerId}`] = { apply, reset };
   }
 
   render();

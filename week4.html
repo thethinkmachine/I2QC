@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -656,6 +656,108 @@
               </table>
             </div>
 
+            <h3 id="s1-deco-viz">1.4 Interactive Decoherence Simulator</h3>
+            <p>
+              Observe how a qubit state loses its energy ($T_1$ relaxation towards $\ket{0}$) and
+              loses its phase information ($T_2$ dephasing, shrinking to the Z-axis) over time.
+              Adjust the $T_1$ and $T_2$ times and click "Play".
+            </p>
+            <div
+              class="viz-container"
+              style="
+                padding: 1.5rem;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+              "
+              id="deco-container"
+            >
+              <div
+                style="
+                  display: flex;
+                  gap: 1rem;
+                  flex-wrap: wrap;
+                  justify-content: center;
+                  align-items: center;
+                  width: 100%;
+                "
+              >
+                <label style="color: var(--text-secondary); font-size: 0.85rem">
+                  T₁ (μs):
+                  <input
+                    type="range"
+                    id="deco-t1"
+                    min="10"
+                    max="200"
+                    value="100"
+                    style="width: 80px; accent-color: var(--accent-cyan)"
+                  />
+                  <span
+                    id="deco-t1-val"
+                    style="font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan)"
+                    >100</span
+                  >
+                </label>
+                <label style="color: var(--text-secondary); font-size: 0.85rem">
+                  T₂ (μs):
+                  <input
+                    type="range"
+                    id="deco-t2"
+                    min="10"
+                    max="200"
+                    value="50"
+                    style="width: 80px; accent-color: var(--accent-purple)"
+                  />
+                  <span
+                    id="deco-t2-val"
+                    style="font-family: 'JetBrains Mono', monospace; color: var(--accent-purple)"
+                    >50</span
+                  >
+                </label>
+                <div style="display: flex; gap: 0.5rem">
+                  <button
+                    class="btn btn-primary"
+                    id="deco-start-btn"
+                    style="padding: 0.35rem 0.9rem; font-size: 0.85rem"
+                  >
+                    ▶ Play
+                  </button>
+                  <button
+                    class="btn btn-secondary"
+                    id="deco-reset-btn"
+                    style="padding: 0.35rem 0.9rem; font-size: 0.85rem"
+                  >
+                    ↺ Reset |+⟩
+                  </button>
+                </div>
+              </div>
+              <div
+                style="
+                  font-family: 'JetBrains Mono', monospace;
+                  font-size: 0.8rem;
+                  color: var(--text-muted);
+                "
+                id="deco-time"
+              >
+                Time: 0 μs
+              </div>
+              <div
+                id="deco-bloch"
+                style="
+                  width: 320px;
+                  height: 320px;
+                  border-radius: 50%;
+                  background: radial-gradient(
+                    circle at 30% 30%,
+                    rgba(20, 30, 50, 0.8),
+                    rgba(0, 0, 0, 0.9)
+                  );
+                  box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.1);
+                "
+              ></div>
+            </div>
+
             <div class="callout warning">
               <div class="callout-title">Noisy Grover — Why Textbook Algorithms Fail on NISQ</div>
               <p>
@@ -1280,16 +1382,21 @@ print(f"Error: {abs(result.eigenvalue - (-1.137270))*1000:.2f} mHa")</code></pre
               </div>
               <p>
                 Even without the expressibility/random-circuit issue, hardware
-                <em>noise</em> introduces its own distinct barren plateau. In the presence of noise
-                with a constant depolarizing error rate $\epsilon$ per gate, after $L$ circuit
-                layers on $n$ qubits: $$\text{Var}\!\left[\frac{\partial C}{\partial
-                \theta_k}\right] \leq e^{-\Omega(\epsilon \cdot n \cdot L)}$$ The gradient variance
-                decays exponentially in all three factors: circuit depth $L$, qubit count $n$, and
-                error rate $\epsilon$. This is a <em>different</em> mechanism from the
-                expressibility barren plateau (which requires only a random deep circuit), and it
-                cannot be avoided by clever ansatz design — it is a fundamental consequence of noise
-                turning the state into the maximally mixed state $I/2^n$.
+                <em>noise</em> introduces its own distinct barren plateau.
               </p>
+              <details class="math-details" style="margin-top: 0.8rem">
+                <summary>View mathematical details of the decay</summary>
+                <div style="margin-top: 0.8rem">
+                  In the presence of noise with a constant depolarizing error rate $\epsilon$ per
+                  gate, after $L$ circuit layers on $n$ qubits: $$\text{Var}\!\left[\frac{\partial
+                  C}{\partial \theta_k}\right] \leq e^{-\Omega(\epsilon \cdot n \cdot L)}$$ The
+                  gradient variance decays exponentially in all three factors: circuit depth $L$,
+                  qubit count $n$, and error rate $\epsilon$. This is a <em>different</em> mechanism
+                  from the expressibility barren plateau (which requires only a random deep
+                  circuit), and it cannot be avoided by clever ansatz design — it is a fundamental
+                  consequence of noise turning the state into the maximally mixed state $I/2^n$.
+                </div>
+              </details>
               <p>
                 <strong>Practical implication:</strong> For a noise rate of $\epsilon=0.005$ (0.5%),
                 $n=20$ qubits, and $L=10$ layers: gradient variance is suppressed by $e^{-0.005
@@ -1928,32 +2035,80 @@ print(f"Estimated option price: {price:.4f}")</code></pre>
                 <tr>
                   <td>None ($I$)</td>
                   <td>α|000⟩+β|111⟩</td>
-                  <td class="syn-ok">+1</td>
-                  <td class="syn-ok">+1</td>
+                  <td class="syn-ok">
+                    <span
+                      class="has-tooltip"
+                      data-tooltip="Eigenvalue +1 indicates qubits 1 and 2 are in the same state (00 or 11)."
+                      >+1</span
+                    >
+                  </td>
+                  <td class="syn-ok">
+                    <span
+                      class="has-tooltip"
+                      data-tooltip="Eigenvalue +1 indicates qubits 2 and 3 are in the same state (00 or 11)."
+                      >+1</span
+                    >
+                  </td>
                   <td>No error</td>
                   <td>Nothing</td>
                 </tr>
                 <tr>
                   <td>$X_1$</td>
                   <td>α|100⟩+β|011⟩</td>
-                  <td class="syn-err">−1</td>
-                  <td class="syn-ok">+1</td>
+                  <td class="syn-err">
+                    <span
+                      class="has-tooltip"
+                      data-tooltip="Eigenvalue -1 indicates qubits 1 and 2 are in opposite states."
+                      >−1</span
+                    >
+                  </td>
+                  <td class="syn-ok">
+                    <span
+                      class="has-tooltip"
+                      data-tooltip="Eigenvalue +1 indicates qubits 2 and 3 are in the same state."
+                      >+1</span
+                    >
+                  </td>
                   <td>Qubit 1 flipped</td>
                   <td>$X_1$</td>
                 </tr>
                 <tr>
                   <td>$X_2$</td>
                   <td>α|010⟩+β|101⟩</td>
-                  <td class="syn-err">−1</td>
-                  <td class="syn-err">−1</td>
+                  <td class="syn-err">
+                    <span
+                      class="has-tooltip"
+                      data-tooltip="Eigenvalue -1 indicates qubits 1 and 2 differ."
+                      >−1</span
+                    >
+                  </td>
+                  <td class="syn-err">
+                    <span
+                      class="has-tooltip"
+                      data-tooltip="Eigenvalue -1 indicates qubits 2 and 3 differ."
+                      >−1</span
+                    >
+                  </td>
                   <td>Qubit 2 flipped</td>
                   <td>$X_2$</td>
                 </tr>
                 <tr>
                   <td>$X_3$</td>
                   <td>α|001⟩+β|110⟩</td>
-                  <td class="syn-ok">+1</td>
-                  <td class="syn-err">−1</td>
+                  <td class="syn-ok">
+                    <span
+                      class="has-tooltip"
+                      data-tooltip="Eigenvalue +1 indicates qubits 1 and 2 match."
+                      >+1</span
+                    >
+                  </td>
+                  <td class="syn-err">
+                    <span
+                      class="has-tooltip"
+                      data-tooltip="Eigenvalue -1 indicates qubits 2 and 3 differ."
+                      >−1</span
+                    >
+                  </td>
                   <td>Qubit 3 flipped</td>
                   <td>$X_3$</td>
                 </tr>
@@ -2317,7 +2472,96 @@ for eq in [None, 0, 1, 2]:
     </footer>
 
     <script src="js/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/bloch-sphere.js"></script>
     <script>
+      /* ─── Decoherence Simulator ────────────────────────────── */
+      (function () {
+        const t1Sl = document.getElementById('deco-t1');
+        const t2Sl = document.getElementById('deco-t2');
+        const t1Val = document.getElementById('deco-t1-val');
+        const t2Val = document.getElementById('deco-t2-val');
+        const startBtn = document.getElementById('deco-start-btn');
+        const resetBtn = document.getElementById('deco-reset-btn');
+        const timeEl = document.getElementById('deco-time');
+
+        let bloch = null;
+        if (typeof initBlochSphere === 'function') {
+          bloch = initBlochSphere('deco-bloch', { theta: Math.PI / 2, phi: 0, r: 1 });
+        }
+
+        let t = 0;
+        let timer = null;
+        let running = false;
+        let T1 = 100,
+          T2 = 50;
+
+        function updateSliders() {
+          T1 = parseInt(t1Sl.value);
+          T2 = parseInt(t2Sl.value);
+          if (T2 > 2 * T1) {
+            T2 = 2 * T1;
+            t2Sl.value = T2;
+          }
+          t1Val.textContent = T1;
+          t2Val.textContent = T2;
+        }
+        if (t1Sl && t2Sl) {
+          t1Sl.addEventListener('input', updateSliders);
+          t2Sl.addEventListener('input', updateSliders);
+        }
+
+        function reset() {
+          running = false;
+          clearTimeout(timer);
+          if (startBtn) startBtn.textContent = '▶ Play';
+          t = 0;
+          if (timeEl) timeEl.textContent = `Time: 0 μs`;
+          if (bloch) bloch.setAngles(Math.PI / 2, 0, 1);
+        }
+
+        function iterate() {
+          if (!running) return;
+          t += 2;
+
+          const rho11 = 0.5 * Math.exp(-t / T1);
+          const rho00 = 1 - rho11;
+          const rho01 = 0.5 * Math.exp(-t / T2);
+
+          const bx = 2 * rho01;
+          const bz = rho00 - rho11;
+
+          const r = Math.sqrt(bx * bx + bz * bz);
+          const theta = Math.acos(bz / (r || 1));
+
+          if (bloch) bloch.setAngles(theta, 0, r);
+          if (timeEl) timeEl.textContent = `Time: ${t} μs`;
+
+          if (t < 600) {
+            timer = setTimeout(iterate, 30);
+          } else {
+            running = false;
+            if (startBtn) startBtn.textContent = '▶ Play';
+          }
+        }
+
+        if (startBtn) {
+          startBtn.addEventListener('click', () => {
+            if (running) {
+              running = false;
+              clearTimeout(timer);
+              startBtn.textContent = '▶ Play';
+            } else {
+              running = true;
+              startBtn.textContent = '⏹ Stop';
+              if (t >= 600) reset();
+              timer = setTimeout(iterate, 30);
+            }
+          });
+        }
+        if (resetBtn) resetBtn.addEventListener('click', reset);
+      })();
+
       /* ─── VQA Optimizer Simulator ──────────────────────────── */
       (function () {
         const canvas = document.getElementById('vqa-opt-canvas');
@@ -2493,7 +2737,8 @@ for eq in [None, 0, 1, 2]:
           ctx.fillText(`η=${lr.toFixed(2)}, σ=${sigma.toFixed(2)}`, pad.l + 4, pad.t + 13);
         }
 
-        window.addEventListener('resize', draw);
+        const ro = new ResizeObserver(draw);
+        ro.observe(canvas.parentElement || canvas);
         reset();
       })();
 
@@ -2672,7 +2917,8 @@ for eq in [None, 0, 1, 2]:
           canvas.height = Math.max(200, Math.min(280, w * 0.41));
           drawCurve();
         }
-        window.addEventListener('resize', resize);
+        const ro = new ResizeObserver(resize);
+        ro.observe(canvas.parentElement || canvas);
         resize();
       })();
 

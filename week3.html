@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -1379,9 +1379,19 @@ else:
               \left(\frac{1}{2^n}\sum_x(-1)^{x\cdot(s\oplus z)}\right)\ket{z}$$
 
               <p>
-                The inner sum $\frac{1}{2^n}\sum_x(-1)^{x\cdot(s\oplus z)}$ equals $1$ if $s = z$,
-                and $0$ otherwise (it's the orthogonality of characters of the group
-                $(\mathbb{Z}_2)^n$).
+                The inner sum
+                <span
+                  class="has-tooltip"
+                  data-tooltip="This sum over all computational basis states acts as an interference filter. Destructive interference zeroes out the amplitude unless s exactly matches z."
+                  >$\frac{1}{2^n}\sum_x(-1)^{x\cdot(s\oplus z)}$</span
+                >
+                equals $1$ if $s = z$, and $0$ otherwise (it's the
+                <span
+                  class="has-tooltip"
+                  data-tooltip="Orthogonality of characters means that summing the complex phases over the entire group yields the group size if the phase is trivial, and 0 otherwise."
+                  >orthogonality of characters</span
+                >
+                of the group $(\mathbb{Z}_2)^n$).
               </p>
               $$\Rightarrow \ket{\psi_3} = \ket{s}$$
             </div>
@@ -2189,13 +2199,18 @@ print(result.data.meas.get_counts())</code></pre>
           function show(i, txt, delay) {
             setTimeout(() => {
               steps[i].classList.add('active');
-              if (texts[i - 1]) texts[i - 1].textContent = txt;
+              if (texts[i - 1]) texts[i - 1].innerHTML = txt;
             }, delay);
           }
 
+          const tbl = `<table style="width:120px; font-size:0.75rem; margin-top:0.4rem; border-collapse:collapse; text-align:center;">
+                        <tr style="border-bottom:1px solid var(--border)"><th style="padding:2px">x</th><th>f(x)</th><th>phase</th></tr>
+                        ${o.tableHTML}
+                       </table>`;
+
           show(0, `Select oracle: ${o.name}`, 0);
           show(1, `Apply H⊗² to data, H to ancilla → |ψ₁⟩ = ¼(|00⟩+|01⟩+|10⟩+|11⟩)|−⟩`, 400);
-          show(2, `Oracle applies phase (−1)^f(x). Phases: [${phi.join(', ')}]`, 900);
+          show(2, `Oracle applies phase (-1)^f(x).<br>${tbl}`, 900);
           const phaseStr = phi
             .map((p, i) => `${p > 0 ? '+' : '-'}|${['00', '01', '10', '11'][i]}⟩`)
             .join(' ');
@@ -2205,11 +2220,11 @@ print(result.data.meas.get_counts())</code></pre>
           setTimeout(() => {
             steps[4].classList.add('active');
             if (texts[3])
-              texts[3].textContent =
+              texts[3].innerHTML =
                 ampZero !== 0
                   ? `|amplitude of |00⟩|² = ${ampZero ** 2} → measure |00⟩ with probability ${ampZero ** 2 * 100}%`
                   : `Amplitude of |00⟩ = 0 → will NEVER measure all-zeros`;
-            ans.textContent =
+            ans.innerHTML =
               o.type === 'constant'
                 ? `✔ CONSTANT — measured |00⟩ (prob = ${ampZero ** 2})`
                 : `✔ BALANCED — amplitude of |00⟩ is zero; measured non-zero string`;

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -334,6 +334,25 @@
                 </p>
               </div>
             </div>
+
+            <!-- CHSH Game Interactive Visualizer -->
+            <div class="viz-container">
+              <div class="viz-header">
+                <div class="viz-title">CHSH Game Explorer</div>
+                <div
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: 0.72rem;
+                    color: var(--text-faint);
+                  "
+                >
+                  Play the game to see the quantum advantage
+                </div>
+              </div>
+              <div class="viz-body" id="chsh-game-viz">
+                <!-- JS Populated -->
+              </div>
+            </div>
           </section>
 
           <!-- ══════════════════════════════════════════════════════ -->
@@ -398,99 +417,147 @@
 
             <div class="subsection" id="s2-proof">
               <h3 class="subsection-title">Full Protocol Derivation</h3>
-              <p>Expanding the initial 3-qubit state:</p>
-              <div class="math-block">
-                $$\ket{\text{init}} =
-                \frac{1}{\sqrt{2}}(\alpha\ket{000}+\alpha\ket{011}+\beta\ket{100}+\beta\ket{111})_{123}$$
-              </div>
 
-              <h4 class="subsubsection-title">
-                Step 1: Alice applies CNOT (control: q1, target: q2)
-              </h4>
-              <div class="math-block">
-                $$\frac{1}{\sqrt{2}}(\alpha\ket{000}+\alpha\ket{011}+\beta\ket{110}+\beta\ket{101})$$
-              </div>
+              <div class="scrolly-container">
+                <div class="scrolly-graphic">
+                  <div
+                    class="viz-container"
+                    style="margin: 0; height: 100%; display: flex; flex-direction: column"
+                  >
+                    <div class="viz-header">
+                      <div class="viz-title">State Vector Tracker</div>
+                      <div
+                        style="
+                          font-family: var(--font-mono);
+                          font-size: 0.72rem;
+                          color: var(--text-faint);
+                        "
+                      >
+                        Scroll to see the state evolve
+                      </div>
+                    </div>
+                    <div
+                      class="viz-body"
+                      id="teleport-track-viz"
+                      style="
+                        flex: 1;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 1.5rem;
+                        min-height: 280px;
+                      "
+                    >
+                      <!-- JS Populated -->
+                    </div>
+                  </div>
+                </div>
 
-              <h4 class="subsubsection-title">Step 2: Alice applies H to q1</h4>
-              <p>
-                Using $H\ket{0} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})$ and $H\ket{1} =
-                \frac{1}{\sqrt{2}}(\ket{0}-\ket{1})$:
-              </p>
-              <div class="math-block highlighted">
-                $$\ket{\text{after H}} = \frac{1}{2}\Big[ \ket{00}(\alpha\ket{0}+\beta\ket{1}) +
-                \ket{01}(\alpha\ket{1}+\beta\ket{0}) + \ket{10}(\alpha\ket{0}-\beta\ket{1}) +
-                \ket{11}(\alpha\ket{1}-\beta\ket{0}) \Big]$$
-              </div>
+                <div class="scrolly-text">
+                  <div class="scrolly-step active" data-step="0">
+                    <p>Expanding the initial 3-qubit state:</p>
+                    <div class="math-block">
+                      $$\ket{\text{init}} =
+                      \frac{1}{\sqrt{2}}(\alpha\ket{000}+\alpha\ket{011}+\beta\ket{100}+\beta\ket{111})_{123}$$
+                    </div>
+                  </div>
 
-              <h4 class="subsubsection-title">Step 3: Alice measures q1 and q2</h4>
-              <p>
-                Alice gets one of four equally likely outcomes (probability $\frac{1}{4}$ each).
-                Reading off from the expansion above:
-              </p>
-              <div class="table-wrapper">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Alice measures</th>
-                      <th>Bob's qubit (q3) collapses to</th>
-                      <th>Bob must apply</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>$\ket{00}$</td>
-                      <td>$\alpha\ket{0}+\beta\ket{1} = \ket{\psi}$</td>
-                      <td>$\mathbb{I}$ (nothing)</td>
-                    </tr>
-                    <tr>
-                      <td>$\ket{01}$</td>
-                      <td>$\alpha\ket{1}+\beta\ket{0} = X\ket{\psi}$</td>
-                      <td>$X$</td>
-                    </tr>
-                    <tr>
-                      <td>$\ket{10}$</td>
-                      <td>$\alpha\ket{0}-\beta\ket{1} = Z\ket{\psi}$</td>
-                      <td>$Z$</td>
-                    </tr>
-                    <tr>
-                      <td>$\ket{11}$</td>
-                      <td>$\alpha\ket{1}-\beta\ket{0} = ZX\ket{\psi}$</td>
-                      <td>$ZX$</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                  <div class="scrolly-step" data-step="1">
+                    <h4 class="subsubsection-title">
+                      Step 1: Alice applies CNOT (control: q1, target: q2)
+                    </h4>
+                    <div class="math-block">
+                      $$\frac{1}{\sqrt{2}}(\alpha\ket{000}+\alpha\ket{011}+\beta\ket{110}+\beta\ket{101})$$
+                    </div>
+                  </div>
 
-              <h4 class="subsubsection-title">Step 4: Alice sends 2 classical bits to Bob</h4>
-              <p>
-                Alice sends her two measurement outcomes (00, 01, 10, or 11) via a classical
-                channel. Bob applies the correction gate (I, X, Z, or ZX respectively). Bob's qubit
-                now equals $\ket{\psi}$ — Alice's original unknown state has been "teleported"!
-              </p>
+                  <div class="scrolly-step" data-step="2">
+                    <h4 class="subsubsection-title">Step 2: Alice applies H to q1</h4>
+                    <p>
+                      Using $H\ket{0} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})$ and $H\ket{1} =
+                      \frac{1}{\sqrt{2}}(\ket{0}-\ket{1})$:
+                    </p>
+                    <div class="math-block highlighted">
+                      $$\ket{\text{after H}} = \frac{1}{2}\Big[ \ket{00}(\alpha\ket{0}+\beta\ket{1})
+                      + \ket{01}(\alpha\ket{1}+\beta\ket{0}) + \ket{10}(\alpha\ket{0}-\beta\ket{1})
+                      + \ket{11}(\alpha\ket{1}-\beta\ket{0}) \Big]$$
+                    </div>
+                  </div>
 
-              <div class="key-result">
-                <div class="key-result-title">Key Properties of Teleportation</div>
-                <ul style="list-style: none; color: var(--text-dim)">
-                  <li style="margin: 0.4rem 0">
-                    • Alice's original qubit is <strong style="color: #fff">destroyed</strong> (she
-                    measured it) — consistent with no-cloning
-                  </li>
-                  <li style="margin: 0.4rem 0">
-                    • Bob cannot learn $\ket{\psi}$ until he receives Alice's 2 classical bits — no
-                    FTL communication
-                  </li>
-                  <li style="margin: 0.4rem 0">
-                    • Alice need not know $\alpha$ or $\beta$ — teleportation works for any unknown
-                    state
-                  </li>
-                  <li style="margin: 0.4rem 0">
-                    • The Bell pair is consumed — one entangled pair needed per teleported qubit
-                  </li>
-                  <li style="margin: 0.4rem 0">
-                    • Experimentally verified over 1,400 km (China's Micius satellite, 2017) and 143
-                    km (Canary Islands, 2012)
-                  </li>
-                </ul>
+                  <div class="scrolly-step" data-step="3">
+                    <h4 class="subsubsection-title">Step 3: Alice measures q1 and q2</h4>
+                    <p>
+                      Alice gets one of four equally likely outcomes (probability $\frac{1}{4}$
+                      each). Reading off from the expansion above:
+                    </p>
+                    <div class="table-wrapper">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Alice measures</th>
+                            <th>Bob's qubit collapses to</th>
+                            <th>Bob must apply</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>$\ket{00}$</td>
+                            <td>$\alpha\ket{0}+\beta\ket{1} = \ket{\psi}$</td>
+                            <td>$\mathbb{I}$</td>
+                          </tr>
+                          <tr>
+                            <td>$\ket{01}$</td>
+                            <td>$\alpha\ket{1}+\beta\ket{0} = X\ket{\psi}$</td>
+                            <td>$X$</td>
+                          </tr>
+                          <tr>
+                            <td>$\ket{10}$</td>
+                            <td>$\alpha\ket{0}-\beta\ket{1} = Z\ket{\psi}$</td>
+                            <td>$Z$</td>
+                          </tr>
+                          <tr>
+                            <td>$\ket{11}$</td>
+                            <td>$\alpha\ket{1}-\beta\ket{0} = ZX\ket{\psi}$</td>
+                            <td>$ZX$</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div class="scrolly-step" data-step="4">
+                    <h4 class="subsubsection-title">Step 4: Alice sends 2 classical bits to Bob</h4>
+                    <p>
+                      Alice sends her two measurement outcomes (00, 01, 10, or 11) via a classical
+                      channel. Bob applies the correction gate (I, X, Z, or ZX respectively). Bob's
+                      qubit now equals $\ket{\psi}$ — Alice's original unknown state has been
+                      "teleported"!
+                    </p>
+
+                    <div class="key-result" style="margin-top: 2rem">
+                      <div class="key-result-title">Key Properties of Teleportation</div>
+                      <ul style="list-style: none; color: var(--text-dim)">
+                        <li style="margin: 0.4rem 0">
+                          • Alice's original qubit is
+                          <strong style="color: #fff">destroyed</strong> (she measured it) —
+                          consistent with no-cloning
+                        </li>
+                        <li style="margin: 0.4rem 0">
+                          • Bob cannot learn $\ket{\psi}$ until he receives Alice's 2 classical bits
+                          — no FTL communication
+                        </li>
+                        <li style="margin: 0.4rem 0">
+                          • Alice need not know $\alpha$ or $\beta$ — teleportation works for any
+                          unknown state
+                        </li>
+                        <li style="margin: 0.4rem 0">
+                          • The Bell pair is consumed — one entangled pair needed per teleported
+                          qubit
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -604,9 +671,9 @@
             </div>
             <p>
               The cross term $2\,\text{Re}(\psi_1^*\psi_2)$ is the <em>interference term</em>. When
-              $\psi_1^*\psi_2 &gt; 0$ (same phase): constructive interference — probability enhanced.
-              When $\psi_1^*\psi_2 &lt; 0$ (opposite phase): destructive interference — probability
-              suppressed.
+              $\psi_1^*\psi_2 &gt; 0$ (same phase): constructive interference — probability
+              enhanced. When $\psi_1^*\psi_2 &lt; 0$ (opposite phase): destructive interference —
+              probability suppressed.
             </p>
 
             <!-- Interference Visualizer -->
@@ -659,6 +726,25 @@
                 interfere constructively (reinforce). At the end, measuring yields the correct
                 answer with high probability.
               </p>
+            </div>
+
+            <!-- Phase Kickback Interactive Visualizer -->
+            <div class="viz-container">
+              <div class="viz-header">
+                <div class="viz-title">Phase Kickback Demonstration</div>
+                <div
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: 0.72rem;
+                    color: var(--text-faint);
+                  "
+                >
+                  Observe how the phase moves to the control qubit
+                </div>
+              </div>
+              <div class="viz-body" id="phase-kickback-viz">
+                <!-- JS Populated -->
+              </div>
             </div>
           </section>
 
@@ -1142,6 +1228,8 @@ noisy_job = noisy_sim.run(qc, shots=<span class="code-num">1000</span>)
       </footer>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/bloch-sphere.js"></script>
     <script src="js/visualizations.js"></script>
     <script src="js/main.js"></script>
     <script>
@@ -1202,6 +1290,11 @@ noisy_job = noisy_sim.run(qc, shots=<span class="code-num">1000</span>)
             cancelAnimationFrame(animId);
           }
         });
+
+        // New Interactive Visualizations
+        if (typeof initTeleportationViz === 'function') initTeleportationViz('teleport-track-viz');
+        if (typeof initCHSHGameViz === 'function') initCHSHGameViz('chsh-game-viz');
+        if (typeof initPhaseKickbackViz === 'function') initPhaseKickbackViz('phase-kickback-viz');
       });
     </script>
   </body>

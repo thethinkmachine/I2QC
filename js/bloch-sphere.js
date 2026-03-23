@@ -138,23 +138,30 @@ function initBlochSphere(containerId, opts = {}) {
   });
   let trackerLine = null;
 
-  /* Current angles */
+  /* Current angles and radius */
   let theta = opts.theta || 0; // polar (0=|0⟩, π=|1⟩)
   let phi = opts.phi || 0; // azimuthal
+  let r = opts.r !== undefined ? opts.r : 1; // radius (mixed state if < 1)
 
-  function updateState(th, ph) {
+  function updateState(th, ph, rad = r) {
     theta = th;
     phi = ph;
+    r = rad;
     const x = Math.sin(th) * Math.cos(ph);
     const z = Math.sin(th) * Math.sin(ph);
     const y = Math.cos(th);
     const dir = new THREE.Vector3(x, y, z).normalize();
     arrowHelper.setDirection(dir);
+    // update arrow length, scaling the head size proportionally but ensuring it doesn't get too big or disappear
+    const hl = Math.max(0.01, 0.2 * rad);
+    const hw = Math.max(0.01, 0.1 * rad);
+    arrowHelper.setLength(Math.max(0.001, rad), hl, hw);
+
     // update info if callback
-    if (opts.onUpdate) opts.onUpdate(th, ph);
+    if (opts.onUpdate) opts.onUpdate(th, ph, rad);
   }
 
-  updateState(theta, phi);
+  updateState(theta, phi, r);
 
   /* Orbit controls (manual) */
   let isDown = false,
@@ -203,11 +210,13 @@ function initBlochSphere(containerId, opts = {}) {
   function resize() {
     const w = container.clientWidth;
     const h = container.clientHeight || w;
+    if (w === 0 || h === 0) return; // Wait to be visible
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
   }
-  window.addEventListener('resize', resize);
+  const ro = new ResizeObserver(resize);
+  ro.observe(container);
 
   /* Animation loop */
   let running = true;
@@ -225,22 +234,24 @@ function initBlochSphere(containerId, opts = {}) {
 
   /* Public API */
   return {
-    setTheta: (t) => updateState(t, phi),
-    setPhi: (p) => updateState(theta, p),
-    setAngles: (t, p) => updateState(t, p),
+    setTheta: (t) => updateState(t, phi, r),
+    setPhi: (p) => updateState(theta, p, r),
+    setR: (rad) => updateState(theta, phi, rad),
+    setAngles: (t, p, rad = r) => updateState(t, p, rad),
     setState: (name) => {
       const states = {
-        '|0⟩': [0, 0],
-        '|1⟩': [Math.PI, 0],
-        '|+⟩': [Math.PI / 2, 0],
-        '|-⟩': [Math.PI / 2, Math.PI],
-        '|i⟩': [Math.PI / 2, Math.PI / 2],
-        '|-i⟩': [Math.PI / 2, -Math.PI / 2],
+        '|0⟩': [0, 0, 1],
+        '|1⟩': [Math.PI, 0, 1],
+        '|+⟩': [Math.PI / 2, 0, 1],
+        '|-⟩': [Math.PI / 2, Math.PI, 1],
+        '|i⟩': [Math.PI / 2, Math.PI / 2, 1],
+        '|-i⟩': [Math.PI / 2, -Math.PI / 2, 1],
       };
       if (states[name]) updateState(...states[name]);
     },
     getTheta: () => theta,
     getPhi: () => phi,
+    getR: () => r,
     destroy: () => {
       running = false;
       container.removeChild(renderer.domElement);
