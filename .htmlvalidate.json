@@ -1,0 +1,15 @@
+{
+  "extends": ["html-validate:recommended"],
+  "rules": {
+    "no-inline-style": "off",
+    "attr-quotes": "off",
+    "trailing-slash": "off",
+    "void-style": "off",
+    "doctype-style": "off",
+    "prefer-tbody": "off",
+    "no-implicit-button-type": "off",
+    "element-permitted-content": "off",
+    "unrecognized-char-ref": "off",
+    "no-raw-characters": ["error", { "relaxed": true }]
+  }
+}

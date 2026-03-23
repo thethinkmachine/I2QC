@@ -1,595 +1,1040 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Week 2 — Entanglement, Interference &amp; Qiskit</title>
-  <link rel="stylesheet" href="css/main.css">
-  <script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [['$','$'],['\\(','\\)']],
-        displayMath: [['$$','$$'],['\\[','\\]']],
-        tags: 'ams',
-        macros: {
-          ket: ['\\left|#1\\right\\rangle',1], bra: ['\\left\\langle#1\\right|',1],
-          braket: ['\\left\\langle#1\\right\\rangle',1],
-          id: '\\mathbb{I}', C: '\\mathbb{C}'
-        }
-      },
-      options: { skipHtmlTags: ['script','style','pre','code'] }
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
-  <style>
-    /* Week 2 Specific Overrides */
-    .circuit-container { overflow-x:auto; background:var(--bg-2); border-radius:12px;
-      padding:1.5rem; border:1px solid var(--border); margin:1.5rem 0; -webkit-overflow-scrolling: touch; }
-    .circuit-container svg { display:block; margin:0 auto; max-width:none; width: auto; min-width: 600px; }
-  </style>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Week 2 — Entanglement, Interference &amp; Qiskit</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [
+            ['$', '$'],
+            ['\\(', '\\)'],
+          ],
+          displayMath: [
+            ['$$', '$$'],
+            ['\\[', '\\]'],
+          ],
+          tags: 'ams',
+          macros: {
+            ket: ['\\left|#1\\right\\rangle', 1],
+            bra: ['\\left\\langle#1\\right|', 1],
+            braket: ['\\left\\langle#1\\right\\rangle', 1],
+            id: '\\mathbb{I}',
+            C: '\\mathbb{C}',
+          },
+        },
+        options: { skipHtmlTags: ['script', 'style', 'pre', 'code'] },
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+    <style>
+      /* Week 2 Specific Overrides */
+      .circuit-container {
+        overflow-x: auto;
+        background: var(--bg-2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        margin: 1.5rem 0;
+        -webkit-overflow-scrolling: touch;
+      }
+      .circuit-container svg {
+        display: block;
+        margin: 0 auto;
+        max-width: none;
+        width: auto;
+        min-width: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reading-progress"><div class="reading-progress-bar"></div></div>
 
-<div class="reading-progress"><div class="reading-progress-bar"></div></div>
+    <nav class="nav">
+      <a href="index.html" class="nav-brand">
+        <div class="nav-brand-icon">Ψ</div>
+        <span class="nav-brand-text">Quantum Notes</span>
+      </a>
+      <ul class="nav-links">
+        <li>
+          <a href="week1.html" class="w1"><span class="week-dot"></span>Week 1</a>
+        </li>
+        <li>
+          <a href="week2.html" class="w2 active"><span class="week-dot"></span>Week 2</a>
+        </li>
+        <li>
+          <a href="week3.html" class="w3"><span class="week-dot"></span>Week 3</a>
+        </li>
+        <li>
+          <a href="week4.html" class="w4"><span class="week-dot"></span>Week 4</a>
+        </li>
+      </ul>
+    </nav>
 
-<nav class="nav">
-  <a href="index.html" class="nav-brand">
-    <div class="nav-brand-icon">Ψ</div>
-    <span class="nav-brand-text">Quantum Notes</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="week1.html" class="w1"><span class="week-dot"></span>Week 1</a></li>
-    <li><a href="week2.html" class="w2 active"><span class="week-dot"></span>Week 2</a></li>
-    <li><a href="week3.html" class="w3"><span class="week-dot"></span>Week 3</a></li>
-    <li><a href="week4.html" class="w4"><span class="week-dot"></span>Week 4</a></li>
-  </ul>
-</nav>
-
-<div class="page-wrapper">
-  <div class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-week-badge w2">⬡ Week 2</div>
-    <h1 class="hero-title">Entanglement, Interference<br>&amp; Qiskit</h1>
-    <p class="hero-subtitle">
-      Bell states, quantum teleportation, the no-cloning theorem, the algorithmic
-      paradigm of superposition→interference→measurement, and hands-on Qiskit coding
-      on real IBM quantum hardware.
-    </p>
-    <div class="hero-toc-preview">
-      <a href="#s1" class="toc-pill">1. Bell States</a>
-      <a href="#s2" class="toc-pill">2. Teleportation</a>
-      <a href="#s3" class="toc-pill">3. No-Cloning</a>
-      <a href="#s4" class="toc-pill">4. Interference</a>
-      <a href="#s5" class="toc-pill">5. Algorithm Paradigm</a>
-      <a href="#s6" class="toc-pill">6. Qiskit</a>
-    </div>
-  </div>
-
-  <div class="content-wrapper">
-    <aside class="sidebar">
-      <div class="sidebar-inner">
-        <div class="sidebar-title">Contents</div>
-        <ul class="sidebar-nav">
-          <li><a href="#s1"><span class="section-num">1.</span> Bell States &amp; Entanglement</a></li>
-          <li class="sub-item"><a href="#s1-gen">1.1 Generation circuit</a></li>
-          <li class="sub-item"><a href="#s1-measure">1.2 Bell measurement</a></li>
-          <li><a href="#s2"><span class="section-num">2.</span> Quantum Teleportation</a></li>
-          <li class="sub-item"><a href="#s2-protocol">2.1 Protocol steps</a></li>
-          <li class="sub-item"><a href="#s2-proof">2.2 Circuit derivation</a></li>
-          <li><a href="#s3"><span class="section-num">3.</span> No-Cloning Theorem</a></li>
-          <li><a href="#s4"><span class="section-num">4.</span> Quantum Interference</a></li>
-          <li><a href="#s5"><span class="section-num">5.</span> Algorithm Design Paradigm</a></li>
-          <li><a href="#s6"><span class="section-num">6.</span> Qiskit &amp; IBM Quantum</a></li>
-          <li class="sub-item"><a href="#s6-code">6.1 Code examples</a></li>
-          <li class="sub-item"><a href="#s6-noise">6.2 Noise models</a></li>
-        </ul>
+    <div class="page-wrapper">
+      <div class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-week-badge w2">⬡ Week 2</div>
+        <h1 class="hero-title">Entanglement, Interference<br />&amp; Qiskit</h1>
+        <p class="hero-subtitle">
+          Bell states, quantum teleportation, the no-cloning theorem, the algorithmic paradigm of
+          superposition→interference→measurement, and hands-on Qiskit coding on real IBM quantum
+          hardware.
+        </p>
+        <div class="hero-toc-preview">
+          <a href="#s1" class="toc-pill">1. Bell States</a>
+          <a href="#s2" class="toc-pill">2. Teleportation</a>
+          <a href="#s3" class="toc-pill">3. No-Cloning</a>
+          <a href="#s4" class="toc-pill">4. Interference</a>
+          <a href="#s5" class="toc-pill">5. Algorithm Paradigm</a>
+          <a href="#s6" class="toc-pill">6. Qiskit</a>
+        </div>
       </div>
-    </aside>
 
-    <article class="article">
-
-      <!-- ══════════════════════════════════════════════════════ -->
-      <section class="section" id="s1">
-        <div class="section-header">
-          <span class="section-number">01</span>
-          <h2 class="section-title">Bell States &amp; Entanglement</h2>
-        </div>
-
-        <p>
-          <strong>Entanglement</strong> is the most distinctly non-classical feature of quantum
-          mechanics. When two qubits are entangled, measuring one instantly determines the
-          outcome of measuring the other — regardless of the physical distance between them.
-          Einstein called this "spooky action at a distance" and considered it evidence that
-          quantum mechanics must be incomplete; Bell's theorem (1964) and subsequent experiments
-          definitively proved him wrong.
-        </p>
-
-        <div class="subsection" id="s1-gen">
-          <h3 class="subsection-title">The Four Bell States</h3>
-          <p>
-            The <strong>Bell states</strong> (or EPR pairs) are the four maximally entangled
-            two-qubit states forming an orthonormal basis for $\mathbb{C}^4$:
-          </p>
-          <div class="math-block highlighted">
-            $$\ket{\Phi^+} = \frac{1}{\sqrt{2}}(\ket{00}+\ket{11}), \quad \ket{\Phi^-} = \frac{1}{\sqrt{2}}(\ket{00}-\ket{11})$$
-            $$\ket{\Psi^+} = \frac{1}{\sqrt{2}}(\ket{01}+\ket{10}), \quad \ket{\Psi^-} = \frac{1}{\sqrt{2}}(\ket{01}-\ket{10})$$
-          </div>
-          <p>
-            "Maximally entangled" means that measuring either qubit alone gives a completely
-            random result ($P(\ket{0}) = P(\ket{1}) = \frac{1}{2}$), yet the two outcomes
-            are perfectly correlated (or anti-correlated). The reduced density matrix for either
-            qubit is $\frac{1}{2}\mathbb{I}$ — the maximally mixed state.
-          </p>
-
-          <h4 class="subsubsection-title">Generation Circuit</h4>
-          <p>
-            All four Bell states can be generated from computational basis inputs using the
-            circuit: <strong>H on qubit 1, then CNOT with qubit 1 as control</strong>:
-          </p>
-          <div class="math-block">
-            $$\ket{00} \xrightarrow{H\otimes I} \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\ket{0}
-            \xrightarrow{\text{CNOT}} \frac{1}{\sqrt{2}}(\ket{00}+\ket{11}) = \ket{\Phi^+}$$
-          </div>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Input $\ket{q_1 q_2}$</th><th>After $H\otimes I$</th><th>After CNOT</th><th>Bell State</th></tr></thead>
-              <tbody>
-                <tr><td>$\ket{00}$</td><td>$\frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\ket{0}$</td><td>$\frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$</td><td>$\ket{\Phi^+}$</td></tr>
-                <tr><td>$\ket{10}$</td><td>$\frac{1}{\sqrt{2}}(\ket{0}-\ket{1})\ket{0}$</td><td>$\frac{1}{\sqrt{2}}(\ket{00}-\ket{11})$</td><td>$\ket{\Phi^-}$</td></tr>
-                <tr><td>$\ket{01}$</td><td>$\frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\ket{1}$</td><td>$\frac{1}{\sqrt{2}}(\ket{01}+\ket{10})$</td><td>$\ket{\Psi^+}$</td></tr>
-                <tr><td>$\ket{11}$</td><td>$\frac{1}{\sqrt{2}}(\ket{0}-\ket{1})\ket{1}$</td><td>$\frac{1}{\sqrt{2}}(\ket{01}-\ket{10})$</td><td>$\ket{\Psi^-}$</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Bell State Interactive Visualizer -->
-        <div class="viz-container">
-          <div class="viz-header">
-            <div class="viz-title">Bell State Explorer</div>
-            <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-faint);">Select a state · Click a basis vector to simulate measurement collapse</div>
-          </div>
-          <div class="viz-body">
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem;">
-              <button class="btn primary" onclick="bellViz.setState('Φ⁺')">|Φ⁺⟩</button>
-              <button class="btn" onclick="bellViz.setState('Φ⁻')">|Φ⁻⟩</button>
-              <button class="btn" onclick="bellViz.setState('Ψ⁺')">|Ψ⁺⟩</button>
-              <button class="btn" onclick="bellViz.setState('Ψ⁻')">|Ψ⁻⟩</button>
-            </div>
-            <div id="bell-viz-container"></div>
-          </div>
-        </div>
-
-        <div class="subsection" id="s1-measure">
-          <h3 class="subsection-title">Bell Measurement</h3>
-          <p>
-            The <strong>Bell measurement</strong> is the reverse of the Bell state preparation circuit —
-            CNOT followed by H on the first qubit, then measure both:
-          </p>
-          <div class="math-block">
-            $$\ket{\Phi^+} \xrightarrow{\text{CNOT}} \frac{1}{\sqrt{2}}(\ket{00}+\ket{10}) 
-            \xrightarrow{H\otimes I} \ket{00}$$
-          </div>
-          <p>
-            Let's verify this step by step. Starting from $\ket{\Phi^+} = \frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$:
-          </p>
-          <ul>
-            <li style="margin:.4rem 0;color:var(--text-dim)">Apply CNOT (control q1, target q2): $\ket{00} \to \ket{00}$, $\ket{11} \to \ket{10}$, so state becomes $\frac{1}{\sqrt{2}}(\ket{00}+\ket{10}) = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\ket{0} = \ket{+}\ket{0}$</li>
-            <li style="margin:.4rem 0;color:var(--text-dim)">Apply $H$ to q1: $H\ket{+} = \ket{0}$, so state becomes $\ket{0}\ket{0} = \ket{00}$. Measuring: outcome $00$ with certainty. ✓</li>
-          </ul>
-          <p>Each Bell state maps to a unique computational basis outcome:</p>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Input Bell State</th><th>After CNOT</th><th>After H⊗I</th><th>Measurement outcome</th></tr></thead>
-              <tbody>
-                <tr><td>$\ket{\Phi^+} = \frac{\ket{00}+\ket{11}}{\sqrt{2}}$</td><td>$\ket{+}\ket{0}$</td><td>$\ket{00}$</td><td>$00$</td></tr>
-                <tr><td>$\ket{\Phi^-} = \frac{\ket{00}-\ket{11}}{\sqrt{2}}$</td><td>$\ket{-}\ket{0}$</td><td>$\ket{10}$</td><td>$10$</td></tr>
-                <tr><td>$\ket{\Psi^+} = \frac{\ket{01}+\ket{10}}{\sqrt{2}}$</td><td>$\ket{+}\ket{1}$</td><td>$\ket{01}$</td><td>$01$</td></tr>
-                <tr><td>$\ket{\Psi^-} = \frac{\ket{01}-\ket{10}}{\sqrt{2}}$</td><td>$\ket{-}\ket{1}$</td><td>$\ket{11}$</td><td>$11$</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <p>
-            Each Bell state maps to a unique computational basis outcome, allowing Alice to
-            "identify" which Bell state she measured. This is critical in the teleportation protocol.
-          </p>
-
-          <div class="callout insight">
-            <div class="callout-header">💡 Entanglement Correlations are Basis-Independent</div>
-            <p>
-              A common misconception: "Bell state correlations only appear in the $Z$-basis." In reality, correlations persist in <em>every</em> measurement basis. For $\ket{\Phi^+}$, write it in the $X$-basis:
-              $$\ket{\Phi^+} = \frac{1}{\sqrt{2}}(\ket{00}+\ket{11}) = \frac{1}{2}\big[(\ket{+}+\ket{-})(\ket{+}+\ket{-}) + (\ket{+}-\ket{-})(\ket{+}-\ket{-})\big] = \frac{1}{\sqrt{2}}(\ket{++}+\ket{--})$$
-              So measuring in the $X$-basis also gives perfectly correlated outcomes — both $++$ or both $--$, each with probability $\frac{1}{2}$. You'll never see $+-$ or $-+$. This basis-independent correlation is what Bell's inequality quantifies, and what makes entanglement fundamentally non-classical.
-            </p>
-          </div>
-
-          <div class="callout insight">
-            <div class="callout-header">💡 Bell's Inequality Violation</div>
-            <p>
-              Bell's theorem (1964) proves that no local hidden variable theory can reproduce all
-              quantum predictions. The CHSH inequality $|S| \leq 2$ is violated by entangled states
-              (quantum mechanics predicts $|S| \leq 2\sqrt{2} \approx 2.83$).
-              Aspect et al. (1982) and subsequent experiments confirm the quantum prediction,
-              ruling out local realism. Entanglement is not an artifact of ignorance — it is a
-              genuine feature of reality.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <!-- ══════════════════════════════════════════════════════ -->
-      <section class="section" id="s2">
-        <div class="section-header">
-          <span class="section-number">02</span>
-          <h2 class="section-title">Quantum Teleportation</h2>
-        </div>
-
-        <p>
-          Quantum teleportation is one of the most remarkable quantum protocols. It allows Alice
-          to transmit an <em>unknown quantum state</em> to Bob using only:
-          (1) a pre-shared entangled Bell pair, and
-          (2) two bits of classical communication.
-        </p>
-
-        <div class="callout warning">
-          <div class="callout-header">⚠ What Teleportation Is NOT</div>
-          <ul style="color:var(--text-dim);">
-            <li style="margin:.35rem 0;"><strong style="color:var(--text);">Not FTL communication:</strong> Bob must receive Alice's 2 classical bits (via a classical channel, limited by the speed of light) before he can recover $\ket{\psi}$. Until those bits arrive, his qubit is in a maximally mixed state — useless.</li>
-            <li style="margin:.35rem 0;"><strong style="color:var(--text);">Not matter teleportation:</strong> No physical particle travels from Alice to Bob. What moves is quantum <em>information</em> (the state $\ket{\psi}$), not the carrier.</li>
-            <li style="margin:.35rem 0;"><strong style="color:var(--text);">Not copying:</strong> Alice's original qubit is <em>destroyed</em> — it collapses to a definite classical state upon measurement. This is required by the No-Cloning Theorem: if Alice's qubit survived intact, Bob would have a second copy, which is forbidden.</li>
-            <li style="margin:.35rem 0;"><strong style="color:var(--text);">Not state-aware:</strong> Alice need not know $\alpha$ or $\beta$ — the protocol works for any state, including states Alice has never measured or characterised.</li>
-          </ul>
-        </div>
-
-        <p>
-          Despite its name, teleportation does <em>not</em> transmit matter or allow
-          faster-than-light communication — the classical bits must travel at most at the speed
-          of light. What is transmitted is the quantum <em>state</em> (information), not the particle itself.
-        </p>
-
-        <div class="callout insight">
-          <div class="callout-header">💡 The Setup</div>
-          <p>
-            Alice has an unknown qubit $\ket{\psi} = \alpha\ket{0}+\beta\ket{1}$ (she doesn't know $\alpha$ or $\beta$).
-            She and Bob share a Bell pair $\ket{\Phi^+}_{AB}$. Alice holds qubits 1 (her message qubit)
-            and 2 (her half of the Bell pair); Bob holds qubit 3 (his half of the Bell pair).
-            The total initial state is:
-            $$\ket{\psi}_1 \otimes \ket{\Phi^+}_{23} = (\alpha\ket{0}+\beta\ket{1})_1 \otimes \frac{1}{\sqrt{2}}(\ket{00}+\ket{11})_{23}$$
-          </p>
-        </div>
-
-        <div class="subsection" id="s2-proof">
-          <h3 class="subsection-title">Full Protocol Derivation</h3>
-          <p>
-            Expanding the initial 3-qubit state:
-          </p>
-          <div class="math-block">
-            $$\ket{\text{init}} = \frac{1}{\sqrt{2}}(\alpha\ket{000}+\alpha\ket{011}+\beta\ket{100}+\beta\ket{111})_{123}$$
-          </div>
-
-          <h4 class="subsubsection-title">Step 1: Alice applies CNOT (control: q1, target: q2)</h4>
-          <div class="math-block">
-            $$\frac{1}{\sqrt{2}}(\alpha\ket{000}+\alpha\ket{011}+\beta\ket{110}+\beta\ket{101})$$
-          </div>
-
-          <h4 class="subsubsection-title">Step 2: Alice applies H to q1</h4>
-          <p>Using $H\ket{0} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})$ and $H\ket{1} = \frac{1}{\sqrt{2}}(\ket{0}-\ket{1})$:</p>
-          <div class="math-block highlighted">
-            $$\ket{\text{after H}} = \frac{1}{2}\Big[
-              \ket{00}(\alpha\ket{0}+\beta\ket{1}) +
-              \ket{01}(\alpha\ket{1}+\beta\ket{0}) +
-              \ket{10}(\alpha\ket{0}-\beta\ket{1}) +
-              \ket{11}(\alpha\ket{1}-\beta\ket{0})
-            \Big]$$
-          </div>
-
-          <h4 class="subsubsection-title">Step 3: Alice measures q1 and q2</h4>
-          <p>Alice gets one of four equally likely outcomes (probability $\frac{1}{4}$ each).
-          Reading off from the expansion above:</p>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Alice measures</th><th>Bob's qubit (q3) collapses to</th><th>Bob must apply</th></tr></thead>
-              <tbody>
-                <tr><td>$\ket{00}$</td><td>$\alpha\ket{0}+\beta\ket{1} = \ket{\psi}$</td><td>$\mathbb{I}$ (nothing)</td></tr>
-                <tr><td>$\ket{01}$</td><td>$\alpha\ket{1}+\beta\ket{0} = X\ket{\psi}$</td><td>$X$</td></tr>
-                <tr><td>$\ket{10}$</td><td>$\alpha\ket{0}-\beta\ket{1} = Z\ket{\psi}$</td><td>$Z$</td></tr>
-                <tr><td>$\ket{11}$</td><td>$\alpha\ket{1}-\beta\ket{0} = ZX\ket{\psi}$</td><td>$ZX$</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <h4 class="subsubsection-title">Step 4: Alice sends 2 classical bits to Bob</h4>
-          <p>
-            Alice sends her two measurement outcomes (00, 01, 10, or 11) via a classical channel.
-            Bob applies the correction gate (I, X, Z, or ZX respectively). Bob's qubit now
-            equals $\ket{\psi}$ — Alice's original unknown state has been "teleported"!
-          </p>
-
-          <div class="key-result">
-            <div class="key-result-title">Key Properties of Teleportation</div>
-            <ul style="list-style:none;color:var(--text-dim);">
-              <li style="margin:0.4rem 0;">• Alice's original qubit is <strong style="color:#fff;">destroyed</strong> (she measured it) — consistent with no-cloning</li>
-              <li style="margin:0.4rem 0;">• Bob cannot learn $\ket{\psi}$ until he receives Alice's 2 classical bits — no FTL communication</li>
-              <li style="margin:0.4rem 0;">• Alice need not know $\alpha$ or $\beta$ — teleportation works for any unknown state</li>
-              <li style="margin:0.4rem 0;">• The Bell pair is consumed — one entangled pair needed per teleported qubit</li>
-              <li style="margin:0.4rem 0;">• Experimentally verified over 1,400 km (China's Micius satellite, 2017) and 143 km (Canary Islands, 2012)</li>
+      <div class="content-wrapper">
+        <aside class="sidebar">
+          <div class="sidebar-inner">
+            <div class="sidebar-title">Contents</div>
+            <ul class="sidebar-nav">
+              <li>
+                <a href="#s1"><span class="section-num">1.</span> Bell States &amp; Entanglement</a>
+              </li>
+              <li class="sub-item"><a href="#s1-gen">1.1 Generation circuit</a></li>
+              <li class="sub-item"><a href="#s1-measure">1.2 Bell measurement</a></li>
+              <li>
+                <a href="#s2"><span class="section-num">2.</span> Quantum Teleportation</a>
+              </li>
+              <li class="sub-item"><a href="#s2-protocol">2.1 Protocol steps</a></li>
+              <li class="sub-item"><a href="#s2-proof">2.2 Circuit derivation</a></li>
+              <li>
+                <a href="#s3"><span class="section-num">3.</span> No-Cloning Theorem</a>
+              </li>
+              <li>
+                <a href="#s4"><span class="section-num">4.</span> Quantum Interference</a>
+              </li>
+              <li>
+                <a href="#s5"><span class="section-num">5.</span> Algorithm Design Paradigm</a>
+              </li>
+              <li>
+                <a href="#s6"><span class="section-num">6.</span> Qiskit &amp; IBM Quantum</a>
+              </li>
+              <li class="sub-item"><a href="#s6-code">6.1 Code examples</a></li>
+              <li class="sub-item"><a href="#s6-noise">6.2 Noise models</a></li>
             </ul>
           </div>
-        </div>
+        </aside>
 
-        <div class="subsection" id="s2-protocol">
-          <h3 class="subsection-title">Teleportation Circuit</h3>
-          <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin:1.5rem 0;overflow-x:auto;">
-            <div id="teleport-circuit-svg"></div>
-          </div>
-          <p>
-            The complete teleportation circuit involves three qubits, five gates (CNOT, H, two measurements),
-            and two classical-controlled corrections (indicated by double lines in circuit diagrams).
-            The circuit perfectly illustrates entanglement as a resource: the Bell pair shared in advance
-            is the fuel that enables the quantum information transfer.
-          </p>
-        </div>
-      </section>
-
-      <!-- ══════════════════════════════════════════════════════ -->
-      <section class="section" id="s3">
-        <div class="section-header">
-          <span class="section-number">03</span>
-          <h2 class="section-title">The No-Cloning Theorem</h2>
-        </div>
-
-        <div class="callout theorem">
-          <div class="callout-header">⚡ No-Cloning Theorem (Wootters &amp; Zurek, 1982)</div>
-          <p>
-            It is <strong>impossible</strong> to create a perfect copy of an arbitrary unknown quantum state.
-            That is, there exists no unitary $U$ such that for all $\ket{\psi}$:
-            $$U(\ket{\psi}\ket{0}) = \ket{\psi}\ket{\psi}$$
-          </p>
-        </div>
-
-        <div class="subsection">
-          <h3 class="subsection-title">Proof by Linearity</h3>
-          <p>
-            Suppose such a cloner $U$ existed. By assumption:
-            $$U(\ket{0}\ket{0}) = \ket{0}\ket{0} \quad \text{and} \quad U(\ket{1}\ket{0}) = \ket{1}\ket{1}$$
-            Now consider the superposition $\ket{\psi} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})$.
-            By <em>linearity</em> of $U$:
-            $$U(\ket{\psi}\ket{0}) = U\left(\frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\ket{0}\right) = \frac{1}{\sqrt{2}}(U\ket{0}\ket{0} + U\ket{1}\ket{0}) = \frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$$
-          </p>
-          <p>
-            But a perfect clone would give:
-            $$\ket{\psi}\ket{\psi} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1}) \otimes \frac{1}{\sqrt{2}}(\ket{0}+\ket{1}) = \frac{1}{2}(\ket{00}+\ket{01}+\ket{10}+\ket{11})$$
-          </p>
-          <p>
-            These two results are different: $\frac{1}{\sqrt{2}}(\ket{00}+\ket{11}) \neq \frac{1}{2}(\ket{00}+\ket{01}+\ket{10}+\ket{11})$.
-            Contradiction — no such $U$ exists. $\square$
-          </p>
-
-          <div class="callout insight">
-            <div class="callout-header">💡 Consequences</div>
-            <p>No-cloning is simultaneously a <em>limitation</em> and a <em>resource</em>:</p>
-            <ul style="margin-top:0.5rem;color:var(--text-dim);">
-              <li style="margin:0.3rem 0;"><strong style="color:#fff;">Security:</strong> Quantum key distribution (QKD) is secure because an eavesdropper cannot copy qubits without disturbing them</li>
-              <li style="margin:0.3rem 0;"><strong style="color:#fff;">Consistency:</strong> No-cloning is why teleportation destroys the original — you can't have your quantum cake and eat it too</li>
-              <li style="margin:0.3rem 0;"><strong style="color:#fff;">QEC:</strong> Error correction must work without copying states — it uses <em>entanglement</em> and <em>syndrome measurements</em> instead</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <!-- ══════════════════════════════════════════════════════ -->
-      <section class="section" id="s4">
-        <div class="section-header">
-          <span class="section-number">04</span>
-          <h2 class="section-title">Quantum Interference</h2>
-        </div>
-
-        <p>
-          Interference is the mechanism by which quantum computers achieve their speedups.
-          Just as waves in water can reinforce (constructive interference) or cancel (destructive
-          interference), probability amplitudes can add together or cancel out.
-        </p>
-
-        <p>
-          The key difference from classical probability: classical probabilities add as
-          $p(\text{outcome}) = p(\text{path 1}) + p(\text{path 2})$ (always non-negative).
-          Quantum <em>amplitudes</em> add as $\psi = \psi_1 + \psi_2$, and only then
-          $p = |\psi|^2$ — so negative or complex amplitudes can cancel!
-        </p>
-
-        <div class="math-block">
-          $$p = |\psi_1 + \psi_2|^2 = |\psi_1|^2 + |\psi_2|^2 + 2\,\text{Re}(\psi_1^*\psi_2)$$
-        </div>
-        <p>
-          The cross term $2\,\text{Re}(\psi_1^*\psi_2)$ is the <em>interference term</em>.
-          When $\psi_1^*\psi_2 > 0$ (same phase): constructive interference — probability enhanced.
-          When $\psi_1^*\psi_2 < 0$ (opposite phase): destructive interference — probability suppressed.
-        </p>
-
-        <!-- Interference Visualizer -->
-        <div class="viz-container">
-          <div class="viz-header">
-            <div class="viz-title">Wave Interference Visualizer</div>
-            <div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-faint);">
-              <span style="color:#00d4ff;">■</span> ψ₁ &nbsp;
-              <span style="color:#9b5de5;">■</span> ψ₂ &nbsp;
-              <span style="color:#f4c430;">■</span> ψ₁ + ψ₂
+        <article class="article">
+          <!-- ══════════════════════════════════════════════════════ -->
+          <section class="section" id="s1">
+            <div class="section-header">
+              <span class="section-number">01</span>
+              <h2 class="section-title">Bell States &amp; Entanglement</h2>
             </div>
-          </div>
-          <div class="viz-body">
-            <canvas id="interference-canvas" style="width:100%;height:220px;"></canvas>
-          </div>
-          <div class="viz-controls">
-            <div class="ctrl-group">
-              <span class="ctrl-label">Phase Δφ</span>
-              <input type="range" id="phase-slider" min="0" max="628" value="0" step="1">
-              <span class="val-display" id="phase-val">0°</span>
-            </div>
-            <button class="btn primary" id="animate-phase">Animate</button>
-          </div>
-        </div>
 
-        <div class="subsection">
-          <h3 class="subsection-title">Double-Slit Analogy</h3>
-          <p>
-            The quantum double-slit experiment perfectly illustrates interference. A single electron
-            fired at a barrier with two slits produces an <em>interference pattern</em> on the
-            detection screen — even when electrons are sent one at a time. Each electron seems to
-            "go through both slits simultaneously," with its probability amplitude following both
-            paths and interfering with itself.
-          </p>
-          <p>
-            If you try to detect which slit the electron went through (measure its path), the
-            interference pattern vanishes and you see two classical bands. The act of measurement
-            destroys the superposition and hence the interference. This is the <em>measurement
-            problem</em> at the heart of quantum mechanics.
-          </p>
-          <p>
-            In quantum algorithms: the algorithm is designed so that amplitudes for "wrong answers"
-            interfere destructively (cancel out), while amplitudes for "right answers" interfere
-            constructively (reinforce). At the end, measuring yields the correct answer with high probability.
-          </p>
-        </div>
-      </section>
-
-      <!-- ══════════════════════════════════════════════════════ -->
-      <section class="section" id="s5">
-        <div class="section-header">
-          <span class="section-number">05</span>
-          <h2 class="section-title">The Quantum Algorithm Design Paradigm</h2>
-        </div>
-
-        <p>
-          Nearly all quantum algorithms follow the same three-phase structure. Understanding this
-          paradigm is key to understanding <em>why</em> quantum algorithms work.
-        </p>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin:2rem 0;">
-          <div style="background:var(--bg-2);border:1px solid rgba(0,212,255,0.3);border-radius:var(--radius-lg);padding:1.5rem;text-align:center;">
-            <div style="font-size:2rem;margin-bottom:0.5rem;">⬡</div>
-            <div style="font-family:var(--font-display);font-size:1.1rem;color:var(--cyan);margin-bottom:0.5rem;">1. Superposition</div>
-            <div style="color:var(--text-dim);font-size:0.85rem;">Apply $H^{\otimes n}$ to $\ket{0}^{\otimes n}$ to create equal superposition of all $2^n$ inputs simultaneously</div>
-          </div>
-          <div style="background:var(--bg-2);border:1px solid rgba(155,93,229,0.3);border-radius:var(--radius-lg);padding:1.5rem;text-align:center;">
-            <div style="font-size:2rem;margin-bottom:0.5rem;">〜</div>
-            <div style="font-family:var(--font-display);font-size:1.1rem;color:var(--purple);margin-bottom:0.5rem;">2. Oracle + Interference</div>
-            <div style="color:var(--text-dim);font-size:0.85rem;">Apply problem-specific oracle to mark answer states, then use interference to amplify right answers and suppress wrong ones</div>
-          </div>
-          <div style="background:var(--bg-2);border:1px solid rgba(244,196,48,0.3);border-radius:var(--radius-lg);padding:1.5rem;text-align:center;">
-            <div style="font-size:2rem;margin-bottom:0.5rem;">⦿</div>
-            <div style="font-family:var(--font-display);font-size:1.1rem;color:var(--gold);margin-bottom:0.5rem;">3. Measurement</div>
-            <div style="color:var(--text-dim);font-size:0.85rem;">Measure in computational basis — the correct answer has been amplified and is obtained with high probability</div>
-          </div>
-        </div>
-
-        <div class="math-block highlighted">
-          $$\ket{0}^{\otimes n} \xrightarrow{H^{\otimes n}} \frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}\ket{x}
-          \xrightarrow{U_f + \text{interference}} \sum_{x}c_x\ket{x}
-          \xrightarrow{\text{measure}} \ket{x^*} \text{ with high prob.}$$
-        </div>
-
-        <p>
-          The quantum speedup comes not from evaluating $f$ on all inputs simultaneously
-          (you still only get <em>one</em> classical output when you measure), but from
-          engineering interference so that the desired answer has enhanced amplitude.
-          This requires careful algorithm design: "quantum parallelism" alone isn't enough —
-          you must add the interference step.
-        </p>
-
-        <div class="callout warning">
-          <div class="callout-header">⚠ Common Misconception</div>
-          <p>
-            Quantum computers do <em>not</em> simply "try all inputs at once." After creating
-            the superposition $\sum_x \ket{x}$, measuring immediately gives a uniformly random
-            $x$ — no speedup. The magic is in the oracle + interference step that sculpts the
-            amplitude distribution before measurement.
-          </p>
-        </div>
-      </section>
-
-      <!-- ══════════════════════════════════════════════════════ -->
-      <section class="section" id="s6">
-        <div class="section-header">
-          <span class="section-number">06</span>
-          <h2 class="section-title">Qiskit &amp; IBM Quantum Platform</h2>
-        </div>
-
-        <p>
-          <strong>Qiskit</strong> is IBM's open-source quantum software development kit (SDK),
-          the most widely used quantum programming framework in the world. It allows you to
-          build, simulate, and run quantum circuits on real IBM quantum processors via the cloud.
-        </p>
-
-        <div class="subsection">
-          <h3 class="subsection-title">Key Components</h3>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;">
-            <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:1rem;">
-              <div style="font-family:var(--font-mono);color:var(--cyan);font-size:0.78rem;margin-bottom:0.4rem;">QISKIT-TERRA</div>
-              <div style="color:var(--text-dim);font-size:0.85rem;">Core: QuantumCircuit, gates, transpilation, optimization</div>
-            </div>
-            <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:1rem;">
-              <div style="font-family:var(--font-mono);color:var(--purple);font-size:0.78rem;margin-bottom:0.4rem;">QISKIT-AER</div>
-              <div style="color:var(--text-dim);font-size:0.85rem;">High-performance simulators with noise models</div>
-            </div>
-            <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:1rem;">
-              <div style="font-family:var(--font-mono);color:var(--gold);font-size:0.78rem;margin-bottom:0.4rem;">QISKIT RUNTIME</div>
-              <div style="color:var(--text-dim);font-size:0.85rem;">SamplerV2, EstimatorV2 — primitives for running circuits on hardware</div>
-            </div>
-            <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:1rem;">
-              <div style="font-family:var(--font-mono);color:var(--green);font-size:0.78rem;margin-bottom:0.4rem;">IBM QUANTUM</div>
-              <div style="color:var(--text-dim);font-size:0.85rem;">Cloud platform with 100+ real quantum processors, from 5 to 127+ qubits</div>
-            </div>
-          </div>
-
-          <div class="callout insight">
-            <div class="callout-header">💡 SamplerV2 vs EstimatorV2 — Which Primitive to Use?</div>
             <p>
-              Qiskit Runtime provides two core execution primitives, and choosing the right one matters for both performance and correctness:
+              <strong>Entanglement</strong> is the most distinctly non-classical feature of quantum
+              mechanics. When two qubits are entangled, measuring one instantly determines the
+              outcome of measuring the other — regardless of the physical distance between them.
+              Einstein called this "spooky action at a distance" and considered it evidence that
+              quantum mechanics must be incomplete; Bell's theorem (1964) and subsequent experiments
+              definitively proved him wrong.
             </p>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.8rem;">
-              <div style="background:var(--bg-3);border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:.9rem;">
-                <div style="font-family:var(--font-mono);color:var(--cyan);font-size:.75rem;margin-bottom:.4rem;">SamplerV2</div>
-                <div style="color:var(--text-dim);font-size:.83rem;line-height:1.5;">Returns <strong style="color:var(--text)">measurement outcome counts</strong> (bitstrings and their frequencies). Use when you want to see the probability distribution over computational basis states — e.g. for teleportation verification, Grover search, QAOA sampling. Analogous to actually measuring the quantum state.</div>
+
+            <div class="subsection" id="s1-gen">
+              <h3 class="subsection-title">The Four Bell States</h3>
+              <p>
+                The <strong>Bell states</strong> (or EPR pairs) are the four maximally entangled
+                two-qubit states forming an orthonormal basis for $\mathbb{C}^4$:
+              </p>
+              <div class="math-block highlighted">
+                $$\ket{\Phi^+} = \frac{1}{\sqrt{2}}(\ket{00}+\ket{11}), \quad \ket{\Phi^-} =
+                \frac{1}{\sqrt{2}}(\ket{00}-\ket{11})$$ $$\ket{\Psi^+} =
+                \frac{1}{\sqrt{2}}(\ket{01}+\ket{10}), \quad \ket{\Psi^-} =
+                \frac{1}{\sqrt{2}}(\ket{01}-\ket{10})$$
               </div>
-              <div style="background:var(--bg-3);border:1px solid rgba(155,93,229,.2);border-radius:8px;padding:.9rem;">
-                <div style="font-family:var(--font-mono);color:var(--purple);font-size:.75rem;margin-bottom:.4rem;">EstimatorV2</div>
-                <div style="color:var(--text-dim);font-size:.83rem;line-height:1.5;">Returns <strong style="color:var(--text)">expectation values</strong> $\langle\psi|O|\psi\rangle$ for given observables $O$ (Pauli strings). Use when you need energy or other expectation values — e.g. VQE, QAOA cost evaluation. More efficient than sampling when you only need a scalar quantity, not the full distribution.</div>
+              <p>
+                "Maximally entangled" means that measuring either qubit alone gives a completely
+                random result ($P(\ket{0}) = P(\ket{1}) = \frac{1}{2}$), yet the two outcomes are
+                perfectly correlated (or anti-correlated). The reduced density matrix for either
+                qubit is $\frac{1}{2}\mathbb{I}$ — the maximally mixed state.
+              </p>
+
+              <h4 class="subsubsection-title">Generation Circuit</h4>
+              <p>
+                All four Bell states can be generated from computational basis inputs using the
+                circuit: <strong>H on qubit 1, then CNOT with qubit 1 as control</strong>:
+              </p>
+              <div class="math-block">
+                $$\ket{00} \xrightarrow{H\otimes I} \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\ket{0}
+                \xrightarrow{\text{CNOT}} \frac{1}{\sqrt{2}}(\ket{00}+\ket{11}) = \ket{\Phi^+}$$
+              </div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Input $\ket{q_1 q_2}$</th>
+                      <th>After $H\otimes I$</th>
+                      <th>After CNOT</th>
+                      <th>Bell State</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>$\ket{00}$</td>
+                      <td>$\frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\ket{0}$</td>
+                      <td>$\frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$</td>
+                      <td>$\ket{\Phi^+}$</td>
+                    </tr>
+                    <tr>
+                      <td>$\ket{10}$</td>
+                      <td>$\frac{1}{\sqrt{2}}(\ket{0}-\ket{1})\ket{0}$</td>
+                      <td>$\frac{1}{\sqrt{2}}(\ket{00}-\ket{11})$</td>
+                      <td>$\ket{\Phi^-}$</td>
+                    </tr>
+                    <tr>
+                      <td>$\ket{01}$</td>
+                      <td>$\frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\ket{1}$</td>
+                      <td>$\frac{1}{\sqrt{2}}(\ket{01}+\ket{10})$</td>
+                      <td>$\ket{\Psi^+}$</td>
+                    </tr>
+                    <tr>
+                      <td>$\ket{11}$</td>
+                      <td>$\frac{1}{\sqrt{2}}(\ket{0}-\ket{1})\ket{1}$</td>
+                      <td>$\frac{1}{\sqrt{2}}(\ket{01}-\ket{10})$</td>
+                      <td>$\ket{\Psi^-}$</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
-            <p style="margin-top:.8rem;color:var(--text-dim);font-size:.85rem;">
-              Rule of thumb: use <code>SamplerV2</code> for combinatorial/search algorithms and <code>EstimatorV2</code> for variational algorithms.
-            </p>
-          </div>
 
-          <div class="callout insight">
-            <div class="callout-header">💡 Dynamic Circuits and Classical Feedback (<code>if_test</code>)</div>
+            <!-- Bell State Interactive Visualizer -->
+            <div class="viz-container">
+              <div class="viz-header">
+                <div class="viz-title">Bell State Explorer</div>
+                <div
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: 0.72rem;
+                    color: var(--text-faint);
+                  "
+                >
+                  Select a state · Click a basis vector to simulate measurement collapse
+                </div>
+              </div>
+              <div class="viz-body">
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem">
+                  <button class="btn primary" onclick="bellViz.setState('Φ⁺')">|Φ⁺⟩</button>
+                  <button class="btn" onclick="bellViz.setState('Φ⁻')">|Φ⁻⟩</button>
+                  <button class="btn" onclick="bellViz.setState('Ψ⁺')">|Ψ⁺⟩</button>
+                  <button class="btn" onclick="bellViz.setState('Ψ⁻')">|Ψ⁻⟩</button>
+                </div>
+                <div id="bell-viz-container"></div>
+              </div>
+            </div>
+
+            <div class="subsection" id="s1-measure">
+              <h3 class="subsection-title">Bell Measurement</h3>
+              <p>
+                The <strong>Bell measurement</strong> is the reverse of the Bell state preparation
+                circuit — CNOT followed by H on the first qubit, then measure both:
+              </p>
+              <div class="math-block">
+                $$\ket{\Phi^+} \xrightarrow{\text{CNOT}} \frac{1}{\sqrt{2}}(\ket{00}+\ket{10})
+                \xrightarrow{H\otimes I} \ket{00}$$
+              </div>
+              <p>
+                Let's verify this step by step. Starting from $\ket{\Phi^+} =
+                \frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$:
+              </p>
+              <ul>
+                <li style="margin: 0.4rem 0; color: var(--text-dim)">
+                  Apply CNOT (control q1, target q2): $\ket{00} \to \ket{00}$, $\ket{11} \to
+                  \ket{10}$, so state becomes $\frac{1}{\sqrt{2}}(\ket{00}+\ket{10}) =
+                  \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\ket{0} = \ket{+}\ket{0}$
+                </li>
+                <li style="margin: 0.4rem 0; color: var(--text-dim)">
+                  Apply $H$ to q1: $H\ket{+} = \ket{0}$, so state becomes $\ket{0}\ket{0} =
+                  \ket{00}$. Measuring: outcome $00$ with certainty. ✓
+                </li>
+              </ul>
+              <p>Each Bell state maps to a unique computational basis outcome:</p>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Input Bell State</th>
+                      <th>After CNOT</th>
+                      <th>After H⊗I</th>
+                      <th>Measurement outcome</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>$\ket{\Phi^+} = \frac{\ket{00}+\ket{11}}{\sqrt{2}}$</td>
+                      <td>$\ket{+}\ket{0}$</td>
+                      <td>$\ket{00}$</td>
+                      <td>$00$</td>
+                    </tr>
+                    <tr>
+                      <td>$\ket{\Phi^-} = \frac{\ket{00}-\ket{11}}{\sqrt{2}}$</td>
+                      <td>$\ket{-}\ket{0}$</td>
+                      <td>$\ket{10}$</td>
+                      <td>$10$</td>
+                    </tr>
+                    <tr>
+                      <td>$\ket{\Psi^+} = \frac{\ket{01}+\ket{10}}{\sqrt{2}}$</td>
+                      <td>$\ket{+}\ket{1}$</td>
+                      <td>$\ket{01}$</td>
+                      <td>$01$</td>
+                    </tr>
+                    <tr>
+                      <td>$\ket{\Psi^-} = \frac{\ket{01}-\ket{10}}{\sqrt{2}}$</td>
+                      <td>$\ket{-}\ket{1}$</td>
+                      <td>$\ket{11}$</td>
+                      <td>$11$</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p>
+                Each Bell state maps to a unique computational basis outcome, allowing Alice to
+                "identify" which Bell state she measured. This is critical in the teleportation
+                protocol.
+              </p>
+
+              <div class="callout insight">
+                <div class="callout-header">💡 Entanglement Correlations are Basis-Independent</div>
+                <p>
+                  A common misconception: "Bell state correlations only appear in the $Z$-basis." In
+                  reality, correlations persist in <em>every</em> measurement basis. For
+                  $\ket{\Phi^+}$, write it in the $X$-basis: $$\ket{\Phi^+} =
+                  \frac{1}{\sqrt{2}}(\ket{00}+\ket{11}) =
+                  \frac{1}{2}\big[(\ket{+}+\ket{-})(\ket{+}+\ket{-}) +
+                  (\ket{+}-\ket{-})(\ket{+}-\ket{-})\big] = \frac{1}{\sqrt{2}}(\ket{++}+\ket{--})$$
+                  So measuring in the $X$-basis also gives perfectly correlated outcomes — both $++$
+                  or both $--$, each with probability $\frac{1}{2}$. You'll never see $+-$ or $-+$.
+                  This basis-independent correlation is what Bell's inequality quantifies, and what
+                  makes entanglement fundamentally non-classical.
+                </p>
+              </div>
+
+              <div class="callout insight">
+                <div class="callout-header">💡 Bell's Inequality Violation</div>
+                <p>
+                  Bell's theorem (1964) proves that no local hidden variable theory can reproduce
+                  all quantum predictions. The CHSH inequality $|S| \leq 2$ is violated by entangled
+                  states (quantum mechanics predicts $|S| \leq 2\sqrt{2} \approx 2.83$). Aspect et
+                  al. (1982) and subsequent experiments confirm the quantum prediction, ruling out
+                  local realism. Entanglement is not an artifact of ignorance — it is a genuine
+                  feature of reality.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ══════════════════════════════════════════════════════ -->
+          <section class="section" id="s2">
+            <div class="section-header">
+              <span class="section-number">02</span>
+              <h2 class="section-title">Quantum Teleportation</h2>
+            </div>
+
             <p>
-              Classical quantum circuits execute gates then measure at the end. <strong>Dynamic circuits</strong> allow future quantum gates to depend on <em>mid-circuit measurement outcomes</em> — a quantum <code>if</code> statement. This is implemented in Qiskit via <code>if_test</code>:
+              Quantum teleportation is one of the most remarkable quantum protocols. It allows Alice
+              to transmit an <em>unknown quantum state</em> to Bob using only: (1) a pre-shared
+              entangled Bell pair, and (2) two bits of classical communication.
             </p>
-            <pre style="font-family:var(--font-mono);font-size:.8rem;background:var(--bg-3);padding:.8rem;border-radius:6px;margin:.6rem 0;color:var(--text);overflow-x:auto;">with qc.if_test((classical_register, 1)):
-    qc.x(target_qubit)   # applies X only if bit = 1</pre>
-            <p style="color:var(--text-dim);font-size:.85rem;">
-              Dynamic circuits are essential for teleportation (Bob's correction depends on Alice's measurement), quantum error correction (corrections depend on syndrome measurements), and quantum-classical hybrid protocols. They require hardware with fast classical control electronics — IBM's Eagle and Heron processors both support them. The <em>latency</em> of classical feedback (typically ~1 μs) must be shorter than the qubit's $T_2$ time, which is why hardware improvements in classical control are as important as improving qubit coherence.
+
+            <div class="callout warning">
+              <div class="callout-header">⚠ What Teleportation Is NOT</div>
+              <ul style="color: var(--text-dim)">
+                <li style="margin: 0.35rem 0">
+                  <strong style="color: var(--text)">Not FTL communication:</strong> Bob must
+                  receive Alice's 2 classical bits (via a classical channel, limited by the speed of
+                  light) before he can recover $\ket{\psi}$. Until those bits arrive, his qubit is
+                  in a maximally mixed state — useless.
+                </li>
+                <li style="margin: 0.35rem 0">
+                  <strong style="color: var(--text)">Not matter teleportation:</strong> No physical
+                  particle travels from Alice to Bob. What moves is quantum
+                  <em>information</em> (the state $\ket{\psi}$), not the carrier.
+                </li>
+                <li style="margin: 0.35rem 0">
+                  <strong style="color: var(--text)">Not copying:</strong> Alice's original qubit is
+                  <em>destroyed</em> — it collapses to a definite classical state upon measurement.
+                  This is required by the No-Cloning Theorem: if Alice's qubit survived intact, Bob
+                  would have a second copy, which is forbidden.
+                </li>
+                <li style="margin: 0.35rem 0">
+                  <strong style="color: var(--text)">Not state-aware:</strong> Alice need not know
+                  $\alpha$ or $\beta$ — the protocol works for any state, including states Alice has
+                  never measured or characterised.
+                </li>
+              </ul>
+            </div>
+
+            <p>
+              Despite its name, teleportation does <em>not</em> transmit matter or allow
+              faster-than-light communication — the classical bits must travel at most at the speed
+              of light. What is transmitted is the quantum <em>state</em> (information), not the
+              particle itself.
             </p>
-          </div>
 
-          <div class="callout insight">
-            <div class="callout-header">💡 The IBM Quantum Patterns Workflow</div>
-            <p>IBM recommends four structured steps for all quantum programs:</p>
-            <ol style="color:var(--text-dim);margin-top:.5rem;">
-              <li style="margin:.35rem 0;"><strong style="color:var(--text);">Map:</strong> Describe your problem as a quantum circuit and define the observables or outcomes of interest. This is the algorithm design phase — choose gates, circuit structure, and measurement strategy.</li>
-              <li style="margin:.35rem 0;"><strong style="color:var(--text);">Optimize (Transpile):</strong> Compile the ideal circuit to the backend's native gate set and qubit connectivity via <code>generate_preset_pass_manager</code>. Higher <code>optimization_level</code> produces shorter circuits (less noise) at the cost of longer compilation time.</li>
-              <li style="margin:.35rem 0;"><strong style="color:var(--text);">Execute:</strong> Submit the ISA (Instruction Set Architecture) circuit to the backend via SamplerV2 or EstimatorV2. The circuit runs on hardware, and results are returned asynchronously.</li>
-              <li style="margin:.35rem 0;"><strong style="color:var(--text);">Post-process:</strong> Extract counts with <code>.get_counts()</code>, compute expectation values, apply error mitigation, and analyse or plot the results.</li>
-            </ol>
-          </div>
-        </div>
+            <div class="callout insight">
+              <div class="callout-header">💡 The Setup</div>
+              <p>
+                Alice has an unknown qubit $\ket{\psi} = \alpha\ket{0}+\beta\ket{1}$ (she doesn't
+                know $\alpha$ or $\beta$). She and Bob share a Bell pair $\ket{\Phi^+}_{AB}$. Alice
+                holds qubits 1 (her message qubit) and 2 (her half of the Bell pair); Bob holds
+                qubit 3 (his half of the Bell pair). The total initial state is: $$\ket{\psi}_1
+                \otimes \ket{\Phi^+}_{23} = (\alpha\ket{0}+\beta\ket{1})_1 \otimes
+                \frac{1}{\sqrt{2}}(\ket{00}+\ket{11})_{23}$$
+              </p>
+            </div>
 
-        <div class="subsection" id="s6-code">
-          <h3 class="subsection-title">Code Examples</h3>
+            <div class="subsection" id="s2-proof">
+              <h3 class="subsection-title">Full Protocol Derivation</h3>
+              <p>Expanding the initial 3-qubit state:</p>
+              <div class="math-block">
+                $$\ket{\text{init}} =
+                \frac{1}{\sqrt{2}}(\alpha\ket{000}+\alpha\ket{011}+\beta\ket{100}+\beta\ket{111})_{123}$$
+              </div>
 
-          <h4 class="subsubsection-title">Creating a Bell State</h4>
-<pre><code><span class="code-kw">from</span> qiskit <span class="code-kw">import</span> QuantumCircuit
+              <h4 class="subsubsection-title">
+                Step 1: Alice applies CNOT (control: q1, target: q2)
+              </h4>
+              <div class="math-block">
+                $$\frac{1}{\sqrt{2}}(\alpha\ket{000}+\alpha\ket{011}+\beta\ket{110}+\beta\ket{101})$$
+              </div>
+
+              <h4 class="subsubsection-title">Step 2: Alice applies H to q1</h4>
+              <p>
+                Using $H\ket{0} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})$ and $H\ket{1} =
+                \frac{1}{\sqrt{2}}(\ket{0}-\ket{1})$:
+              </p>
+              <div class="math-block highlighted">
+                $$\ket{\text{after H}} = \frac{1}{2}\Big[ \ket{00}(\alpha\ket{0}+\beta\ket{1}) +
+                \ket{01}(\alpha\ket{1}+\beta\ket{0}) + \ket{10}(\alpha\ket{0}-\beta\ket{1}) +
+                \ket{11}(\alpha\ket{1}-\beta\ket{0}) \Big]$$
+              </div>
+
+              <h4 class="subsubsection-title">Step 3: Alice measures q1 and q2</h4>
+              <p>
+                Alice gets one of four equally likely outcomes (probability $\frac{1}{4}$ each).
+                Reading off from the expansion above:
+              </p>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Alice measures</th>
+                      <th>Bob's qubit (q3) collapses to</th>
+                      <th>Bob must apply</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>$\ket{00}$</td>
+                      <td>$\alpha\ket{0}+\beta\ket{1} = \ket{\psi}$</td>
+                      <td>$\mathbb{I}$ (nothing)</td>
+                    </tr>
+                    <tr>
+                      <td>$\ket{01}$</td>
+                      <td>$\alpha\ket{1}+\beta\ket{0} = X\ket{\psi}$</td>
+                      <td>$X$</td>
+                    </tr>
+                    <tr>
+                      <td>$\ket{10}$</td>
+                      <td>$\alpha\ket{0}-\beta\ket{1} = Z\ket{\psi}$</td>
+                      <td>$Z$</td>
+                    </tr>
+                    <tr>
+                      <td>$\ket{11}$</td>
+                      <td>$\alpha\ket{1}-\beta\ket{0} = ZX\ket{\psi}$</td>
+                      <td>$ZX$</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h4 class="subsubsection-title">Step 4: Alice sends 2 classical bits to Bob</h4>
+              <p>
+                Alice sends her two measurement outcomes (00, 01, 10, or 11) via a classical
+                channel. Bob applies the correction gate (I, X, Z, or ZX respectively). Bob's qubit
+                now equals $\ket{\psi}$ — Alice's original unknown state has been "teleported"!
+              </p>
+
+              <div class="key-result">
+                <div class="key-result-title">Key Properties of Teleportation</div>
+                <ul style="list-style: none; color: var(--text-dim)">
+                  <li style="margin: 0.4rem 0">
+                    • Alice's original qubit is <strong style="color: #fff">destroyed</strong> (she
+                    measured it) — consistent with no-cloning
+                  </li>
+                  <li style="margin: 0.4rem 0">
+                    • Bob cannot learn $\ket{\psi}$ until he receives Alice's 2 classical bits — no
+                    FTL communication
+                  </li>
+                  <li style="margin: 0.4rem 0">
+                    • Alice need not know $\alpha$ or $\beta$ — teleportation works for any unknown
+                    state
+                  </li>
+                  <li style="margin: 0.4rem 0">
+                    • The Bell pair is consumed — one entangled pair needed per teleported qubit
+                  </li>
+                  <li style="margin: 0.4rem 0">
+                    • Experimentally verified over 1,400 km (China's Micius satellite, 2017) and 143
+                    km (Canary Islands, 2012)
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="subsection" id="s2-protocol">
+              <h3 class="subsection-title">Teleportation Circuit</h3>
+              <div
+                style="
+                  background: var(--bg-2);
+                  border: 1px solid var(--border);
+                  border-radius: var(--radius-lg);
+                  padding: 1.5rem;
+                  margin: 1.5rem 0;
+                  overflow-x: auto;
+                "
+              >
+                <div id="teleport-circuit-svg"></div>
+              </div>
+              <p>
+                The complete teleportation circuit involves three qubits, five gates (CNOT, H, two
+                measurements), and two classical-controlled corrections (indicated by double lines
+                in circuit diagrams). The circuit perfectly illustrates entanglement as a resource:
+                the Bell pair shared in advance is the fuel that enables the quantum information
+                transfer.
+              </p>
+            </div>
+          </section>
+
+          <!-- ══════════════════════════════════════════════════════ -->
+          <section class="section" id="s3">
+            <div class="section-header">
+              <span class="section-number">03</span>
+              <h2 class="section-title">The No-Cloning Theorem</h2>
+            </div>
+
+            <div class="callout theorem">
+              <div class="callout-header">⚡ No-Cloning Theorem (Wootters &amp; Zurek, 1982)</div>
+              <p>
+                It is <strong>impossible</strong> to create a perfect copy of an arbitrary unknown
+                quantum state. That is, there exists no unitary $U$ such that for all $\ket{\psi}$:
+                $$U(\ket{\psi}\ket{0}) = \ket{\psi}\ket{\psi}$$
+              </p>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-title">Proof by Linearity</h3>
+              <p>
+                Suppose such a cloner $U$ existed. By assumption: $$U(\ket{0}\ket{0}) =
+                \ket{0}\ket{0} \quad \text{and} \quad U(\ket{1}\ket{0}) = \ket{1}\ket{1}$$ Now
+                consider the superposition $\ket{\psi} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})$. By
+                <em>linearity</em> of $U$: $$U(\ket{\psi}\ket{0}) =
+                U\left(\frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\ket{0}\right) =
+                \frac{1}{\sqrt{2}}(U\ket{0}\ket{0} + U\ket{1}\ket{0}) =
+                \frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$$
+              </p>
+              <p>
+                But a perfect clone would give: $$\ket{\psi}\ket{\psi} =
+                \frac{1}{\sqrt{2}}(\ket{0}+\ket{1}) \otimes \frac{1}{\sqrt{2}}(\ket{0}+\ket{1}) =
+                \frac{1}{2}(\ket{00}+\ket{01}+\ket{10}+\ket{11})$$
+              </p>
+              <p>
+                These two results are different: $\frac{1}{\sqrt{2}}(\ket{00}+\ket{11}) \neq
+                \frac{1}{2}(\ket{00}+\ket{01}+\ket{10}+\ket{11})$. Contradiction — no such $U$
+                exists. $\square$
+              </p>
+
+              <div class="callout insight">
+                <div class="callout-header">💡 Consequences</div>
+                <p>No-cloning is simultaneously a <em>limitation</em> and a <em>resource</em>:</p>
+                <ul style="margin-top: 0.5rem; color: var(--text-dim)">
+                  <li style="margin: 0.3rem 0">
+                    <strong style="color: #fff">Security:</strong> Quantum key distribution (QKD) is
+                    secure because an eavesdropper cannot copy qubits without disturbing them
+                  </li>
+                  <li style="margin: 0.3rem 0">
+                    <strong style="color: #fff">Consistency:</strong> No-cloning is why
+                    teleportation destroys the original — you can't have your quantum cake and eat
+                    it too
+                  </li>
+                  <li style="margin: 0.3rem 0">
+                    <strong style="color: #fff">QEC:</strong> Error correction must work without
+                    copying states — it uses <em>entanglement</em> and
+                    <em>syndrome measurements</em> instead
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- ══════════════════════════════════════════════════════ -->
+          <section class="section" id="s4">
+            <div class="section-header">
+              <span class="section-number">04</span>
+              <h2 class="section-title">Quantum Interference</h2>
+            </div>
+
+            <p>
+              Interference is the mechanism by which quantum computers achieve their speedups. Just
+              as waves in water can reinforce (constructive interference) or cancel (destructive
+              interference), probability amplitudes can add together or cancel out.
+            </p>
+
+            <p>
+              The key difference from classical probability: classical probabilities add as
+              $p(\text{outcome}) = p(\text{path 1}) + p(\text{path 2})$ (always non-negative).
+              Quantum <em>amplitudes</em> add as $\psi = \psi_1 + \psi_2$, and only then $p =
+              |\psi|^2$ — so negative or complex amplitudes can cancel!
+            </p>
+
+            <div class="math-block">
+              $$p = |\psi_1 + \psi_2|^2 = |\psi_1|^2 + |\psi_2|^2 + 2\,\text{Re}(\psi_1^*\psi_2)$$
+            </div>
+            <p>
+              The cross term $2\,\text{Re}(\psi_1^*\psi_2)$ is the <em>interference term</em>. When
+              $\psi_1^*\psi_2 &gt; 0$ (same phase): constructive interference — probability enhanced.
+              When $\psi_1^*\psi_2 &lt; 0$ (opposite phase): destructive interference — probability
+              suppressed.
+            </p>
+
+            <!-- Interference Visualizer -->
+            <div class="viz-container">
+              <div class="viz-header">
+                <div class="viz-title">Wave Interference Visualizer</div>
+                <div
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: 0.72rem;
+                    color: var(--text-faint);
+                  "
+                >
+                  <span style="color: #00d4ff">■</span> ψ₁ &nbsp;
+                  <span style="color: #9b5de5">■</span> ψ₂ &nbsp;
+                  <span style="color: #f4c430">■</span> ψ₁ + ψ₂
+                </div>
+              </div>
+              <div class="viz-body">
+                <canvas id="interference-canvas" style="width: 100%; height: 220px"></canvas>
+              </div>
+              <div class="viz-controls">
+                <div class="ctrl-group">
+                  <span class="ctrl-label">Phase Δφ</span>
+                  <input type="range" id="phase-slider" min="0" max="628" value="0" step="1" />
+                  <span class="val-display" id="phase-val">0°</span>
+                </div>
+                <button class="btn primary" id="animate-phase">Animate</button>
+              </div>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-title">Double-Slit Analogy</h3>
+              <p>
+                The quantum double-slit experiment perfectly illustrates interference. A single
+                electron fired at a barrier with two slits produces an
+                <em>interference pattern</em> on the detection screen — even when electrons are sent
+                one at a time. Each electron seems to "go through both slits simultaneously," with
+                its probability amplitude following both paths and interfering with itself.
+              </p>
+              <p>
+                If you try to detect which slit the electron went through (measure its path), the
+                interference pattern vanishes and you see two classical bands. The act of
+                measurement destroys the superposition and hence the interference. This is the
+                <em>measurement problem</em> at the heart of quantum mechanics.
+              </p>
+              <p>
+                In quantum algorithms: the algorithm is designed so that amplitudes for "wrong
+                answers" interfere destructively (cancel out), while amplitudes for "right answers"
+                interfere constructively (reinforce). At the end, measuring yields the correct
+                answer with high probability.
+              </p>
+            </div>
+          </section>
+
+          <!-- ══════════════════════════════════════════════════════ -->
+          <section class="section" id="s5">
+            <div class="section-header">
+              <span class="section-number">05</span>
+              <h2 class="section-title">The Quantum Algorithm Design Paradigm</h2>
+            </div>
+
+            <p>
+              Nearly all quantum algorithms follow the same three-phase structure. Understanding
+              this paradigm is key to understanding <em>why</em> quantum algorithms work.
+            </p>
+
+            <div
+              style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 2rem 0"
+            >
+              <div
+                style="
+                  background: var(--bg-2);
+                  border: 1px solid rgba(0, 212, 255, 0.3);
+                  border-radius: var(--radius-lg);
+                  padding: 1.5rem;
+                  text-align: center;
+                "
+              >
+                <div style="font-size: 2rem; margin-bottom: 0.5rem">⬡</div>
+                <div
+                  style="
+                    font-family: var(--font-display);
+                    font-size: 1.1rem;
+                    color: var(--cyan);
+                    margin-bottom: 0.5rem;
+                  "
+                >
+                  1. Superposition
+                </div>
+                <div style="color: var(--text-dim); font-size: 0.85rem">
+                  Apply $H^{\otimes n}$ to $\ket{0}^{\otimes n}$ to create equal superposition of
+                  all $2^n$ inputs simultaneously
+                </div>
+              </div>
+              <div
+                style="
+                  background: var(--bg-2);
+                  border: 1px solid rgba(155, 93, 229, 0.3);
+                  border-radius: var(--radius-lg);
+                  padding: 1.5rem;
+                  text-align: center;
+                "
+              >
+                <div style="font-size: 2rem; margin-bottom: 0.5rem">〜</div>
+                <div
+                  style="
+                    font-family: var(--font-display);
+                    font-size: 1.1rem;
+                    color: var(--purple);
+                    margin-bottom: 0.5rem;
+                  "
+                >
+                  2. Oracle + Interference
+                </div>
+                <div style="color: var(--text-dim); font-size: 0.85rem">
+                  Apply problem-specific oracle to mark answer states, then use interference to
+                  amplify right answers and suppress wrong ones
+                </div>
+              </div>
+              <div
+                style="
+                  background: var(--bg-2);
+                  border: 1px solid rgba(244, 196, 48, 0.3);
+                  border-radius: var(--radius-lg);
+                  padding: 1.5rem;
+                  text-align: center;
+                "
+              >
+                <div style="font-size: 2rem; margin-bottom: 0.5rem">⦿</div>
+                <div
+                  style="
+                    font-family: var(--font-display);
+                    font-size: 1.1rem;
+                    color: var(--gold);
+                    margin-bottom: 0.5rem;
+                  "
+                >
+                  3. Measurement
+                </div>
+                <div style="color: var(--text-dim); font-size: 0.85rem">
+                  Measure in computational basis — the correct answer has been amplified and is
+                  obtained with high probability
+                </div>
+              </div>
+            </div>
+
+            <div class="math-block highlighted">
+              $$\ket{0}^{\otimes n} \xrightarrow{H^{\otimes n}}
+              \frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}\ket{x} \xrightarrow{U_f + \text{interference}}
+              \sum_{x}c_x\ket{x} \xrightarrow{\text{measure}} \ket{x^*} \text{ with high prob.}$$
+            </div>
+
+            <p>
+              The quantum speedup comes not from evaluating $f$ on all inputs simultaneously (you
+              still only get <em>one</em> classical output when you measure), but from engineering
+              interference so that the desired answer has enhanced amplitude. This requires careful
+              algorithm design: "quantum parallelism" alone isn't enough — you must add the
+              interference step.
+            </p>
+
+            <div class="callout warning">
+              <div class="callout-header">⚠ Common Misconception</div>
+              <p>
+                Quantum computers do <em>not</em> simply "try all inputs at once." After creating
+                the superposition $\sum_x \ket{x}$, measuring immediately gives a uniformly random
+                $x$ — no speedup. The magic is in the oracle + interference step that sculpts the
+                amplitude distribution before measurement.
+              </p>
+            </div>
+          </section>
+
+          <!-- ══════════════════════════════════════════════════════ -->
+          <section class="section" id="s6">
+            <div class="section-header">
+              <span class="section-number">06</span>
+              <h2 class="section-title">Qiskit &amp; IBM Quantum Platform</h2>
+            </div>
+
+            <p>
+              <strong>Qiskit</strong> is IBM's open-source quantum software development kit (SDK),
+              the most widely used quantum programming framework in the world. It allows you to
+              build, simulate, and run quantum circuits on real IBM quantum processors via the
+              cloud.
+            </p>
+
+            <div class="subsection">
+              <h3 class="subsection-title">Key Components</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0">
+                <div
+                  style="
+                    background: var(--bg-2);
+                    border: 1px solid var(--border);
+                    border-radius: 8px;
+                    padding: 1rem;
+                  "
+                >
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      color: var(--cyan);
+                      font-size: 0.78rem;
+                      margin-bottom: 0.4rem;
+                    "
+                  >
+                    QISKIT-TERRA
+                  </div>
+                  <div style="color: var(--text-dim); font-size: 0.85rem">
+                    Core: QuantumCircuit, gates, transpilation, optimization
+                  </div>
+                </div>
+                <div
+                  style="
+                    background: var(--bg-2);
+                    border: 1px solid var(--border);
+                    border-radius: 8px;
+                    padding: 1rem;
+                  "
+                >
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      color: var(--purple);
+                      font-size: 0.78rem;
+                      margin-bottom: 0.4rem;
+                    "
+                  >
+                    QISKIT-AER
+                  </div>
+                  <div style="color: var(--text-dim); font-size: 0.85rem">
+                    High-performance simulators with noise models
+                  </div>
+                </div>
+                <div
+                  style="
+                    background: var(--bg-2);
+                    border: 1px solid var(--border);
+                    border-radius: 8px;
+                    padding: 1rem;
+                  "
+                >
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      color: var(--gold);
+                      font-size: 0.78rem;
+                      margin-bottom: 0.4rem;
+                    "
+                  >
+                    QISKIT RUNTIME
+                  </div>
+                  <div style="color: var(--text-dim); font-size: 0.85rem">
+                    SamplerV2, EstimatorV2 — primitives for running circuits on hardware
+                  </div>
+                </div>
+                <div
+                  style="
+                    background: var(--bg-2);
+                    border: 1px solid var(--border);
+                    border-radius: 8px;
+                    padding: 1rem;
+                  "
+                >
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      color: var(--green);
+                      font-size: 0.78rem;
+                      margin-bottom: 0.4rem;
+                    "
+                  >
+                    IBM QUANTUM
+                  </div>
+                  <div style="color: var(--text-dim); font-size: 0.85rem">
+                    Cloud platform with 100+ real quantum processors, from 5 to 127+ qubits
+                  </div>
+                </div>
+              </div>
+
+              <div class="callout insight">
+                <div class="callout-header">
+                  💡 SamplerV2 vs EstimatorV2 — Which Primitive to Use?
+                </div>
+                <p>
+                  Qiskit Runtime provides two core execution primitives, and choosing the right one
+                  matters for both performance and correctness:
+                </p>
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 1rem;
+                    margin-top: 0.8rem;
+                  "
+                >
+                  <div
+                    style="
+                      background: var(--bg-3);
+                      border: 1px solid rgba(0, 212, 255, 0.2);
+                      border-radius: 8px;
+                      padding: 0.9rem;
+                    "
+                  >
+                    <div
+                      style="
+                        font-family: var(--font-mono);
+                        color: var(--cyan);
+                        font-size: 0.75rem;
+                        margin-bottom: 0.4rem;
+                      "
+                    >
+                      SamplerV2
+                    </div>
+                    <div style="color: var(--text-dim); font-size: 0.83rem; line-height: 1.5">
+                      Returns
+                      <strong style="color: var(--text)">measurement outcome counts</strong>
+                      (bitstrings and their frequencies). Use when you want to see the probability
+                      distribution over computational basis states — e.g. for teleportation
+                      verification, Grover search, QAOA sampling. Analogous to actually measuring
+                      the quantum state.
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      background: var(--bg-3);
+                      border: 1px solid rgba(155, 93, 229, 0.2);
+                      border-radius: 8px;
+                      padding: 0.9rem;
+                    "
+                  >
+                    <div
+                      style="
+                        font-family: var(--font-mono);
+                        color: var(--purple);
+                        font-size: 0.75rem;
+                        margin-bottom: 0.4rem;
+                      "
+                    >
+                      EstimatorV2
+                    </div>
+                    <div style="color: var(--text-dim); font-size: 0.83rem; line-height: 1.5">
+                      Returns
+                      <strong style="color: var(--text)">expectation values</strong>
+                      $\langle\psi|O|\psi\rangle$ for given observables $O$ (Pauli strings). Use
+                      when you need energy or other expectation values — e.g. VQE, QAOA cost
+                      evaluation. More efficient than sampling when you only need a scalar quantity,
+                      not the full distribution.
+                    </div>
+                  </div>
+                </div>
+                <p style="margin-top: 0.8rem; color: var(--text-dim); font-size: 0.85rem">
+                  Rule of thumb: use <code>SamplerV2</code> for combinatorial/search algorithms and
+                  <code>EstimatorV2</code> for variational algorithms.
+                </p>
+              </div>
+
+              <div class="callout insight">
+                <div class="callout-header">
+                  💡 Dynamic Circuits and Classical Feedback (<code>if_test</code>)
+                </div>
+                <p>
+                  Classical quantum circuits execute gates then measure at the end.
+                  <strong>Dynamic circuits</strong> allow future quantum gates to depend on
+                  <em>mid-circuit measurement outcomes</em> — a quantum <code>if</code> statement.
+                  This is implemented in Qiskit via <code>if_test</code>:
+                </p>
+                <pre
+                  style="
+                    font-family: var(--font-mono);
+                    font-size: 0.8rem;
+                    background: var(--bg-3);
+                    padding: 0.8rem;
+                    border-radius: 6px;
+                    margin: 0.6rem 0;
+                    color: var(--text);
+                    overflow-x: auto;
+                  "
+                >
+with qc.if_test((classical_register, 1)):
+    qc.x(target_qubit)   # applies X only if bit = 1</pre
+                >
+                <p style="color: var(--text-dim); font-size: 0.85rem">
+                  Dynamic circuits are essential for teleportation (Bob's correction depends on
+                  Alice's measurement), quantum error correction (corrections depend on syndrome
+                  measurements), and quantum-classical hybrid protocols. They require hardware with
+                  fast classical control electronics — IBM's Eagle and Heron processors both support
+                  them. The <em>latency</em> of classical feedback (typically ~1 μs) must be shorter
+                  than the qubit's $T_2$ time, which is why hardware improvements in classical
+                  control are as important as improving qubit coherence.
+                </p>
+              </div>
+
+              <div class="callout insight">
+                <div class="callout-header">💡 The IBM Quantum Patterns Workflow</div>
+                <p>IBM recommends four structured steps for all quantum programs:</p>
+                <ol style="color: var(--text-dim); margin-top: 0.5rem">
+                  <li style="margin: 0.35rem 0">
+                    <strong style="color: var(--text)">Map:</strong> Describe your problem as a
+                    quantum circuit and define the observables or outcomes of interest. This is the
+                    algorithm design phase — choose gates, circuit structure, and measurement
+                    strategy.
+                  </li>
+                  <li style="margin: 0.35rem 0">
+                    <strong style="color: var(--text)">Optimize (Transpile):</strong> Compile the
+                    ideal circuit to the backend's native gate set and qubit connectivity via
+                    <code>generate_preset_pass_manager</code>. Higher
+                    <code>optimization_level</code> produces shorter circuits (less noise) at the
+                    cost of longer compilation time.
+                  </li>
+                  <li style="margin: 0.35rem 0">
+                    <strong style="color: var(--text)">Execute:</strong> Submit the ISA (Instruction
+                    Set Architecture) circuit to the backend via SamplerV2 or EstimatorV2. The
+                    circuit runs on hardware, and results are returned asynchronously.
+                  </li>
+                  <li style="margin: 0.35rem 0">
+                    <strong style="color: var(--text)">Post-process:</strong> Extract counts with
+                    <code>.get_counts()</code>, compute expectation values, apply error mitigation,
+                    and analyse or plot the results.
+                  </li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="subsection" id="s6-code">
+              <h3 class="subsection-title">Code Examples</h3>
+
+              <h4 class="subsubsection-title">Creating a Bell State</h4>
+              <pre><code><span class="code-kw">from</span> qiskit <span class="code-kw">import</span> QuantumCircuit
 <span class="code-kw">from</span> qiskit_aer <span class="code-kw">import</span> AerSimulator
 
 <span class="code-comment"># Create 2-qubit circuit with 2 classical bits</span>
@@ -611,8 +1056,8 @@ counts = job.result().get_counts()
 <span class="code-comment"># Expected: {'00': ~500, '11': ~500} — never '01' or '10'</span>
 <span class="code-fn">print</span>(counts)</code></pre>
 
-          <h4 class="subsubsection-title">Running on Real Hardware (IBM Quantum)</h4>
-<pre><code><span class="code-kw">from</span> qiskit_ibm_runtime <span class="code-kw">import</span> QiskitRuntimeService, SamplerV2
+              <h4 class="subsubsection-title">Running on Real Hardware (IBM Quantum)</h4>
+              <pre><code><span class="code-kw">from</span> qiskit_ibm_runtime <span class="code-kw">import</span> QiskitRuntimeService, SamplerV2
 <span class="code-kw">from</span> qiskit.transpiler.preset_passmanagers <span class="code-kw">import</span> generate_preset_pass_manager
 
 <span class="code-comment"># Authenticate with IBM Quantum</span>
@@ -631,8 +1076,8 @@ job = sampler.run([isa_circuit], shots=<span class="code-num">1024</span>)
 result = job.result()
 <span class="code-fn">print</span>(result[<span class="code-num">0</span>].data.meas.get_counts())</code></pre>
 
-          <h4 class="subsubsection-title">Teleportation in Qiskit</h4>
-<pre><code><span class="code-kw">from</span> qiskit <span class="code-kw">import</span> QuantumCircuit, ClassicalRegister, QuantumRegister
+              <h4 class="subsubsection-title">Teleportation in Qiskit</h4>
+              <pre><code><span class="code-kw">from</span> qiskit <span class="code-kw">import</span> QuantumCircuit, ClassicalRegister, QuantumRegister
 
 <span class="code-comment"># Registers: q0=message qubit, q1=Alice's EPR half, q2=Bob's EPR half</span>
 q = QuantumRegister(<span class="code-num">3</span>, <span class="code-str">'q'</span>)
@@ -660,16 +1105,16 @@ qc.x(<span class="code-num">2</span>).c_if(c[<span class="code-num">1</span>], <
 qc.z(<span class="code-num">2</span>).c_if(c[<span class="code-num">0</span>], <span class="code-num">1</span>)  <span class="code-comment"># Apply Z if c[0] = 1</span>
 
 <span class="code-comment"># Bob now holds |ψ⟩ = |+⟩ on qubit 2</span></code></pre>
-        </div>
+            </div>
 
-        <div class="subsection" id="s6-noise">
-          <h3 class="subsection-title">Noise Models and the Aer Simulator</h3>
-          <p>
-            Real quantum hardware is noisy — gates have errors, qubits decohere, and measurements
-            are imperfect. The <strong>Aer simulator</strong> can model this with noise models
-            derived from real hardware calibration data:
-          </p>
-<pre><code><span class="code-kw">from</span> qiskit_aer.noise <span class="code-kw">import</span> NoiseModel
+            <div class="subsection" id="s6-noise">
+              <h3 class="subsection-title">Noise Models and the Aer Simulator</h3>
+              <p>
+                Real quantum hardware is noisy — gates have errors, qubits decohere, and
+                measurements are imperfect. The <strong>Aer simulator</strong> can model this with
+                noise models derived from real hardware calibration data:
+              </p>
+              <pre><code><span class="code-kw">from</span> qiskit_aer.noise <span class="code-kw">import</span> NoiseModel
 <span class="code-kw">from</span> qiskit_ibm_runtime.fake_provider <span class="code-kw">import</span> FakeNairobi
 
 <span class="code-comment"># Get noise model from a fake (calibration-based) backend</span>
@@ -681,76 +1126,83 @@ noisy_sim = AerSimulator(noise_model=noise_model)
 noisy_job = noisy_sim.run(qc, shots=<span class="code-num">1000</span>)
 <span class="code-comment"># Results will show leakage into '01' and '10' due to gate errors</span></code></pre>
 
-          <p>
-            Noise manifests as non-zero probabilities for outcomes that should be impossible
-            (like measuring $\ket{01}$ in a Bell state). This motivates quantum error correction
-            (Week 4) and error mitigation techniques.
-          </p>
-        </div>
-      </section>
+              <p>
+                Noise manifests as non-zero probabilities for outcomes that should be impossible
+                (like measuring $\ket{01}$ in a Bell state). This motivates quantum error correction
+                (Week 4) and error mitigation techniques.
+              </p>
+            </div>
+          </section>
+        </article>
+      </div>
 
-    </article>
-  </div>
+      <footer class="page-footer">
+        Week 2 · NPTEL Quantum Computing · References: Qiskit Textbook (2020) · Bouwmeester et al.
+        Nature (1997) · Aspect et al. PRL (1982)
+      </footer>
+    </div>
 
-  <footer class="page-footer">
-    Week 2 · NPTEL Quantum Computing · References: Qiskit Textbook (2020) · Bouwmeester et al. Nature (1997) · Aspect et al. PRL (1982)
-  </footer>
-</div>
+    <script src="js/visualizations.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        // Bell state viz
+        const bellViz = initBellViz('bell-viz-container');
+        window.bellViz = bellViz;
 
-<script src="js/visualizations.js"></script>
-<script src="js/main.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  // Bell state viz
-  const bellViz = initBellViz('bell-viz-container');
-  window.bellViz = bellViz;
+        // Teleportation circuit
+        const tCircuit = document.getElementById('teleport-circuit-svg');
+        if (tCircuit) {
+          tCircuit.innerHTML = buildCircuitSVG(
+            [
+              { type: 'H', q: 1 },
+              { type: 'CNOT', control: 1, target: 2 },
+              { type: 'CNOT', control: 0, target: 1 },
+              { type: 'H', q: 0 },
+              { type: 'M', q: 0 },
+              { type: 'M', q: 1 },
+              { type: 'X', q: 2 },
+              { type: 'Z', q: 2 },
+            ],
+            3,
+            tCircuit.offsetWidth || 700,
+            65
+          );
+        }
 
-  // Teleportation circuit
-  const tCircuit = document.getElementById('teleport-circuit-svg');
-  if (tCircuit) {
-    tCircuit.innerHTML = buildCircuitSVG([
-      { type: 'H', q: 1 },
-      { type: 'CNOT', control: 1, target: 2 },
-      { type: 'CNOT', control: 0, target: 1 },
-      { type: 'H', q: 0 },
-      { type: 'M', q: 0 },
-      { type: 'M', q: 1 },
-      { type: 'X', q: 2 },
-      { type: 'Z', q: 2 },
-    ], 3, tCircuit.offsetWidth || 700, 65);
-  }
+        // Interference viz
+        const interference = initInterferenceViz('interference-canvas');
 
-  // Interference viz
-  const interference = initInterferenceViz('interference-canvas');
+        document.getElementById('phase-slider')?.addEventListener('input', function () {
+          const alpha = this.value / 100;
+          document.getElementById('phase-val').textContent =
+            Math.round((alpha * 180) / Math.PI) + '°';
+          if (interference) interference.setAlpha(alpha);
+        });
 
-  document.getElementById('phase-slider')?.addEventListener('input', function() {
-    const alpha = this.value / 100;
-    document.getElementById('phase-val').textContent = Math.round(alpha * 180 / Math.PI) + '°';
-    if (interference) interference.setAlpha(alpha);
-  });
-
-  let animating = false;
-  let animId = null;
-  document.getElementById('animate-phase')?.addEventListener('click', function() {
-    animating = !animating;
-    this.textContent = animating ? 'Stop' : 'Animate';
-    if (animating) {
-      let t = 0;
-      function step() {
-        t += 0.025;
-        const slider = document.getElementById('phase-slider');
-        const alpha = t % (Math.PI * 2);
-        slider.value = Math.round(alpha * 100);
-        document.getElementById('phase-val').textContent = Math.round(alpha * 180 / Math.PI) + '°';
-        if (interference) interference.setAlpha(alpha);
-        if (animating) animId = requestAnimationFrame(step);
-      }
-      animId = requestAnimationFrame(step);
-    } else {
-      cancelAnimationFrame(animId);
-    }
-  });
-});
-</script>
-</body>
+        let animating = false;
+        let animId = null;
+        document.getElementById('animate-phase')?.addEventListener('click', function () {
+          animating = !animating;
+          this.textContent = animating ? 'Stop' : 'Animate';
+          if (animating) {
+            let t = 0;
+            function step() {
+              t += 0.025;
+              const slider = document.getElementById('phase-slider');
+              const alpha = t % (Math.PI * 2);
+              slider.value = Math.round(alpha * 100);
+              document.getElementById('phase-val').textContent =
+                Math.round((alpha * 180) / Math.PI) + '°';
+              if (interference) interference.setAlpha(alpha);
+              if (animating) animId = requestAnimationFrame(step);
+            }
+            animId = requestAnimationFrame(step);
+          } else {
+            cancelAnimationFrame(animId);
+          }
+        });
+      });
+    </script>
+  </body>
 </html>

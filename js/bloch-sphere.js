@@ -6,7 +6,7 @@ function initBlochSphere(containerId, opts = {}) {
   const container = document.getElementById(containerId);
   if (!container || !window.THREE) return null;
 
-  const W = container.clientWidth  || 380;
+  const W = container.clientWidth || 380;
   const H = container.clientHeight || 380;
 
   /* Scene / Camera / Renderer */
@@ -30,22 +30,30 @@ function initBlochSphere(containerId, opts = {}) {
   /* Sphere wireframe */
   const sphereGeo = new THREE.SphereGeometry(1, 32, 24);
   const sphereMat = new THREE.MeshBasicMaterial({
-    color: 0x1e2d47, wireframe: false,
-    transparent: true, opacity: 0.15
+    color: 0x1e2d47,
+    wireframe: false,
+    transparent: true,
+    opacity: 0.15,
   });
   const sphere = new THREE.Mesh(sphereGeo, sphereMat);
   scene.add(sphere);
 
   /* Wireframe overlay */
   const wireGeo = new THREE.SphereGeometry(1.001, 20, 16);
-  const wireMat = new THREE.MeshBasicMaterial({ color: 0x1f3155, wireframe: true, transparent: true, opacity: 0.35 });
+  const wireMat = new THREE.MeshBasicMaterial({
+    color: 0x1f3155,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.35,
+  });
   scene.add(new THREE.Mesh(wireGeo, wireMat));
 
   /* Axes */
   function makeAxis(from, to, color) {
     const mat = new THREE.LineBasicMaterial({ color });
     const geo = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(...from), new THREE.Vector3(...to)
+      new THREE.Vector3(...from),
+      new THREE.Vector3(...to),
     ]);
     return new THREE.Line(geo, mat);
   }
@@ -56,7 +64,8 @@ function initBlochSphere(containerId, opts = {}) {
   /* Axis labels via sprites */
   function makeLabel(text, pos, color) {
     const canvas = document.createElement('canvas');
-    canvas.width = 64; canvas.height = 64;
+    canvas.width = 64;
+    canvas.height = 64;
     const ctx = canvas.getContext('2d');
     ctx.font = 'bold 40px serif';
     ctx.fillStyle = color;
@@ -78,7 +87,14 @@ function initBlochSphere(containerId, opts = {}) {
 
   /* State vector arrow */
   const arrowDir = new THREE.Vector3(0, 1, 0);
-  const arrowHelper = new THREE.ArrowHelper(arrowDir, new THREE.Vector3(0,0,0), 1, 0xf4c430, 0.2, 0.1);
+  const arrowHelper = new THREE.ArrowHelper(
+    arrowDir,
+    new THREE.Vector3(0, 0, 0),
+    1,
+    0xf4c430,
+    0.2,
+    0.1
+  );
   scene.add(arrowHelper);
 
   /* Equator circle */
@@ -88,29 +104,47 @@ function initBlochSphere(containerId, opts = {}) {
     equatorPts.push(new THREE.Vector3(Math.cos(a), 0, Math.sin(a)));
   }
   const eqGeo = new THREE.BufferGeometry().setFromPoints(equatorPts);
-  scene.add(new THREE.Line(eqGeo, new THREE.LineBasicMaterial({ color: 0x1f3155, transparent: true, opacity: 0.6 })));
+  scene.add(
+    new THREE.Line(
+      eqGeo,
+      new THREE.LineBasicMaterial({ color: 0x1f3155, transparent: true, opacity: 0.6 })
+    )
+  );
 
   /* Meridian circles */
   for (let angle = 0; angle < Math.PI; angle += Math.PI / 4) {
     const pts = [];
     for (let i = 0; i <= 64; i++) {
       const a = (i / 64) * Math.PI * 2;
-      pts.push(new THREE.Vector3(Math.cos(angle) * Math.sin(a), Math.cos(a), Math.sin(angle) * Math.sin(a)));
+      pts.push(
+        new THREE.Vector3(Math.cos(angle) * Math.sin(a), Math.cos(a), Math.sin(angle) * Math.sin(a))
+      );
     }
     const mGeo = new THREE.BufferGeometry().setFromPoints(pts);
-    scene.add(new THREE.Line(mGeo, new THREE.LineBasicMaterial({ color: 0x162035, transparent: true, opacity: 0.5 })));
+    scene.add(
+      new THREE.Line(
+        mGeo,
+        new THREE.LineBasicMaterial({ color: 0x162035, transparent: true, opacity: 0.5 })
+      )
+    );
   }
 
   /* State tracker line (from center to state) */
-  const trackerMat = new THREE.LineBasicMaterial({ color: 0xf4c430, transparent: true, opacity: 0.4, linewidth: 2 });
+  const trackerMat = new THREE.LineBasicMaterial({
+    color: 0xf4c430,
+    transparent: true,
+    opacity: 0.4,
+    linewidth: 2,
+  });
   let trackerLine = null;
 
   /* Current angles */
-  let theta = opts.theta || 0;   // polar (0=|0⟩, π=|1⟩)
-  let phi   = opts.phi   || 0;   // azimuthal
+  let theta = opts.theta || 0; // polar (0=|0⟩, π=|1⟩)
+  let phi = opts.phi || 0; // azimuthal
 
   function updateState(th, ph) {
-    theta = th; phi = ph;
+    theta = th;
+    phi = ph;
     const x = Math.sin(th) * Math.cos(ph);
     const z = Math.sin(th) * Math.sin(ph);
     const y = Math.cos(th);
@@ -123,30 +157,47 @@ function initBlochSphere(containerId, opts = {}) {
   updateState(theta, phi);
 
   /* Orbit controls (manual) */
-  let isDown = false, lastX = 0, lastY = 0;
-  let rotX = 0.3, rotY = 0.5;
+  let isDown = false,
+    lastX = 0,
+    lastY = 0;
+  let rotX = 0.3,
+    rotY = 0.5;
 
   const el = renderer.domElement;
-  el.addEventListener('mousedown',  e => { isDown = true; lastX = e.clientX; lastY = e.clientY; });
-  el.addEventListener('touchstart', e => { isDown = true; lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; });
-  window.addEventListener('mouseup',  () => isDown = false);
-  window.addEventListener('touchend', () => isDown = false);
+  el.addEventListener('mousedown', (e) => {
+    isDown = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  });
+  el.addEventListener('touchstart', (e) => {
+    isDown = true;
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
+  });
+  window.addEventListener('mouseup', () => (isDown = false));
+  window.addEventListener('touchend', () => (isDown = false));
 
-  el.addEventListener('mousemove', e => {
+  el.addEventListener('mousemove', (e) => {
     if (!isDown) return;
     rotY += (e.clientX - lastX) * 0.012;
     rotX += (e.clientY - lastY) * 0.012;
     rotX = Math.max(-1.2, Math.min(1.2, rotX));
-    lastX = e.clientX; lastY = e.clientY;
+    lastX = e.clientX;
+    lastY = e.clientY;
   });
-  el.addEventListener('touchmove', e => {
-    if (!isDown) return;
-    rotY += (e.touches[0].clientX - lastX) * 0.012;
-    rotX += (e.touches[0].clientY - lastY) * 0.012;
-    rotX = Math.max(-1.2, Math.min(1.2, rotX));
-    lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
-    e.preventDefault();
-  }, { passive: false });
+  el.addEventListener(
+    'touchmove',
+    (e) => {
+      if (!isDown) return;
+      rotY += (e.touches[0].clientX - lastX) * 0.012;
+      rotX += (e.touches[0].clientY - lastY) * 0.012;
+      rotX = Math.max(-1.2, Math.min(1.2, rotX));
+      lastX = e.touches[0].clientX;
+      lastY = e.touches[0].clientY;
+      e.preventDefault();
+    },
+    { passive: false }
+  );
 
   /* Resize */
   function resize() {
@@ -174,22 +225,25 @@ function initBlochSphere(containerId, opts = {}) {
 
   /* Public API */
   return {
-    setTheta: t => updateState(t, phi),
-    setPhi:   p => updateState(theta, p),
+    setTheta: (t) => updateState(t, phi),
+    setPhi: (p) => updateState(theta, p),
     setAngles: (t, p) => updateState(t, p),
     setState: (name) => {
       const states = {
-        '|0⟩':  [0, 0],
-        '|1⟩':  [Math.PI, 0],
-        '|+⟩':  [Math.PI/2, 0],
-        '|-⟩':  [Math.PI/2, Math.PI],
-        '|i⟩':  [Math.PI/2, Math.PI/2],
-        '|-i⟩': [Math.PI/2, -Math.PI/2],
+        '|0⟩': [0, 0],
+        '|1⟩': [Math.PI, 0],
+        '|+⟩': [Math.PI / 2, 0],
+        '|-⟩': [Math.PI / 2, Math.PI],
+        '|i⟩': [Math.PI / 2, Math.PI / 2],
+        '|-i⟩': [Math.PI / 2, -Math.PI / 2],
       };
       if (states[name]) updateState(...states[name]);
     },
     getTheta: () => theta,
-    getPhi:   () => phi,
-    destroy: () => { running = false; container.removeChild(renderer.domElement); }
+    getPhi: () => phi,
+    destroy: () => {
+      running = false;
+      container.removeChild(renderer.domElement);
+    },
   };
 }

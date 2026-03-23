@@ -1,656 +1,1247 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Week 3 — Classical Quantum Algorithms</title>
-  <link rel="stylesheet" href="css/main.css">
-  <script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [['$','$'],['\\(','\\)']],
-        displayMath: [['$$','$$'],['\\[','\\]']],
-        tags: 'ams',
-        macros: {
-          ket: ['\\left|#1\\right\\rangle',1], bra: ['\\left\\langle#1\\right|',1],
-          braket: ['\\left\\langle#1\\right\\rangle',1],
-          id: '\\mathbb{I}', C: '\\mathbb{C}',
-          Uf: 'U_f'
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Week 3 — Classical Quantum Algorithms</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [
+            ['$', '$'],
+            ['\\(', '\\)'],
+          ],
+          displayMath: [
+            ['$$', '$$'],
+            ['\\[', '\\]'],
+          ],
+          tags: 'ams',
+          macros: {
+            ket: ['\\left|#1\\right\\rangle', 1],
+            bra: ['\\left\\langle#1\\right|', 1],
+            braket: ['\\left\\langle#1\\right\\rangle', 1],
+            id: '\\mathbb{I}',
+            C: '\\mathbb{C}',
+            Uf: 'U_f',
+          },
+        },
+        options: { skipHtmlTags: ['script', 'style', 'pre', 'code'] },
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+    <style>
+      /* ── Week-3 local overrides ─────────────────────────────── */
+      .timeline-wrap {
+        position: relative;
+        padding-left: 2rem;
+        margin: 2rem 0;
+      }
+      .timeline-wrap::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(to bottom, var(--cyan), var(--purple));
+        border-radius: 2px;
+      }
+      .tl-item {
+        position: relative;
+        margin-bottom: 1.8rem;
+        padding-left: 1.5rem;
+      }
+      .tl-item::before {
+        content: '';
+        position: absolute;
+        left: -2.55rem;
+        top: 0.35rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--gold);
+        border: 2px solid var(--bg);
+        box-shadow: 0 0 8px var(--gold);
+      }
+      .tl-year {
+        font-family: var(--font-mono);
+        color: var(--gold);
+        font-size: 0.8rem;
+        margin-bottom: 0.2rem;
+      }
+      .tl-title {
+        font-weight: 600;
+        color: var(--text);
+      }
+      .tl-desc {
+        color: var(--text-dim);
+        font-size: 0.92rem;
+        margin-top: 0.2rem;
+      }
+
+      .complexity-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 1.5rem 0;
+      }
+      .cx-card {
+        background: var(--bg-2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.2rem;
+        text-align: center;
+      }
+      .cx-card .cx-class {
+        font-size: 1.5rem;
+        font-family: var(--font-mono);
+        color: var(--cyan);
+        font-weight: 700;
+      }
+      .cx-card .cx-name {
+        font-size: 0.8rem;
+        color: var(--text-faint);
+        margin-top: 0.3rem;
+      }
+      .cx-card .cx-desc {
+        font-size: 0.82rem;
+        color: var(--text-dim);
+        margin-top: 0.5rem;
+        line-height: 1.4;
+      }
+
+      .algo-compare {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1.5rem 0;
+      }
+      @media (max-width: 768px) {
+        .algo-compare {
+          grid-template-columns: 1fr;
         }
-      },
-      options: { skipHtmlTags: ['script','style','pre','code'] }
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
-  <style>
-    /* ── Week-3 local overrides ─────────────────────────────── */
-    .timeline-wrap { position:relative; padding-left:2rem; margin: 2rem 0; }
-    .timeline-wrap::before {
-      content:''; position:absolute; left:0; top:0; bottom:0;
-      width:3px; background: linear-gradient(to bottom, var(--cyan), var(--purple));
-      border-radius:2px;
-    }
-    .tl-item { position:relative; margin-bottom:1.8rem; padding-left:1.5rem; }
-    .tl-item::before {
-      content:''; position:absolute; left:-2.55rem; top:.35rem;
-      width:12px; height:12px; border-radius:50%;
-      background:var(--gold); border:2px solid var(--bg);
-      box-shadow:0 0 8px var(--gold);
-    }
-    .tl-year { font-family:var(--font-mono); color:var(--gold); font-size:.8rem; margin-bottom:.2rem; }
-    .tl-title { font-weight:600; color:var(--text); }
-    .tl-desc { color:var(--text-dim); font-size:.92rem; margin-top:.2rem; }
+      }
+      .algo-box {
+        background: var(--bg-2);
+        border-radius: 12px;
+        padding: 1.2rem;
+        border-top: 3px solid transparent;
+      }
+      .algo-box.classical {
+        border-color: var(--red);
+      }
+      .algo-box.quantum {
+        border-color: var(--cyan);
+      }
+      .algo-box h5 {
+        margin: 0 0 0.6rem;
+        font-size: 0.9rem;
+      }
+      .algo-box.classical h5 {
+        color: var(--red);
+      }
+      .algo-box.quantum h5 {
+        color: var(--cyan);
+      }
 
-    .complexity-grid {
-      display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap:1rem; margin:1.5rem 0;
-    }
-    .cx-card {
-      background:var(--bg-2); border:1px solid var(--border);
-      border-radius:12px; padding:1.2rem; text-align:center;
-    }
-    .cx-card .cx-class { font-size:1.5rem; font-family:var(--font-mono); color:var(--cyan); font-weight:700; }
-    .cx-card .cx-name { font-size:.8rem; color:var(--text-faint); margin-top:.3rem; }
-    .cx-card .cx-desc { font-size:.82rem; color:var(--text-dim); margin-top:.5rem; line-height:1.4; }
+      /* Circuit diagrams */
+      .circuit-container {
+        overflow-x: auto;
+        background: var(--bg-2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+        margin: 1.5rem 0;
+        -webkit-overflow-scrolling: touch;
+      }
+      .circuit-container svg {
+        display: block;
+        margin: 0 auto;
+        max-width: none;
+        width: auto;
+        min-width: 600px;
+      }
 
-    .algo-compare {
-      display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.5rem 0;
-    }
-    @media (max-width: 768px) {
-      .algo-compare { grid-template-columns: 1fr; }
-    }
-    .algo-box {
-      background:var(--bg-2); border-radius:12px; padding:1.2rem;
-      border-top:3px solid transparent;
-    }
-    .algo-box.classical { border-color:var(--red); }
-    .algo-box.quantum   { border-color:var(--cyan); }
-    .algo-box h5 { margin:0 0 .6rem; font-size:.9rem; }
-    .algo-box.classical h5 { color:var(--red); }
-    .algo-box.quantum   h5 { color:var(--cyan); }
+      /* Oracle truth tables */
+      .oracle-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+      .oracle-card {
+        background: var(--bg-2);
+        border-radius: 10px;
+        padding: 1rem;
+        border: 1px solid var(--border);
+      }
+      .oracle-card h6 {
+        color: var(--purple);
+        margin: 0 0 0.5rem;
+        font-size: 0.85rem;
+      }
+      .oracle-card table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+      }
+      .oracle-card td,
+      .oracle-card th {
+        padding: 0.2rem 0.4rem;
+        text-align: center;
+        border: 1px solid var(--border);
+      }
+      .oracle-card th {
+        color: var(--cyan);
+        background: var(--cyan-glow);
+      }
 
-    /* Circuit diagrams */
-    .circuit-container { overflow-x:auto; background:var(--bg-2); border-radius:12px;
-      padding:1.5rem; border:1px solid var(--border); margin:1.5rem 0; -webkit-overflow-scrolling: touch; }
-    .circuit-container svg { display:block; margin:0 auto; max-width:none; width: auto; min-width: 600px; }
+      /* Grover viz */
+      #grover-canvas-w3 {
+        border-radius: 10px;
+        background: var(--bg-2);
+        width: 100%;
+      }
+      .grover-controls {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+        margin: 0.8rem 0;
+      }
+      .grover-controls label {
+        color: var(--text-dim);
+        font-size: 0.85rem;
+      }
+      .grover-controls select,
+      .grover-controls input[type='range'] {
+        accent-color: var(--cyan);
+      }
+      .grover-stat {
+        background: var(--bg-2);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        color: var(--gold);
+        border: 1px solid var(--border);
+      }
 
-    /* Oracle truth tables */
-    .oracle-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:1rem; margin:1rem 0; }
-    .oracle-card { background:var(--bg-2); border-radius:10px; padding:1rem; border:1px solid var(--border); }
-    .oracle-card h6 { color:var(--purple); margin:0 0 .5rem; font-size:.85rem; }
-    .oracle-card table { width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:.8rem; }
-    .oracle-card td, .oracle-card th { padding:.2rem .4rem; text-align:center; border:1px solid var(--border); }
-    .oracle-card th { color:var(--cyan); background:var(--cyan-glow); }
+      /* BV interactive */
+      .bv-wrap {
+        background: var(--bg-2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+      }
+      .bv-input {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        margin: 0.8rem 0;
+      }
+      .bv-bit {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        background: var(--bg);
+        border: 2px solid var(--cyan);
+        color: var(--cyan);
+        font-size: 1.1rem;
+        font-family: var(--font-mono);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        user-select: none;
+      }
+      .bv-bit.on {
+        background: var(--cyan);
+        color: var(--bg);
+      }
+      .bv-result {
+        margin-top: 1rem;
+        font-family: var(--font-mono);
+        color: var(--gold);
+        font-size: 0.95rem;
+        min-height: 2rem;
+      }
+      .bv-circuit-wrap {
+        margin-top: 1rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
 
-    /* Grover viz */
-    #grover-canvas-w3 { border-radius:10px; background:var(--bg-2); width: 100%; }
-    .grover-controls { display:flex; gap:1rem; flex-wrap:wrap; align-items:center; margin:.8rem 0; }
-    .grover-controls label { color:var(--text-dim); font-size:.85rem; }
-    .grover-controls select, .grover-controls input[type=range] { accent-color:var(--cyan); }
-    .grover-stat { background:var(--bg-2); border-radius:8px; padding:.5rem 1rem;
-      font-family:var(--font-mono); font-size:.85rem; color:var(--gold);
-      border:1px solid var(--border); }
+      /* DJ interactive */
+      .dj-wrap {
+        background: var(--bg-2);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--border);
+      }
+      .dj-btn-row {
+        display: flex;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        margin: 0.8rem 0;
+      }
+      .dj-oracle-btn {
+        padding: 0.4rem 0.9rem;
+        border-radius: 8px;
+        border: 2px solid var(--border);
+        background: transparent;
+        color: var(--text-dim);
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-family: var(--font-mono);
+        transition: all 0.2s;
+      }
+      .dj-oracle-btn.active {
+        border-color: var(--cyan);
+        color: var(--cyan);
+        background: var(--cyan-glow);
+      }
+      .dj-oracle-btn.balanced {
+        border-color: var(--purple);
+      }
+      .dj-oracle-btn.balanced.active {
+        color: var(--purple);
+        background: var(--purple-glow);
+      }
+      .dj-steps {
+        margin-top: 1rem;
+      }
+      .dj-step {
+        display: flex;
+        gap: 0.8rem;
+        align-items: flex-start;
+        margin: 0.4rem 0;
+        padding: 0.5rem 0.8rem;
+        border-radius: 8px;
+        background: var(--bg);
+        font-size: 0.85rem;
+        opacity: 0.4;
+        transition: opacity 0.4s;
+      }
+      .dj-step.active {
+        opacity: 1;
+      }
+      .dj-step .step-icon {
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+      .dj-answer {
+        margin-top: 1rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        font-family: var(--font-mono);
+        min-height: 1.5rem;
+      }
+      .dj-answer.constant {
+        color: var(--cyan);
+      }
+      .dj-answer.balanced {
+        color: var(--purple);
+      }
 
-    /* BV interactive */
-    .bv-wrap { background:var(--bg-2); border-radius:12px; padding:1.5rem; border:1px solid var(--border); }
-    .bv-input { display:flex; gap:.4rem; flex-wrap:wrap; margin:.8rem 0; }
-    .bv-bit { width:36px; height:36px; border-radius:6px; background:var(--bg);
-      border:2px solid var(--cyan); color:var(--cyan); font-size:1.1rem;
-      font-family:var(--font-mono); cursor:pointer; display:flex;
-      align-items:center; justify-content:center; transition:all .2s; user-select:none; }
-    .bv-bit.on { background:var(--cyan); color:var(--bg); }
-    .bv-result { margin-top:1rem; font-family:var(--font-mono); color:var(--gold);
-      font-size:.95rem; min-height:2rem; }
-    .bv-circuit-wrap { margin-top:1rem; overflow-x:auto; -webkit-overflow-scrolling: touch; }
+      .phase-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        font-family: var(--font-mono);
+      }
+      .phase-table th {
+        background: var(--cyan-glow);
+        color: var(--cyan);
+        padding: 0.4rem 0.6rem;
+      }
+      .phase-table td {
+        padding: 0.35rem 0.6rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .phase-table tr:hover td {
+        background: var(--bg-2);
+      }
+      .plus {
+        color: var(--green);
+      }
+      .minus {
+        color: var(--red);
+      }
 
-    /* DJ interactive */
-    .dj-wrap { background:var(--bg-2); border-radius:12px; padding:1.5rem; border:1px solid var(--border); }
-    .dj-btn-row { display:flex; gap:.6rem; flex-wrap:wrap; margin:.8rem 0; }
-    .dj-oracle-btn { padding:.4rem .9rem; border-radius:8px; border:2px solid var(--border);
-      background:transparent; color:var(--text-dim); cursor:pointer; font-size:.85rem;
-      font-family:var(--font-mono); transition:all .2s; }
-    .dj-oracle-btn.active { border-color:var(--cyan); color:var(--cyan); background:var(--cyan-glow); }
-    .dj-oracle-btn.balanced { border-color:var(--purple); }
-    .dj-oracle-btn.balanced.active { color:var(--purple); background:var(--purple-glow); }
-    .dj-steps { margin-top:1rem; }
-    .dj-step { display:flex; gap:.8rem; align-items:flex-start; margin:.4rem 0;
-      padding:.5rem .8rem; border-radius:8px; background:var(--bg);
-      font-size:.85rem; opacity:.4; transition:opacity .4s; }
-    .dj-step.active { opacity:1; }
-    .dj-step .step-icon { font-size:1rem; flex-shrink:0; }
-    .dj-answer { margin-top:1rem; font-size:1.1rem; font-weight:700;
-      font-family:var(--font-mono); min-height:1.5rem; }
-    .dj-answer.constant { color:var(--cyan); }
-    .dj-answer.balanced { color:var(--purple); }
+      @media (max-width: 640px) {
+        .dj-wrap,
+        .bv-wrap {
+          padding: 1rem;
+        }
+        .dj-oracle-btn {
+          flex: 1 1 40%;
+          font-size: 0.75rem;
+          padding: 0.4rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reading-progress"><div class="reading-progress-bar"></div></div>
 
-    .phase-table { width:100%; border-collapse:collapse; font-size:.85rem; font-family:var(--font-mono); }
-    .phase-table th { background:var(--cyan-glow); color:var(--cyan); padding:.4rem .6rem; }
-    .phase-table td { padding:.35rem .6rem; border-bottom:1px solid var(--border); }
-    .phase-table tr:hover td { background:var(--bg-2); }
-    .plus  { color:var(--green); }
-    .minus { color:var(--red); }
-    
-    @media (max-width: 640px) {
-      .dj-wrap, .bv-wrap { padding: 1rem; }
-      .dj-oracle-btn { flex: 1 1 40%; font-size: 0.75rem; padding: 0.4rem; }
-    }
-  </style>
-</head>
-<body>
+    <nav class="nav">
+      <a href="index.html" class="nav-brand">
+        <div class="nav-brand-icon">Ψ</div>
+        <span class="nav-brand-text">Quantum Notes</span>
+      </a>
+      <ul class="nav-links">
+        <li>
+          <a href="week1.html" class="w1"><span class="week-dot"></span>Week 1</a>
+        </li>
+        <li>
+          <a href="week2.html" class="w2"><span class="week-dot"></span>Week 2</a>
+        </li>
+        <li>
+          <a href="week3.html" class="w3 active"><span class="week-dot"></span>Week 3</a>
+        </li>
+        <li>
+          <a href="week4.html" class="w4"><span class="week-dot"></span>Week 4</a>
+        </li>
+      </ul>
+    </nav>
 
-<div class="reading-progress"><div class="reading-progress-bar"></div></div>
-
-<nav class="nav">
-  <a href="index.html" class="nav-brand">
-    <div class="nav-brand-icon">Ψ</div>
-    <span class="nav-brand-text">Quantum Notes</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="week1.html" class="w1"><span class="week-dot"></span>Week 1</a></li>
-    <li><a href="week2.html" class="w2"><span class="week-dot"></span>Week 2</a></li>
-    <li><a href="week3.html" class="w3 active"><span class="week-dot"></span>Week 3</a></li>
-    <li><a href="week4.html" class="w4"><span class="week-dot"></span>Week 4</a></li>
-  </ul>
-</nav>
-
-<div class="page-wrapper">
-  <div class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-week-badge w3">⬡ Week 3</div>
-    <h1 class="hero-title">Classical Quantum Algorithms</h1>
-    <p class="hero-subtitle">
-      The first algorithms to provably outperform classical computers — Deutsch–Jozsa,
-      Bernstein–Vazirani, Simon's algorithm, and Grover's quadratic search speedup —
-      decoded from first principles through phase kickback, oracle complexity, and geometric rotation.
-    </p>
-    <div class="hero-toc-preview">
-      <a href="#s1" class="toc-pill">1. History &amp; Complexity</a>
-      <a href="#s2" class="toc-pill">2. Query Model</a>
-      <a href="#s3" class="toc-pill">3. Deutsch–Jozsa</a>
-      <a href="#s4" class="toc-pill">4. Bernstein–Vazirani</a>
-      <a href="#s5" class="toc-pill">5. Simon's Algorithm</a>
-      <a href="#s6" class="toc-pill">6. Grover's Search</a>
-    </div>
-  </div>
-
-  <div class="content-wrapper">
-    <aside class="sidebar">
-      <div class="sidebar-inner">
-        <div class="sidebar-title">Contents</div>
-        <ul class="sidebar-nav">
-          <li><a href="#s1"><span class="section-num">1.</span> History &amp; Context</a></li>
-          <li class="sub-item"><a href="#s1-timeline">1.1 Algorithm timeline</a></li>
-          <li class="sub-item"><a href="#s1-classes">1.2 Complexity classes</a></li>
-          <li><a href="#s2"><span class="section-num">2.</span> The Query / Oracle Model</a></li>
-          <li class="sub-item"><a href="#s2-oracle">2.1 Quantum oracle</a></li>
-          <li class="sub-item"><a href="#s2-kickback">2.2 Phase kickback</a></li>
-          <li><a href="#s3"><span class="section-num">3.</span> Deutsch–Jozsa Algorithm</a></li>
-          <li class="sub-item"><a href="#s3-problem">3.1 The problem</a></li>
-          <li class="sub-item"><a href="#s3-circuit">3.2 Full circuit derivation</a></li>
-          <li class="sub-item"><a href="#s3-analysis">3.3 Why it works</a></li>
-          <li class="sub-item"><a href="#s3-interactive">3.4 Interactive oracle demo</a></li>
-          <li class="sub-item"><a href="#s3-qiskit">3.5 Qiskit implementation</a></li>
-          <li><a href="#s4"><span class="section-num">4.</span> Bernstein–Vazirani</a></li>
-          <li class="sub-item"><a href="#s4-problem">4.1 The problem</a></li>
-          <li class="sub-item"><a href="#s4-derivation">4.2 Derivation</a></li>
-          <li class="sub-item"><a href="#s4-interactive">4.3 Interactive demo</a></li>
-          <li><a href="#s5"><span class="section-num">5.</span> Simon's Algorithm</a></li>
-          <li class="sub-item"><a href="#s5-problem">5.1 The problem</a></li>
-          <li class="sub-item"><a href="#s5-circuit">5.2 Circuit &amp; post-processing</a></li>
-          <li><a href="#s6"><span class="section-num">6.</span> Grover's Search</a></li>
-          <li class="sub-item"><a href="#s6-intuition">6.1 The search problem</a></li>
-          <li class="sub-item"><a href="#s6-oracle">6.2 Phase oracle</a></li>
-          <li class="sub-item"><a href="#s6-diffuser">6.3 Diffusion operator</a></li>
-          <li class="sub-item"><a href="#s6-geometry">6.4 Geometric picture</a></li>
-          <li class="sub-item"><a href="#s6-analysis">6.5 Iteration count &amp; probability</a></li>
-          <li class="sub-item"><a href="#s6-interactive">6.6 Interactive visualizer</a></li>
-          <li class="sub-item"><a href="#s6-amplitude">6.7 Amplitude bar-chart viz</a></li>
-          <li class="sub-item"><a href="#s6-generalise">6.8 Generalisations</a></li>
-        </ul>
+    <div class="page-wrapper">
+      <div class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-week-badge w3">⬡ Week 3</div>
+        <h1 class="hero-title">Classical Quantum Algorithms</h1>
+        <p class="hero-subtitle">
+          The first algorithms to provably outperform classical computers — Deutsch–Jozsa,
+          Bernstein–Vazirani, Simon's algorithm, and Grover's quadratic search speedup — decoded
+          from first principles through phase kickback, oracle complexity, and geometric rotation.
+        </p>
+        <div class="hero-toc-preview">
+          <a href="#s1" class="toc-pill">1. History &amp; Complexity</a>
+          <a href="#s2" class="toc-pill">2. Query Model</a>
+          <a href="#s3" class="toc-pill">3. Deutsch–Jozsa</a>
+          <a href="#s4" class="toc-pill">4. Bernstein–Vazirani</a>
+          <a href="#s5" class="toc-pill">5. Simon's Algorithm</a>
+          <a href="#s6" class="toc-pill">6. Grover's Search</a>
+        </div>
       </div>
-    </aside>
 
-    <main class="article">
+      <div class="content-wrapper">
+        <aside class="sidebar">
+          <div class="sidebar-inner">
+            <div class="sidebar-title">Contents</div>
+            <ul class="sidebar-nav">
+              <li>
+                <a href="#s1"><span class="section-num">1.</span> History &amp; Context</a>
+              </li>
+              <li class="sub-item"><a href="#s1-timeline">1.1 Algorithm timeline</a></li>
+              <li class="sub-item"><a href="#s1-classes">1.2 Complexity classes</a></li>
+              <li>
+                <a href="#s2"><span class="section-num">2.</span> The Query / Oracle Model</a>
+              </li>
+              <li class="sub-item"><a href="#s2-oracle">2.1 Quantum oracle</a></li>
+              <li class="sub-item"><a href="#s2-kickback">2.2 Phase kickback</a></li>
+              <li>
+                <a href="#s3"><span class="section-num">3.</span> Deutsch–Jozsa Algorithm</a>
+              </li>
+              <li class="sub-item"><a href="#s3-problem">3.1 The problem</a></li>
+              <li class="sub-item"><a href="#s3-circuit">3.2 Full circuit derivation</a></li>
+              <li class="sub-item"><a href="#s3-analysis">3.3 Why it works</a></li>
+              <li class="sub-item"><a href="#s3-interactive">3.4 Interactive oracle demo</a></li>
+              <li class="sub-item"><a href="#s3-qiskit">3.5 Qiskit implementation</a></li>
+              <li>
+                <a href="#s4"><span class="section-num">4.</span> Bernstein–Vazirani</a>
+              </li>
+              <li class="sub-item"><a href="#s4-problem">4.1 The problem</a></li>
+              <li class="sub-item"><a href="#s4-derivation">4.2 Derivation</a></li>
+              <li class="sub-item"><a href="#s4-interactive">4.3 Interactive demo</a></li>
+              <li>
+                <a href="#s5"><span class="section-num">5.</span> Simon's Algorithm</a>
+              </li>
+              <li class="sub-item"><a href="#s5-problem">5.1 The problem</a></li>
+              <li class="sub-item"><a href="#s5-circuit">5.2 Circuit &amp; post-processing</a></li>
+              <li>
+                <a href="#s6"><span class="section-num">6.</span> Grover's Search</a>
+              </li>
+              <li class="sub-item"><a href="#s6-intuition">6.1 The search problem</a></li>
+              <li class="sub-item"><a href="#s6-oracle">6.2 Phase oracle</a></li>
+              <li class="sub-item"><a href="#s6-diffuser">6.3 Diffusion operator</a></li>
+              <li class="sub-item"><a href="#s6-geometry">6.4 Geometric picture</a></li>
+              <li class="sub-item">
+                <a href="#s6-analysis">6.5 Iteration count &amp; probability</a>
+              </li>
+              <li class="sub-item"><a href="#s6-interactive">6.6 Interactive visualizer</a></li>
+              <li class="sub-item"><a href="#s6-amplitude">6.7 Amplitude bar-chart viz</a></li>
+              <li class="sub-item"><a href="#s6-generalise">6.8 Generalisations</a></li>
+            </ul>
+          </div>
+        </aside>
 
-<!-- ═══════════════════════════════════════════════════════
+        <main class="article">
+          <!-- ═══════════════════════════════════════════════════════
      SECTION 1 — HISTORY & CONTEXT
 ═══════════════════════════════════════════════════════ -->
-<section id="s1" class="reveal">
-  <h2><span class="section-num">1</span> History &amp; Context: The Birth of Quantum Algorithms</h2>
+          <section id="s1" class="reveal">
+            <h2>
+              <span class="section-num">1</span> History &amp; Context: The Birth of Quantum
+              Algorithms
+            </h2>
 
-  <p>
-    Before the 1990s, quantum mechanics and computer science were largely separate intellectual territories.
-    Physicists studied how quantum systems behaved; computer scientists proved theorems about Turing machines and Boolean circuits.
-    The synthesis of the two — the idea that quantum mechanics could be <em>exploited</em> to solve computational problems faster than any classical machine — began not with a grand theory, but with a tiny toy problem.
-  </p>
-  <p>
-    David Deutsch's 1985 paper &ldquo;Quantum Theory, the Church-Turing Principle and the Universal Quantum Computer&rdquo; was the founding document. Deutsch noticed that a quantum computer could, in principle, evaluate a function on a superposition of all inputs simultaneously — what he called <em>quantum parallelism</em>. But parallelism alone doesn't give speedup; the hard part is extracting a useful global property from the interference of all those parallel computations. In 1992, Deutsch and Richard Jozsa found the first concrete demonstration that this could be done.
-  </p>
-  <p>
-    The period 1992–1996 produced a burst of landmark algorithms, each exploiting the same core toolkit — superposition, oracle queries, phase kickback, and interference — in increasingly sophisticated ways.
-  </p>
+            <p>
+              Before the 1990s, quantum mechanics and computer science were largely separate
+              intellectual territories. Physicists studied how quantum systems behaved; computer
+              scientists proved theorems about Turing machines and Boolean circuits. The synthesis
+              of the two — the idea that quantum mechanics could be <em>exploited</em> to solve
+              computational problems faster than any classical machine — began not with a grand
+              theory, but with a tiny toy problem.
+            </p>
+            <p>
+              David Deutsch's 1985 paper &ldquo;Quantum Theory, the Church-Turing Principle and the
+              Universal Quantum Computer&rdquo; was the founding document. Deutsch noticed that a
+              quantum computer could, in principle, evaluate a function on a superposition of all
+              inputs simultaneously — what he called <em>quantum parallelism</em>. But parallelism
+              alone doesn't give speedup; the hard part is extracting a useful global property from
+              the interference of all those parallel computations. In 1992, Deutsch and Richard
+              Jozsa found the first concrete demonstration that this could be done.
+            </p>
+            <p>
+              The period 1992–1996 produced a burst of landmark algorithms, each exploiting the same
+              core toolkit — superposition, oracle queries, phase kickback, and interference — in
+              increasingly sophisticated ways.
+            </p>
 
-  <h3 id="s1-timeline">1.1 Algorithm Timeline</h3>
-  <div class="timeline-wrap">
-    <div class="tl-item">
-      <div class="tl-year">1985</div>
-      <div class="tl-title">Deutsch — Universal Quantum Computer</div>
-      <div class="tl-desc">First quantum algorithm: determine if $f:\{0,1\}\to\{0,1\}$ is constant or balanced in 1 query. Exponential improvement for the 1-bit case.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-year">1992</div>
-      <div class="tl-title">Deutsch–Jozsa</div>
-      <div class="tl-desc">Generalised to $n$ bits: 1 quantum query vs $2^{n-1}+1$ deterministic classical queries. First <em>exponential</em> quantum speedup.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-year">1992</div>
-      <div class="tl-title">Bernstein–Vazirani</div>
-      <div class="tl-desc">Find hidden bit-string $s\in\{0,1\}^n$ with 1 quantum query vs $n$ classical queries. Same circuit as DJ, different problem.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-year">1993</div>
-      <div class="tl-title">Simon's Algorithm</div>
-      <div class="tl-desc">Exponential quantum speedup for finding a hidden XOR mask. Direct ancestor of Shor's algorithm.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-year">1994</div>
-      <div class="tl-title">Shor's Factoring Algorithm</div>
-      <div class="tl-desc">Exponential speedup for integer factorisation via Quantum Fourier Transform. Breaks RSA cryptography in polynomial time.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-year">1996</div>
-      <div class="tl-title">Grover's Search Algorithm</div>
-      <div class="tl-desc">Quadratic speedup for unstructured search: $O(\sqrt{N})$ queries vs $O(N)$ classical. Provably optimal.</div>
-    </div>
-    <div class="tl-item">
-      <div class="tl-year">2000s–today</div>
-      <div class="tl-title">NISQ &amp; Variational Era</div>
-      <div class="tl-desc">VQE, QAOA, qGANs — heuristic algorithms designed for noisy intermediate-scale hardware (Week 4).</div>
-    </div>
-  </div>
+            <h3 id="s1-timeline">1.1 Algorithm Timeline</h3>
+            <div class="timeline-wrap">
+              <div class="tl-item">
+                <div class="tl-year">1985</div>
+                <div class="tl-title">Deutsch — Universal Quantum Computer</div>
+                <div class="tl-desc">
+                  First quantum algorithm: determine if $f:\{0,1\}\to\{0,1\}$ is constant or
+                  balanced in 1 query. Exponential improvement for the 1-bit case.
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-year">1992</div>
+                <div class="tl-title">Deutsch–Jozsa</div>
+                <div class="tl-desc">
+                  Generalised to $n$ bits: 1 quantum query vs $2^{n-1}+1$ deterministic classical
+                  queries. First <em>exponential</em> quantum speedup.
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-year">1992</div>
+                <div class="tl-title">Bernstein–Vazirani</div>
+                <div class="tl-desc">
+                  Find hidden bit-string $s\in\{0,1\}^n$ with 1 quantum query vs $n$ classical
+                  queries. Same circuit as DJ, different problem.
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-year">1993</div>
+                <div class="tl-title">Simon's Algorithm</div>
+                <div class="tl-desc">
+                  Exponential quantum speedup for finding a hidden XOR mask. Direct ancestor of
+                  Shor's algorithm.
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-year">1994</div>
+                <div class="tl-title">Shor's Factoring Algorithm</div>
+                <div class="tl-desc">
+                  Exponential speedup for integer factorisation via Quantum Fourier Transform.
+                  Breaks RSA cryptography in polynomial time.
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-year">1996</div>
+                <div class="tl-title">Grover's Search Algorithm</div>
+                <div class="tl-desc">
+                  Quadratic speedup for unstructured search: $O(\sqrt{N})$ queries vs $O(N)$
+                  classical. Provably optimal.
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-year">2000s–today</div>
+                <div class="tl-title">NISQ &amp; Variational Era</div>
+                <div class="tl-desc">
+                  VQE, QAOA, qGANs — heuristic algorithms designed for noisy intermediate-scale
+                  hardware (Week 4).
+                </div>
+              </div>
+            </div>
 
-  <h3 id="s1-classes">1.2 Computational Complexity Classes</h3>
-  <p>
-    To understand what quantum algorithms achieve, we need the language of complexity classes — sets of problems grouped by the resources needed to solve them.
-  </p>
+            <h3 id="s1-classes">1.2 Computational Complexity Classes</h3>
+            <p>
+              To understand what quantum algorithms achieve, we need the language of complexity
+              classes — sets of problems grouped by the resources needed to solve them.
+            </p>
 
-  <div class="callout definition">
-    <div class="callout-title">Complexity Class Hierarchy (relevant to quantum computing)</div>
-    <p>
-      A <strong>complexity class</strong> is a set of decision problems (yes/no questions) that can be solved by some computational model within given resource bounds.
-    </p>
-  </div>
+            <div class="callout definition">
+              <div class="callout-title">
+                Complexity Class Hierarchy (relevant to quantum computing)
+              </div>
+              <p>
+                A <strong>complexity class</strong> is a set of decision problems (yes/no questions)
+                that can be solved by some computational model within given resource bounds.
+              </p>
+            </div>
 
-  <div class="callout insight">
-    <div class="callout-title">EQP vs BQP — Why Zero Error Matters</div>
-    <p>
-      The Deutsch–Jozsa algorithm is in <strong>EQP</strong> (Exact Quantum Polynomial time) — it succeeds with probability exactly 1 in a single query. This is stronger than merely being in BQP (which allows up to $1/3$ error probability, correctable by repetition).
-    </p>
-    <p>
-      The classical comparison is <em>not</em> BPP (randomised polynomial) but rather the zero-error class. No classical zero-error (deterministic) algorithm can do better than $2^{n-1}+1$ queries. But with randomization and error tolerance (BPP), you can solve DJ in $O(1)$ queries too — just query twice: if both outputs agree, guess "constant"; if they differ, output "balanced". (The trick: for balanced $f$, two random queries almost always disagree.)
-    </p>
-    <p>
-      So the precise separation is: in the <em>zero-error query model</em>, quantum wins exponentially. If you allow classical randomisation and bounded error, there's no separation (BPP also needs only $O(1)$ queries for DJ). This is why DJ is sometimes described as an "artificial" exponential speedup — the separation collapses when classical probabilism is properly accounted for. The BV algorithm has a more robust separation: even allowing BPP, you need $n$ queries classically but only 1 quantumly.
-    </p>
-  </div>
-  <div class="complexity-grid">
-    <div class="cx-card">
-      <div class="cx-class">P</div>
-      <div class="cx-name">Polynomial Time</div>
-      <div class="cx-desc">Problems solvable by a deterministic classical computer in polynomial time. Examples: sorting, shortest path, primality testing (AKS).</div>
-    </div>
-    <div class="cx-card">
-      <div class="cx-class">BPP</div>
-      <div class="cx-name">Bounded-Error Probabilistic Poly</div>
-      <div class="cx-desc">Solvable with a randomised classical algorithm with error $\le 1/3$. Widely believed $\mathrm{P}=\mathrm{BPP}$.</div>
-    </div>
-    <div class="cx-card">
-      <div class="cx-class">BQP</div>
-      <div class="cx-name">Bounded-Error Quantum Poly</div>
-      <div class="cx-desc">Solvable by a quantum computer in poly time with error $\le 1/3$. Contains factoring, discrete log. Believed $\mathrm{BPP}\subsetneq\mathrm{BQP}$.</div>
-    </div>
-    <div class="cx-card">
-      <div class="cx-class">EQP</div>
-      <div class="cx-name">Exact Quantum Poly</div>
-      <div class="cx-desc">Solvable by a quantum computer in poly time with <em>zero</em> error. More restrictive than BQP. DJ is in EQP.</div>
-    </div>
-    <div class="cx-card">
-      <div class="cx-class">NP</div>
-      <div class="cx-name">Nondeterministic Poly</div>
-      <div class="cx-desc">Problems whose solutions can be <em>verified</em> in poly time. SAT, graph colouring, TSP. Whether NP ⊆ BQP is a major open question.</div>
-    </div>
-  </div>
+            <div class="callout insight">
+              <div class="callout-title">EQP vs BQP — Why Zero Error Matters</div>
+              <p>
+                The Deutsch–Jozsa algorithm is in <strong>EQP</strong> (Exact Quantum Polynomial
+                time) — it succeeds with probability exactly 1 in a single query. This is stronger
+                than merely being in BQP (which allows up to $1/3$ error probability, correctable by
+                repetition).
+              </p>
+              <p>
+                The classical comparison is <em>not</em> BPP (randomised polynomial) but rather the
+                zero-error class. No classical zero-error (deterministic) algorithm can do better
+                than $2^{n-1}+1$ queries. But with randomization and error tolerance (BPP), you can
+                solve DJ in $O(1)$ queries too — just query twice: if both outputs agree, guess
+                "constant"; if they differ, output "balanced". (The trick: for balanced $f$, two
+                random queries almost always disagree.)
+              </p>
+              <p>
+                So the precise separation is: in the <em>zero-error query model</em>, quantum wins
+                exponentially. If you allow classical randomisation and bounded error, there's no
+                separation (BPP also needs only $O(1)$ queries for DJ). This is why DJ is sometimes
+                described as an "artificial" exponential speedup — the separation collapses when
+                classical probabilism is properly accounted for. The BV algorithm has a more robust
+                separation: even allowing BPP, you need $n$ queries classically but only 1
+                quantumly.
+              </p>
+            </div>
+            <div class="complexity-grid">
+              <div class="cx-card">
+                <div class="cx-class">P</div>
+                <div class="cx-name">Polynomial Time</div>
+                <div class="cx-desc">
+                  Problems solvable by a deterministic classical computer in polynomial time.
+                  Examples: sorting, shortest path, primality testing (AKS).
+                </div>
+              </div>
+              <div class="cx-card">
+                <div class="cx-class">BPP</div>
+                <div class="cx-name">Bounded-Error Probabilistic Poly</div>
+                <div class="cx-desc">
+                  Solvable with a randomised classical algorithm with error $\le 1/3$. Widely
+                  believed $\mathrm{P}=\mathrm{BPP}$.
+                </div>
+              </div>
+              <div class="cx-card">
+                <div class="cx-class">BQP</div>
+                <div class="cx-name">Bounded-Error Quantum Poly</div>
+                <div class="cx-desc">
+                  Solvable by a quantum computer in poly time with error $\le 1/3$. Contains
+                  factoring, discrete log. Believed $\mathrm{BPP}\subsetneq\mathrm{BQP}$.
+                </div>
+              </div>
+              <div class="cx-card">
+                <div class="cx-class">EQP</div>
+                <div class="cx-name">Exact Quantum Poly</div>
+                <div class="cx-desc">
+                  Solvable by a quantum computer in poly time with <em>zero</em> error. More
+                  restrictive than BQP. DJ is in EQP.
+                </div>
+              </div>
+              <div class="cx-card">
+                <div class="cx-class">NP</div>
+                <div class="cx-name">Nondeterministic Poly</div>
+                <div class="cx-desc">
+                  Problems whose solutions can be <em>verified</em> in poly time. SAT, graph
+                  colouring, TSP. Whether NP ⊆ BQP is a major open question.
+                </div>
+              </div>
+            </div>
 
-  <div class="callout insight">
-    <div class="callout-title">Where do our algorithms sit?</div>
-    <ul>
-      <li><strong>Deutsch–Jozsa, BV:</strong> In EQP (exact quantum poly) — they succeed with probability 1. Classically they are outside BPP if we demand 0 error (they require $\Omega(2^n)$ deterministic queries).</li>
-      <li><strong>Grover:</strong> Provides a quadratic speedup for unstructured search. It does <em>not</em> put NP inside BQP; it only improves the constant factor.</li>
-      <li><strong>Shor:</strong> Factoring is in BQP but believed to be outside BPP — the best classical factoring algorithms are sub-exponential but super-polynomial.</li>
-    </ul>
-    <p>It is widely believed that $\mathrm{P} \subsetneq \mathrm{BQP} \subsetneq \mathrm{PSPACE}$ but proving any of these separations rigorously remains an open problem.</p>
-  </div>
-</section>
+            <div class="callout insight">
+              <div class="callout-title">Where do our algorithms sit?</div>
+              <ul>
+                <li>
+                  <strong>Deutsch–Jozsa, BV:</strong> In EQP (exact quantum poly) — they succeed
+                  with probability 1. Classically they are outside BPP if we demand 0 error (they
+                  require $\Omega(2^n)$ deterministic queries).
+                </li>
+                <li>
+                  <strong>Grover:</strong> Provides a quadratic speedup for unstructured search. It
+                  does <em>not</em> put NP inside BQP; it only improves the constant factor.
+                </li>
+                <li>
+                  <strong>Shor:</strong> Factoring is in BQP but believed to be outside BPP — the
+                  best classical factoring algorithms are sub-exponential but super-polynomial.
+                </li>
+              </ul>
+              <p>
+                It is widely believed that $\mathrm{P} \subsetneq \mathrm{BQP} \subsetneq
+                \mathrm{PSPACE}$ but proving any of these separations rigorously remains an open
+                problem.
+              </p>
+            </div>
+          </section>
 
-<!-- ═══════════════════════════════════════════════════════
+          <!-- ═══════════════════════════════════════════════════════
      SECTION 2 — QUERY / ORACLE MODEL
 ═══════════════════════════════════════════════════════ -->
-<section id="s2" class="reveal">
-  <h2><span class="section-num">2</span> The Query / Oracle Model</h2>
+          <section id="s2" class="reveal">
+            <h2><span class="section-num">2</span> The Query / Oracle Model</h2>
 
-  <p>
-    All of this week's algorithms are studied in the <strong>query complexity</strong> (or <strong>oracle complexity</strong>) model.
-    Rather than measuring the total running time on some computational model, we count only the number of times the algorithm needs to
-    <em>evaluate</em> a black-box function $f$. This isolates the quantum speedup cleanly from any implementation details.
-  </p>
+            <p>
+              All of this week's algorithms are studied in the <strong>query complexity</strong> (or
+              <strong>oracle complexity</strong>) model. Rather than measuring the total running
+              time on some computational model, we count only the number of times the algorithm
+              needs to <em>evaluate</em> a black-box function $f$. This isolates the quantum speedup
+              cleanly from any implementation details.
+            </p>
 
-  <div class="callout definition">
-    <div class="callout-title">Query Complexity</div>
-    <p>
-      Given a function $f : \{0,1\}^n \to \{0,1\}^m$ accessible only through an oracle (a black box that evaluates $f$ on any input in one step),
-      the <em>query complexity</em> of an algorithm is the number of oracle calls it makes before returning an answer.
-      Classical query complexity measures this for deterministic or randomised classical machines; quantum query complexity measures it for quantum machines.
-    </p>
-  </div>
+            <div class="callout definition">
+              <div class="callout-title">Query Complexity</div>
+              <p>
+                Given a function $f : \{0,1\}^n \to \{0,1\}^m$ accessible only through an oracle (a
+                black box that evaluates $f$ on any input in one step), the
+                <em>query complexity</em> of an algorithm is the number of oracle calls it makes
+                before returning an answer. Classical query complexity measures this for
+                deterministic or randomised classical machines; quantum query complexity measures it
+                for quantum machines.
+              </p>
+            </div>
 
-  <h3 id="s2-oracle">2.1 The Quantum Oracle (Phase Oracle)</h3>
+            <h3 id="s2-oracle">2.1 The Quantum Oracle (Phase Oracle)</h3>
 
-  <p>
-    In a classical setting, calling an oracle on input $x$ simply returns $f(x)$.
-    A naive quantum oracle would do $\ket{x}\ket{0} \mapsto \ket{x}\ket{f(x)}$.
-    This is called a <strong>standard oracle</strong> or <strong>bit oracle</strong>.
-    But quantum algorithms almost always exploit a cleverer construction — the <strong>phase oracle</strong>.
-  </p>
+            <p>
+              In a classical setting, calling an oracle on input $x$ simply returns $f(x)$. A naive
+              quantum oracle would do $\ket{x}\ket{0} \mapsto \ket{x}\ket{f(x)}$. This is called a
+              <strong>standard oracle</strong> or <strong>bit oracle</strong>. But quantum
+              algorithms almost always exploit a cleverer construction — the
+              <strong>phase oracle</strong>.
+            </p>
 
-  <p>
-    Begin with the standard oracle $U_f$:
-    $$U_f \ket{x}\ket{y} = \ket{x}\ket{y \oplus f(x)}$$
-    where $\oplus$ denotes XOR (addition mod 2). The ancilla qubit starts in $\ket{y}$ and gets XORed with $f(x)$.
-  </p>
+            <p>
+              Begin with the standard oracle $U_f$: $$U_f \ket{x}\ket{y} = \ket{x}\ket{y \oplus
+              f(x)}$$ where $\oplus$ denotes XOR (addition mod 2). The ancilla qubit starts in
+              $\ket{y}$ and gets XORed with $f(x)$.
+            </p>
 
-  <p>
-    Now, a key trick: if we prepare the ancilla in the state $\ket{-} = \tfrac{1}{\sqrt{2}}(\ket{0}-\ket{1})$, watch what happens:
-  </p>
+            <p>
+              Now, a key trick: if we prepare the ancilla in the state $\ket{-} =
+              \tfrac{1}{\sqrt{2}}(\ket{0}-\ket{1})$, watch what happens:
+            </p>
 
-  <div class="math-block">
-    $$U_f \ket{x}\ket{-} = U_f \ket{x} \cdot \frac{\ket{0}-\ket{1}}{\sqrt{2}} = \ket{x}\cdot\frac{\ket{f(x)}-\ket{1\oplus f(x)}}{\sqrt{2}}$$
-  </div>
+            <div class="math-block">
+              $$U_f \ket{x}\ket{-} = U_f \ket{x} \cdot \frac{\ket{0}-\ket{1}}{\sqrt{2}} =
+              \ket{x}\cdot\frac{\ket{f(x)}-\ket{1\oplus f(x)}}{\sqrt{2}}$$
+            </div>
 
-  <p>
-    Case 1: $f(x) = 0$. Then $\frac{\ket{0}-\ket{1}}{\sqrt{2}} = \ket{-}$. No change.
-  </p>
-  <p>
-    Case 2: $f(x) = 1$. Then $\frac{\ket{1}-\ket{0}}{\sqrt{2}} = -\ket{-}$. A global phase of $-1$ is introduced.
-  </p>
-  <p>
-    In both cases the ancilla is unchanged (still $\ket{-}$), but the <em>data register</em> picks up a phase:
-  </p>
+            <p>Case 1: $f(x) = 0$. Then $\frac{\ket{0}-\ket{1}}{\sqrt{2}} = \ket{-}$. No change.</p>
+            <p>
+              Case 2: $f(x) = 1$. Then $\frac{\ket{1}-\ket{0}}{\sqrt{2}} = -\ket{-}$. A global phase
+              of $-1$ is introduced.
+            </p>
+            <p>
+              In both cases the ancilla is unchanged (still $\ket{-}$), but the
+              <em>data register</em> picks up a phase:
+            </p>
 
-  <div class="math-block">
-    $$\boxed{U_f \ket{x}\ket{-} = (-1)^{f(x)}\ket{x}\ket{-}}$$
-  </div>
+            <div class="math-block">$$\boxed{U_f \ket{x}\ket{-} = (-1)^{f(x)}\ket{x}\ket{-}}$$</div>
 
-  <h3 id="s2-kickback">2.2 Phase Kickback — The Core Mechanism</h3>
+            <h3 id="s2-kickback">2.2 Phase Kickback — The Core Mechanism</h3>
 
-  <div class="callout insight">
-    <div class="callout-title">Phase Kickback: Intuition</div>
-    <p>
-      The ancilla qubit $\ket{-}$ is an eigenstate of the $X$ gate ($X\ket{-}=-\ket{-}$, eigenvalue $-1$).
-      When the oracle flips the ancilla controlled on $f(x)=1$, the $-1$ eigenvalue "kicks back" into the <em>control</em> register as a phase factor $(-1)^{f(x)}$.
-      The ancilla is unchanged — it acts as a phase catalyst. The information about $f(x)$ is now encoded in the <em>phases</em> of the computational basis states of $\ket{x}$, not in the state of any physical ancilla bit. This is what interference can extract.
-    </p>
-  </div>
+            <div class="callout insight">
+              <div class="callout-title">Phase Kickback: Intuition</div>
+              <p>
+                The ancilla qubit $\ket{-}$ is an eigenstate of the $X$ gate ($X\ket{-}=-\ket{-}$,
+                eigenvalue $-1$). When the oracle flips the ancilla controlled on $f(x)=1$, the $-1$
+                eigenvalue "kicks back" into the <em>control</em> register as a phase factor
+                $(-1)^{f(x)}$. The ancilla is unchanged — it acts as a phase catalyst. The
+                information about $f(x)$ is now encoded in the <em>phases</em> of the computational
+                basis states of $\ket{x}$, not in the state of any physical ancilla bit. This is
+                what interference can extract.
+              </p>
+            </div>
 
-  <p>
-    When the input is a superposition $\ket{\psi} = \sum_x \alpha_x \ket{x}$, the phase oracle acts as:
-    $$U_f \left(\sum_x \alpha_x \ket{x}\right)\ket{-} = \left(\sum_x (-1)^{f(x)}\alpha_x \ket{x}\right)\ket{-}$$
-  </p>
-  <p>
-    The function $f$ has been evaluated on <em>all</em> $2^n$ inputs simultaneously, with the result written into the phases of each amplitude. This is quantum parallelism + phase encoding — the fundamental engine behind all this week's algorithms.
-  </p>
-</section>
+            <p>
+              When the input is a superposition $\ket{\psi} = \sum_x \alpha_x \ket{x}$, the phase
+              oracle acts as: $$U_f \left(\sum_x \alpha_x \ket{x}\right)\ket{-} = \left(\sum_x
+              (-1)^{f(x)}\alpha_x \ket{x}\right)\ket{-}$$
+            </p>
+            <p>
+              The function $f$ has been evaluated on <em>all</em> $2^n$ inputs simultaneously, with
+              the result written into the phases of each amplitude. This is quantum parallelism +
+              phase encoding — the fundamental engine behind all this week's algorithms.
+            </p>
+          </section>
 
-<!-- ═══════════════════════════════════════════════════════
+          <!-- ═══════════════════════════════════════════════════════
      SECTION 3 — DEUTSCH–JOZSA
 ═══════════════════════════════════════════════════════ -->
-<section id="s3" class="reveal">
-  <h2><span class="section-num">3</span> The Deutsch–Jozsa Algorithm</h2>
+          <section id="s3" class="reveal">
+            <h2><span class="section-num">3</span> The Deutsch–Jozsa Algorithm</h2>
 
-  <h3 id="s3-problem">3.1 The Problem</h3>
+            <h3 id="s3-problem">3.1 The Problem</h3>
 
-  <div class="callout definition">
-    <div class="callout-title">Deutsch–Jozsa Problem</div>
-    <p>
-      You are given a function $f : \{0,1\}^n \to \{0,1\}$ (accessible only through an oracle) with the <em>promise</em> that $f$ is either:
-    </p>
-    <ul>
-      <li><strong>Constant:</strong> $f(x)$ is the same for all $x$ (either always 0 or always 1), or</li>
-      <li><strong>Balanced:</strong> $f(x) = 0$ for exactly half the inputs and $f(x) = 1$ for the other half.</li>
-    </ul>
-    <p>Determine which case holds. You are guaranteed that these are the only two possibilities.</p>
-  </div>
+            <div class="callout definition">
+              <div class="callout-title">Deutsch–Jozsa Problem</div>
+              <p>
+                You are given a function $f : \{0,1\}^n \to \{0,1\}$ (accessible only through an
+                oracle) with the <em>promise</em> that $f$ is either:
+              </p>
+              <ul>
+                <li>
+                  <strong>Constant:</strong> $f(x)$ is the same for all $x$ (either always 0 or
+                  always 1), or
+                </li>
+                <li>
+                  <strong>Balanced:</strong> $f(x) = 0$ for exactly half the inputs and $f(x) = 1$
+                  for the other half.
+                </li>
+              </ul>
+              <p>
+                Determine which case holds. You are guaranteed that these are the only two
+                possibilities.
+              </p>
+            </div>
 
-  <div class="algo-compare">
-    <div class="algo-box classical">
-      <h5>🖥 Classical Complexity</h5>
-      <p>
-        <strong>Worst case (deterministic):</strong> You must query at least $2^{n-1}+1$ times. If the first $2^{n-1}$ queries all return the same value, you can't yet decide — the function might be constant (with that value everywhere) or balanced (with all the opposite values on the other half). Only one more query settles it.
-      </p>
-      <p><strong>Randomised:</strong> With $k$ random queries all returning the same value, you can declare "constant" with error probability $\le 1/2^{k-1}$. But for <em>zero-error</em> you still need $2^{n-1}+1$.</p>
-    </div>
-    <div class="algo-box quantum">
-      <h5>⚛ Quantum Complexity</h5>
-      <p>
-        <strong>Exactly 1 oracle query</strong>, with <em>zero</em> error probability. The answer is obtained deterministically from a single application of $U_f$.
-      </p>
-      <p>Quantum speedup: Exponential (in the zero-error setting).</p>
-    </div>
-  </div>
+            <div class="algo-compare">
+              <div class="algo-box classical">
+                <h5>🖥 Classical Complexity</h5>
+                <p>
+                  <strong>Worst case (deterministic):</strong> You must query at least $2^{n-1}+1$
+                  times. If the first $2^{n-1}$ queries all return the same value, you can't yet
+                  decide — the function might be constant (with that value everywhere) or balanced
+                  (with all the opposite values on the other half). Only one more query settles it.
+                </p>
+                <p>
+                  <strong>Randomised:</strong> With $k$ random queries all returning the same value,
+                  you can declare "constant" with error probability $\le 1/2^{k-1}$. But for
+                  <em>zero-error</em> you still need $2^{n-1}+1$.
+                </p>
+              </div>
+              <div class="algo-box quantum">
+                <h5>⚛ Quantum Complexity</h5>
+                <p>
+                  <strong>Exactly 1 oracle query</strong>, with <em>zero</em> error probability. The
+                  answer is obtained deterministically from a single application of $U_f$.
+                </p>
+                <p>Quantum speedup: Exponential (in the zero-error setting).</p>
+              </div>
+            </div>
 
-  <h3 id="s3-circuit">3.2 Full Circuit Derivation</h3>
-  <p>The circuit uses $n$ data qubits and 1 ancilla qubit.</p>
+            <h3 id="s3-circuit">3.2 Full Circuit Derivation</h3>
+            <p>The circuit uses $n$ data qubits and 1 ancilla qubit.</p>
 
-  <div class="circuit-container">
-    <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
-      <style>
-        .wl { stroke:#334155; stroke-width:1.5; fill:none; }
-        .gate { fill:#0f172a; stroke:#00d4ff; stroke-width:1.5; rx:5; }
-        .gate-t { fill:#00d4ff; font:bold 13px 'JetBrains Mono',monospace; }
-        .gate-p { fill:#9b5de5; }
-        .gate-pt { fill:#e2e8f0; font:bold 13px 'JetBrains Mono',monospace; }
-        .lbl { fill:#94a3b8; font:12px 'Source Serif 4',serif; }
-        .result { fill:#f4c430; font:bold 11px 'JetBrains Mono',monospace; }
-      </style>
-      <!-- Wires -->
-      <line x1="60" y1="40"  x2="640" y2="40"  class="wl"/>
-      <line x1="60" y1="80"  x2="640" y2="80"  class="wl"/>
-      <line x1="60" y1="120" x2="640" y2="120" class="wl"/>
-      <line x1="60" y1="160" x2="640" y2="160" class="wl"/>
+            <div class="circuit-container">
+              <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+                <style>
+                  .wl {
+                    stroke: #334155;
+                    stroke-width: 1.5;
+                    fill: none;
+                  }
+                  .gate {
+                    fill: #0f172a;
+                    stroke: #00d4ff;
+                    stroke-width: 1.5;
+                    rx: 5;
+                  }
+                  .gate-t {
+                    fill: #00d4ff;
+                    font:
+                      bold 13px 'JetBrains Mono',
+                      monospace;
+                  }
+                  .gate-p {
+                    fill: #9b5de5;
+                  }
+                  .gate-pt {
+                    fill: #e2e8f0;
+                    font:
+                      bold 13px 'JetBrains Mono',
+                      monospace;
+                  }
+                  .lbl {
+                    fill: #94a3b8;
+                    font:
+                      12px 'Source Serif 4',
+                      serif;
+                  }
+                  .result {
+                    fill: #f4c430;
+                    font:
+                      bold 11px 'JetBrains Mono',
+                      monospace;
+                  }
+                </style>
+                <!-- Wires -->
+                <line x1="60" y1="40" x2="640" y2="40" class="wl" />
+                <line x1="60" y1="80" x2="640" y2="80" class="wl" />
+                <line x1="60" y1="120" x2="640" y2="120" class="wl" />
+                <line x1="60" y1="160" x2="640" y2="160" class="wl" />
 
-      <!-- Labels -->
-      <text x="8"  y="44"  class="lbl">|0⟩</text>
-      <text x="8"  y="84"  class="lbl">|0⟩</text>
-      <text x="8"  y="124" class="lbl">⋮</text>
-      <text x="8"  y="164" class="lbl">|1⟩</text>
-      <text x="52" y="177" class="lbl" style="font-size:10px">ancilla</text>
+                <!-- Labels -->
+                <text x="8" y="44" class="lbl">|0⟩</text>
+                <text x="8" y="84" class="lbl">|0⟩</text>
+                <text x="8" y="124" class="lbl">⋮</text>
+                <text x="8" y="164" class="lbl">|1⟩</text>
+                <text x="52" y="177" class="lbl" style="font-size: 10px">ancilla</text>
 
-      <!-- H gates (first layer) -->
-      <rect x="80" y="25" width="30" height="28" rx="5" class="gate"/>
-      <text x="95" y="44" class="gate-t" text-anchor="middle">H</text>
+                <!-- H gates (first layer) -->
+                <rect x="80" y="25" width="30" height="28" rx="5" class="gate" />
+                <text x="95" y="44" class="gate-t" text-anchor="middle">H</text>
 
-      <rect x="80" y="65" width="30" height="28" rx="5" class="gate"/>
-      <text x="95" y="84" class="gate-t" text-anchor="middle">H</text>
+                <rect x="80" y="65" width="30" height="28" rx="5" class="gate" />
+                <text x="95" y="84" class="gate-t" text-anchor="middle">H</text>
 
-      <rect x="80" y="145" width="30" height="28" rx="5" class="gate"/>
-      <text x="95" y="164" class="gate-t" text-anchor="middle">H</text>
+                <rect x="80" y="145" width="30" height="28" rx="5" class="gate" />
+                <text x="95" y="164" class="gate-t" text-anchor="middle">H</text>
 
-      <!-- X gate on ancilla to prep |1> -->
-      <rect x="130" y="145" width="30" height="28" rx="5" class="gate"/>
-      <text x="145" y="164" class="gate-t" text-anchor="middle">X</text>
-      <text x="145" y="193" class="lbl" text-anchor="middle" style="font-size:10px">→|1⟩</text>
+                <!-- X gate on ancilla to prep |1> -->
+                <rect x="130" y="145" width="30" height="28" rx="5" class="gate" />
+                <text x="145" y="164" class="gate-t" text-anchor="middle">X</text>
+                <text x="145" y="193" class="lbl" text-anchor="middle" style="font-size: 10px">
+                  →|1⟩
+                </text>
 
-      <!-- H on ancilla -->
-      <rect x="170" y="145" width="30" height="28" rx="5" class="gate"/>
-      <text x="185" y="164" class="gate-t" text-anchor="middle">H</text>
-      <text x="185" y="193" class="lbl" text-anchor="middle" style="font-size:10px">→|−⟩</text>
+                <!-- H on ancilla -->
+                <rect x="170" y="145" width="30" height="28" rx="5" class="gate" />
+                <text x="185" y="164" class="gate-t" text-anchor="middle">H</text>
+                <text x="185" y="193" class="lbl" text-anchor="middle" style="font-size: 10px">
+                  →|−⟩
+                </text>
 
-      <!-- Uf box -->
-      <rect x="270" y="20" width="140" height="155" rx="8" fill="rgba(155,93,229,0.15)" stroke="#9b5de5" stroke-width:2/>
-      <text x="340" y="100" class="gate-pt" text-anchor="middle">U_f</text>
-      <text x="340" y="118" fill="#9b5de5" font-size="11" text-anchor="middle" font-family="Source Serif 4,serif">(oracle)</text>
+                <!-- Uf box -->
+                <rect
+                  x="270"
+                  y="20"
+                  width="140"
+                  height="155"
+                  rx="8"
+                  fill="rgba(155,93,229,0.15)"
+                  stroke="#9b5de5"
+                  stroke-width:2
+                />
+                <text x="340" y="100" class="gate-pt" text-anchor="middle">U_f</text>
+                <text
+                  x="340"
+                  y="118"
+                  fill="#9b5de5"
+                  font-size="11"
+                  text-anchor="middle"
+                  font-family="Source Serif 4,serif"
+                >
+                  (oracle)
+                </text>
 
-      <!-- H gates (second layer) -->
-      <rect x="440" y="25" width="30" height="28" rx="5" class="gate"/>
-      <text x="455" y="44" class="gate-t" text-anchor="middle">H</text>
+                <!-- H gates (second layer) -->
+                <rect x="440" y="25" width="30" height="28" rx="5" class="gate" />
+                <text x="455" y="44" class="gate-t" text-anchor="middle">H</text>
 
-      <rect x="440" y="65" width="30" height="28" rx="5" class="gate"/>
-      <text x="455" y="84" class="gate-t" text-anchor="middle">H</text>
+                <rect x="440" y="65" width="30" height="28" rx="5" class="gate" />
+                <text x="455" y="84" class="gate-t" text-anchor="middle">H</text>
 
-      <rect x="440" y="145" width="30" height="28" rx="5" class="gate"/>
-      <text x="455" y="164" class="gate-t" text-anchor="middle">H</text>
+                <rect x="440" y="145" width="30" height="28" rx="5" class="gate" />
+                <text x="455" y="164" class="gate-t" text-anchor="middle">H</text>
 
-      <!-- Measurement boxes -->
-      <rect x="500" y="25" width="36" height="28" rx="4" fill="#1e293b" stroke="#f4c430" stroke-width:1.5/>
-      <text x="518" y="44" class="result" text-anchor="middle">M</text>
-      <rect x="500" y="65" width="36" height="28" rx="4" fill="#1e293b" stroke="#f4c430" stroke-width:1.5/>
-      <text x="518" y="84" class="result" text-anchor="middle">M</text>
+                <!-- Measurement boxes -->
+                <rect
+                  x="500"
+                  y="25"
+                  width="36"
+                  height="28"
+                  rx="4"
+                  fill="#1e293b"
+                  stroke="#f4c430"
+                  stroke-width:1.5
+                />
+                <text x="518" y="44" class="result" text-anchor="middle">M</text>
+                <rect
+                  x="500"
+                  y="65"
+                  width="36"
+                  height="28"
+                  rx="4"
+                  fill="#1e293b"
+                  stroke="#f4c430"
+                  stroke-width:1.5
+                />
+                <text x="518" y="84" class="result" text-anchor="middle">M</text>
 
-      <!-- Result labels -->
-      <text x="560" y="44" class="result">⟵ measure</text>
-      <text x="560" y="84" class="result">⟵ all 0s?</text>
-      <text x="430" y="185" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="Source Serif 4,serif">(discard ancilla)</text>
+                <!-- Result labels -->
+                <text x="560" y="44" class="result">⟵ measure</text>
+                <text x="560" y="84" class="result">⟵ all 0s?</text>
+                <text
+                  x="430"
+                  y="185"
+                  fill="#94a3b8"
+                  font-size="11"
+                  text-anchor="middle"
+                  font-family="Source Serif 4,serif"
+                >
+                  (discard ancilla)
+                </text>
 
-      <!-- Step labels at bottom -->
-      <text x="95"  y="205" class="lbl" text-anchor="middle" font-size="10">Step 1: H⊗n</text>
-      <text x="340" y="205" class="lbl" text-anchor="middle" font-size="10">Step 2: Uf</text>
-      <text x="455" y="205" class="lbl" text-anchor="middle" font-size="10">Step 3: H⊗n</text>
-      <text x="518" y="205" class="lbl" text-anchor="middle" font-size="10">Step 4: Meas.</text>
-    </svg>
-  </div>
+                <!-- Step labels at bottom -->
+                <text x="95" y="205" class="lbl" text-anchor="middle" font-size="10">
+                  Step 1: H⊗n
+                </text>
+                <text x="340" y="205" class="lbl" text-anchor="middle" font-size="10">
+                  Step 2: Uf
+                </text>
+                <text x="455" y="205" class="lbl" text-anchor="middle" font-size="10">
+                  Step 3: H⊗n
+                </text>
+                <text x="518" y="205" class="lbl" text-anchor="middle" font-size="10">
+                  Step 4: Meas.
+                </text>
+              </svg>
+            </div>
 
-  <p>Let us track the state at each step rigorously.</p>
+            <p>Let us track the state at each step rigorously.</p>
 
-  <div class="callout theorem">
-    <div class="callout-title">Deutsch–Jozsa Algorithm — Step-by-Step State Derivation</div>
+            <div class="callout theorem">
+              <div class="callout-title">
+                Deutsch–Jozsa Algorithm — Step-by-Step State Derivation
+              </div>
 
-    <p><strong>Initial state:</strong></p>
-    $$\ket{\psi_0} = \ket{0}^{\otimes n}\ket{1}$$
+              <p><strong>Initial state:</strong></p>
+              $$\ket{\psi_0} = \ket{0}^{\otimes n}\ket{1}$$
 
-    <p><strong>After $H^{\otimes n}$ on data qubits and $H$ on ancilla:</strong></p>
-    $$\ket{\psi_1} = \left(\frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}\ket{x}\right)\ket{-}$$
-    <p>We have created a uniform superposition over all $n$-bit strings, and set the ancilla to $\ket{-}$.</p>
+              <p><strong>After $H^{\otimes n}$ on data qubits and $H$ on ancilla:</strong></p>
+              $$\ket{\psi_1} = \left(\frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}\ket{x}\right)\ket{-}$$
+              <p>
+                We have created a uniform superposition over all $n$-bit strings, and set the
+                ancilla to $\ket{-}$.
+              </p>
 
-    <p><strong>After applying $U_f$ (using phase kickback):</strong></p>
-    $$\ket{\psi_2} = \frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}(-1)^{f(x)}\ket{x}\ket{-}$$
-    <p>Each basis state $\ket{x}$ picks up a phase $(-1)^{f(x)}$.</p>
+              <p><strong>After applying $U_f$ (using phase kickback):</strong></p>
+              $$\ket{\psi_2} = \frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}(-1)^{f(x)}\ket{x}\ket{-}$$
+              <p>Each basis state $\ket{x}$ picks up a phase $(-1)^{f(x)}$.</p>
 
-    <p><strong>After $H^{\otimes n}$ on data qubits:</strong></p>
-    <p>Recall the key identity: $H^{\otimes n}\ket{x} = \frac{1}{\sqrt{2^n}}\sum_{z=0}^{2^n-1}(-1)^{x\cdot z}\ket{z}$ where $x\cdot z = \bigoplus_{i=1}^n x_i z_i$ is the binary inner product.</p>
-    $$\ket{\psi_3} = \frac{1}{\sqrt{2^n}}\sum_{x}(-1)^{f(x)} \cdot \frac{1}{\sqrt{2^n}}\sum_{z}(-1)^{x\cdot z}\ket{z}$$
-    $$= \sum_{z}\left[\frac{1}{2^n}\sum_{x}(-1)^{f(x)+x\cdot z}\right]\ket{z}$$
+              <p><strong>After $H^{\otimes n}$ on data qubits:</strong></p>
+              <p>
+                Recall the key identity: $H^{\otimes n}\ket{x} =
+                \frac{1}{\sqrt{2^n}}\sum_{z=0}^{2^n-1}(-1)^{x\cdot z}\ket{z}$ where $x\cdot z =
+                \bigoplus_{i=1}^n x_i z_i$ is the binary inner product.
+              </p>
+              $$\ket{\psi_3} = \frac{1}{\sqrt{2^n}}\sum_{x}(-1)^{f(x)} \cdot
+              \frac{1}{\sqrt{2^n}}\sum_{z}(-1)^{x\cdot z}\ket{z}$$ $$=
+              \sum_{z}\left[\frac{1}{2^n}\sum_{x}(-1)^{f(x)+x\cdot z}\right]\ket{z}$$
 
-    <p>The amplitude of $\ket{z=0^n}$ is especially revealing:</p>
-    $$\text{Amplitude of }\ket{0^n} = \frac{1}{2^n}\sum_{x=0}^{2^n-1}(-1)^{f(x)}$$
-    
-    <p>
-      <strong>If $f$ is constant:</strong> All $(-1)^{f(x)}$ have the same sign, so the sum is $\pm 1$, and the amplitude of $\ket{0^n}$ is $\pm 1$. Measuring gives $0^n$ with certainty (probability $= 1$).
-    </p>
-    <p>
-      <strong>If $f$ is balanced:</strong> Exactly half the $(-1)^{f(x)}$ are $+1$ and half are $-1$, so they cancel perfectly. The amplitude of $\ket{0^n}$ is $0$. Measuring gives $0^n$ with probability $0$ — we will <em>never</em> measure the all-zeros string.
-    </p>
-  </div>
+              <p>The amplitude of $\ket{z=0^n}$ is especially revealing:</p>
+              $$\text{Amplitude of }\ket{0^n} = \frac{1}{2^n}\sum_{x=0}^{2^n-1}(-1)^{f(x)}$$
 
-  <div class="callout insight">
-    <div class="callout-title">Decision Rule</div>
-    <p>
-      Measure the $n$ data qubits. If the outcome is $\mathbf{0} = 00\cdots0$, declare <strong>constant</strong>.
-      If any qubit is $1$, declare <strong>balanced</strong>.
-    </p>
-    <p>This succeeds with probability exactly $1$ in one query.</p>
-  </div>
+              <p>
+                <strong>If $f$ is constant:</strong> All $(-1)^{f(x)}$ have the same sign, so the
+                sum is $\pm 1$, and the amplitude of $\ket{0^n}$ is $\pm 1$. Measuring gives $0^n$
+                with certainty (probability $= 1$).
+              </p>
+              <p>
+                <strong>If $f$ is balanced:</strong> Exactly half the $(-1)^{f(x)}$ are $+1$ and
+                half are $-1$, so they cancel perfectly. The amplitude of $\ket{0^n}$ is $0$.
+                Measuring gives $0^n$ with probability $0$ — we will <em>never</em> measure the
+                all-zeros string.
+              </p>
+            </div>
 
-  <h3 id="s3-analysis">3.3 Why It Works: The Key Insight</h3>
-  <p>
-    The crucial insight is that $H^{\otimes n}$ is its own inverse ($(H^{\otimes n})^2 = I$).
-    If $f$ is constant, $(-1)^{f(x)}$ is a <em>global phase</em> on all states — applying $H^{\otimes n}$ a second time undoes the first $H^{\otimes n}$ and sends every state back to $\ket{0^n}$.
-    If $f$ is balanced, the phases are not all the same; there's a non-trivial pattern across $x$, and the final Hadamard performs a kind of Fourier transform that sends the amplitude of $\ket{0^n}$ to zero — exactly the pattern that a balanced function creates.
-  </p>
+            <div class="callout insight">
+              <div class="callout-title">Decision Rule</div>
+              <p>
+                Measure the $n$ data qubits. If the outcome is $\mathbf{0} = 00\cdots0$, declare
+                <strong>constant</strong>. If any qubit is $1$, declare <strong>balanced</strong>.
+              </p>
+              <p>This succeeds with probability exactly $1$ in one query.</p>
+            </div>
 
-  <p>Let's verify with a concrete $n=2$ example to build intuition:</p>
+            <h3 id="s3-analysis">3.3 Why It Works: The Key Insight</h3>
+            <p>
+              The crucial insight is that $H^{\otimes n}$ is its own inverse ($(H^{\otimes n})^2 =
+              I$). If $f$ is constant, $(-1)^{f(x)}$ is a <em>global phase</em> on all states —
+              applying $H^{\otimes n}$ a second time undoes the first $H^{\otimes n}$ and sends
+              every state back to $\ket{0^n}$. If $f$ is balanced, the phases are not all the same;
+              there's a non-trivial pattern across $x$, and the final Hadamard performs a kind of
+              Fourier transform that sends the amplitude of $\ket{0^n}$ to zero — exactly the
+              pattern that a balanced function creates.
+            </p>
 
-  <div class="oracle-grid">
-    <div class="oracle-card">
-      <h6>Constant-0</h6>
-      <table>
-        <tr><th>x</th><th>f(x)</th><th>phase</th></tr>
-        <tr><td>00</td><td>0</td><td class="plus">+1</td></tr>
-        <tr><td>01</td><td>0</td><td class="plus">+1</td></tr>
-        <tr><td>10</td><td>0</td><td class="plus">+1</td></tr>
-        <tr><td>11</td><td>0</td><td class="plus">+1</td></tr>
-      </table>
-      <p style="margin:.5rem 0 0;font-size:.8rem;color:var(--accent-cyan)">Sum=+4, amplitude of |00⟩=1</p>
-    </div>
-    <div class="oracle-card">
-      <h6>Constant-1</h6>
-      <table>
-        <tr><th>x</th><th>f(x)</th><th>phase</th></tr>
-        <tr><td>00</td><td>1</td><td class="minus">−1</td></tr>
-        <tr><td>01</td><td>1</td><td class="minus">−1</td></tr>
-        <tr><td>10</td><td>1</td><td class="minus">−1</td></tr>
-        <tr><td>11</td><td>1</td><td class="minus">−1</td></tr>
-      </table>
-      <p style="margin:.5rem 0 0;font-size:.8rem;color:var(--accent-cyan)">Sum=−4, amplitude of |00⟩=−1</p>
-    </div>
-    <div class="oracle-card">
-      <h6>Balanced (type A)</h6>
-      <table>
-        <tr><th>x</th><th>f(x)</th><th>phase</th></tr>
-        <tr><td>00</td><td>0</td><td class="plus">+1</td></tr>
-        <tr><td>01</td><td>1</td><td class="minus">−1</td></tr>
-        <tr><td>10</td><td>0</td><td class="plus">+1</td></tr>
-        <tr><td>11</td><td>1</td><td class="minus">−1</td></tr>
-      </table>
-      <p style="margin:.5rem 0 0;font-size:.8rem;color:var(--accent-purple)">Sum=0, amplitude of |00⟩=0</p>
-    </div>
-    <div class="oracle-card">
-      <h6>Balanced (type B)</h6>
-      <table>
-        <tr><th>x</th><th>f(x)</th><th>phase</th></tr>
-        <tr><td>00</td><td>1</td><td class="minus">−1</td></tr>
-        <tr><td>01</td><td>0</td><td class="plus">+1</td></tr>
-        <tr><td>10</td><td>1</td><td class="minus">−1</td></tr>
-        <tr><td>11</td><td>0</td><td class="plus">+1</td></tr>
-      </table>
-      <p style="margin:.5rem 0 0;font-size:.8rem;color:var(--accent-purple)">Sum=0, amplitude of |00⟩=0</p>
-    </div>
-  </div>
+            <p>Let's verify with a concrete $n=2$ example to build intuition:</p>
 
-  <h3 id="s3-interactive">3.4 Interactive Oracle Demo</h3>
-  <div class="dj-wrap">
-    <p style="margin:0 0 .5rem;color:var(--text-secondary);font-size:.9rem;">
-      Choose an oracle type, then watch the algorithm run step by step. The final measurement of the data register reveals constant vs balanced.
-    </p>
-    <div style="margin-bottom:.5rem;font-size:.85rem;color:var(--text-muted)">n = 2 qubits</div>
-    <div class="dj-btn-row">
-      <button class="dj-oracle-btn" data-type="c0">Constant-0</button>
-      <button class="dj-oracle-btn" data-type="c1">Constant-1</button>
-      <button class="dj-oracle-btn balanced" data-type="b1">Balanced A</button>
-      <button class="dj-oracle-btn balanced" data-type="b2">Balanced B</button>
-      <button class="dj-oracle-btn balanced" data-type="b3">Balanced C</button>
-      <button class="dj-oracle-btn balanced" data-type="b4">Balanced D</button>
-    </div>
-    <div class="dj-steps" id="dj-steps">
-      <div class="dj-step" id="dj-s1"><span class="step-icon">①</span><span>Waiting — select an oracle above to begin.</span></div>
-      <div class="dj-step" id="dj-s2"><span class="step-icon">②</span><span id="dj-s2-text">—</span></div>
-      <div class="dj-step" id="dj-s3"><span class="step-icon">③</span><span id="dj-s3-text">—</span></div>
-      <div class="dj-step" id="dj-s4"><span class="step-icon">④</span><span id="dj-s4-text">—</span></div>
-      <div class="dj-step" id="dj-s5"><span class="step-icon">⑤</span><span id="dj-s5-text">—</span></div>
-    </div>
-    <div class="dj-answer" id="dj-answer"></div>
-  </div>
+            <div class="oracle-grid">
+              <div class="oracle-card">
+                <h6>Constant-0</h6>
+                <table>
+                  <tr>
+                    <th>x</th>
+                    <th>f(x)</th>
+                    <th>phase</th>
+                  </tr>
+                  <tr>
+                    <td>00</td>
+                    <td>0</td>
+                    <td class="plus">+1</td>
+                  </tr>
+                  <tr>
+                    <td>01</td>
+                    <td>0</td>
+                    <td class="plus">+1</td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td>0</td>
+                    <td class="plus">+1</td>
+                  </tr>
+                  <tr>
+                    <td>11</td>
+                    <td>0</td>
+                    <td class="plus">+1</td>
+                  </tr>
+                </table>
+                <p style="margin: 0.5rem 0 0; font-size: 0.8rem; color: var(--accent-cyan)">
+                  Sum=+4, amplitude of |00⟩=1
+                </p>
+              </div>
+              <div class="oracle-card">
+                <h6>Constant-1</h6>
+                <table>
+                  <tr>
+                    <th>x</th>
+                    <th>f(x)</th>
+                    <th>phase</th>
+                  </tr>
+                  <tr>
+                    <td>00</td>
+                    <td>1</td>
+                    <td class="minus">−1</td>
+                  </tr>
+                  <tr>
+                    <td>01</td>
+                    <td>1</td>
+                    <td class="minus">−1</td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td>1</td>
+                    <td class="minus">−1</td>
+                  </tr>
+                  <tr>
+                    <td>11</td>
+                    <td>1</td>
+                    <td class="minus">−1</td>
+                  </tr>
+                </table>
+                <p style="margin: 0.5rem 0 0; font-size: 0.8rem; color: var(--accent-cyan)">
+                  Sum=−4, amplitude of |00⟩=−1
+                </p>
+              </div>
+              <div class="oracle-card">
+                <h6>Balanced (type A)</h6>
+                <table>
+                  <tr>
+                    <th>x</th>
+                    <th>f(x)</th>
+                    <th>phase</th>
+                  </tr>
+                  <tr>
+                    <td>00</td>
+                    <td>0</td>
+                    <td class="plus">+1</td>
+                  </tr>
+                  <tr>
+                    <td>01</td>
+                    <td>1</td>
+                    <td class="minus">−1</td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td>0</td>
+                    <td class="plus">+1</td>
+                  </tr>
+                  <tr>
+                    <td>11</td>
+                    <td>1</td>
+                    <td class="minus">−1</td>
+                  </tr>
+                </table>
+                <p style="margin: 0.5rem 0 0; font-size: 0.8rem; color: var(--accent-purple)">
+                  Sum=0, amplitude of |00⟩=0
+                </p>
+              </div>
+              <div class="oracle-card">
+                <h6>Balanced (type B)</h6>
+                <table>
+                  <tr>
+                    <th>x</th>
+                    <th>f(x)</th>
+                    <th>phase</th>
+                  </tr>
+                  <tr>
+                    <td>00</td>
+                    <td>1</td>
+                    <td class="minus">−1</td>
+                  </tr>
+                  <tr>
+                    <td>01</td>
+                    <td>0</td>
+                    <td class="plus">+1</td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td>1</td>
+                    <td class="minus">−1</td>
+                  </tr>
+                  <tr>
+                    <td>11</td>
+                    <td>0</td>
+                    <td class="plus">+1</td>
+                  </tr>
+                </table>
+                <p style="margin: 0.5rem 0 0; font-size: 0.8rem; color: var(--accent-purple)">
+                  Sum=0, amplitude of |00⟩=0
+                </p>
+              </div>
+            </div>
 
-  <h3 id="s3-qiskit">3.5 Qiskit Implementation</h3>
-  <pre><code>from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+            <h3 id="s3-interactive">3.4 Interactive Oracle Demo</h3>
+            <div class="dj-wrap">
+              <p style="margin: 0 0 0.5rem; color: var(--text-secondary); font-size: 0.9rem">
+                Choose an oracle type, then watch the algorithm run step by step. The final
+                measurement of the data register reveals constant vs balanced.
+              </p>
+              <div style="margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-muted)">
+                n = 2 qubits
+              </div>
+              <div class="dj-btn-row">
+                <button class="dj-oracle-btn" data-type="c0">Constant-0</button>
+                <button class="dj-oracle-btn" data-type="c1">Constant-1</button>
+                <button class="dj-oracle-btn balanced" data-type="b1">Balanced A</button>
+                <button class="dj-oracle-btn balanced" data-type="b2">Balanced B</button>
+                <button class="dj-oracle-btn balanced" data-type="b3">Balanced C</button>
+                <button class="dj-oracle-btn balanced" data-type="b4">Balanced D</button>
+              </div>
+              <div class="dj-steps" id="dj-steps">
+                <div class="dj-step" id="dj-s1">
+                  <span class="step-icon">①</span
+                  ><span>Waiting — select an oracle above to begin.</span>
+                </div>
+                <div class="dj-step" id="dj-s2">
+                  <span class="step-icon">②</span><span id="dj-s2-text">—</span>
+                </div>
+                <div class="dj-step" id="dj-s3">
+                  <span class="step-icon">③</span><span id="dj-s3-text">—</span>
+                </div>
+                <div class="dj-step" id="dj-s4">
+                  <span class="step-icon">④</span><span id="dj-s4-text">—</span>
+                </div>
+                <div class="dj-step" id="dj-s5">
+                  <span class="step-icon">⑤</span><span id="dj-s5-text">—</span>
+                </div>
+              </div>
+              <div class="dj-answer" id="dj-answer"></div>
+            </div>
+
+            <h3 id="s3-qiskit">3.5 Qiskit Implementation</h3>
+            <pre><code>from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit.primitives import StatevectorSampler
 import numpy as np
 
@@ -711,120 +1302,154 @@ else:
     print("Function is BALANCED (measured non-zero string)")
     print(f"Measured: {counts}")</code></pre>
 
-  <div class="callout insight">
-    <div class="callout-title">Classical lower bound: why you need 2^(n−1)+1 queries</div>
-    <p>
-      Suppose a deterministic algorithm makes $k$ queries, receiving $k$ output values.
-      If all $k$ values are equal (say all 0), could the function be constant? Yes — it might be constant-0.
-      Could it be balanced? Also yes — if $k \le 2^{n-1}$, there exist balanced functions that map all $k$ queried inputs to 0 (since a balanced function is 0 on half the inputs, and your $k \le 2^{n-1}$ queries might have all landed on that half).
-      So you cannot decide. This argument holds for any $k \le 2^{n-1}$, showing you need at least $2^{n-1}+1$ queries in the worst case.
-    </p>
-  </div>
-</section>
+            <div class="callout insight">
+              <div class="callout-title">Classical lower bound: why you need 2^(n−1)+1 queries</div>
+              <p>
+                Suppose a deterministic algorithm makes $k$ queries, receiving $k$ output values. If
+                all $k$ values are equal (say all 0), could the function be constant? Yes — it might
+                be constant-0. Could it be balanced? Also yes — if $k \le 2^{n-1}$, there exist
+                balanced functions that map all $k$ queried inputs to 0 (since a balanced function
+                is 0 on half the inputs, and your $k \le 2^{n-1}$ queries might have all landed on
+                that half). So you cannot decide. This argument holds for any $k \le 2^{n-1}$,
+                showing you need at least $2^{n-1}+1$ queries in the worst case.
+              </p>
+            </div>
+          </section>
 
-<!-- ═══════════════════════════════════════════════════════
+          <!-- ═══════════════════════════════════════════════════════
      SECTION 4 — BERNSTEIN–VAZIRANI
 ═══════════════════════════════════════════════════════ -->
-<section id="s4" class="reveal">
-  <h2><span class="section-num">4</span> The Bernstein–Vazirani Algorithm</h2>
+          <section id="s4" class="reveal">
+            <h2><span class="section-num">4</span> The Bernstein–Vazirani Algorithm</h2>
 
-  <h3 id="s4-problem">4.1 The Problem</h3>
+            <h3 id="s4-problem">4.1 The Problem</h3>
 
-  <div class="callout definition">
-    <div class="callout-title">Bernstein–Vazirani Problem</div>
-    <p>
-      There is a hidden secret string $s \in \{0,1\}^n$.
-      You are given oracle access to the linear function
-      $$f(x) = s \cdot x \pmod{2} = \bigoplus_{i=1}^{n} s_i x_i$$
-      (the bitwise inner product of $s$ and $x$, reduced mod 2).
-      Find $s$.
-    </p>
-  </div>
+            <div class="callout definition">
+              <div class="callout-title">Bernstein–Vazirani Problem</div>
+              <p>
+                There is a hidden secret string $s \in \{0,1\}^n$. You are given oracle access to
+                the linear function $$f(x) = s \cdot x \pmod{2} = \bigoplus_{i=1}^{n} s_i x_i$$ (the
+                bitwise inner product of $s$ and $x$, reduced mod 2). Find $s$.
+              </p>
+            </div>
 
-  <div class="algo-compare">
-    <div class="algo-box classical">
-      <h5>🖥 Classical Complexity</h5>
-      <p>
-        To find bit $s_i$, query $f$ on the input $e_i = 00\cdots010\cdots0$ (the $i$-th standard basis vector). Then $f(e_i) = s \cdot e_i = s_i$.
-        You need $n$ queries — one per bit. This is <em>tight</em>: any classical algorithm requires $n$ queries in the worst case.
-      </p>
-    </div>
-    <div class="algo-box quantum">
-      <h5>⚛ Quantum Complexity</h5>
-      <p>
-        <strong>Exactly 1 oracle query</strong>. The quantum algorithm recovers all $n$ bits of $s$ simultaneously.
-        Speedup: $n$-fold (linear).
-      </p>
-    </div>
-  </div>
+            <div class="algo-compare">
+              <div class="algo-box classical">
+                <h5>🖥 Classical Complexity</h5>
+                <p>
+                  To find bit $s_i$, query $f$ on the input $e_i = 00\cdots010\cdots0$ (the $i$-th
+                  standard basis vector). Then $f(e_i) = s \cdot e_i = s_i$. You need $n$ queries —
+                  one per bit. This is <em>tight</em>: any classical algorithm requires $n$ queries
+                  in the worst case.
+                </p>
+              </div>
+              <div class="algo-box quantum">
+                <h5>⚛ Quantum Complexity</h5>
+                <p>
+                  <strong>Exactly 1 oracle query</strong>. The quantum algorithm recovers all $n$
+                  bits of $s$ simultaneously. Speedup: $n$-fold (linear).
+                </p>
+              </div>
+            </div>
 
-  <h3 id="s4-derivation">4.2 Full Derivation</h3>
-  <p>
-    Remarkably, the circuit is <em>identical</em> to the Deutsch–Jozsa circuit. What changes is the oracle and the interpretation of the measurement.
-  </p>
+            <h3 id="s4-derivation">4.2 Full Derivation</h3>
+            <p>
+              Remarkably, the circuit is <em>identical</em> to the Deutsch–Jozsa circuit. What
+              changes is the oracle and the interpretation of the measurement.
+            </p>
 
-  <div class="callout theorem">
-    <div class="callout-title">Bernstein–Vazirani State Derivation</div>
+            <div class="callout theorem">
+              <div class="callout-title">Bernstein–Vazirani State Derivation</div>
 
-    <p><strong>After $H^{\otimes n}$:</strong> Uniform superposition $\frac{1}{\sqrt{2^n}}\sum_x \ket{x}$.</p>
+              <p>
+                <strong>After $H^{\otimes n}$:</strong> Uniform superposition
+                $\frac{1}{\sqrt{2^n}}\sum_x \ket{x}$.
+              </p>
 
-    <p><strong>After oracle $U_f$ with phase kickback:</strong></p>
-    $$\frac{1}{\sqrt{2^n}}\sum_{x \in \{0,1\}^n}(-1)^{f(x)}\ket{x} = \frac{1}{\sqrt{2^n}}\sum_{x}(-1)^{s\cdot x}\ket{x}$$
+              <p><strong>After oracle $U_f$ with phase kickback:</strong></p>
+              $$\frac{1}{\sqrt{2^n}}\sum_{x \in \{0,1\}^n}(-1)^{f(x)}\ket{x} =
+              \frac{1}{\sqrt{2^n}}\sum_{x}(-1)^{s\cdot x}\ket{x}$$
 
-    <p><strong>After $H^{\otimes n}$:</strong> Use the identity $H^{\otimes n}\ket{x} = \frac{1}{\sqrt{2^n}}\sum_z (-1)^{x\cdot z}\ket{z}$:</p>
-    $$H^{\otimes n}\left(\frac{1}{\sqrt{2^n}}\sum_x (-1)^{s\cdot x}\ket{x}\right) = \sum_z \left(\frac{1}{2^n}\sum_x(-1)^{s\cdot x + x\cdot z}\right)\ket{z}$$
-    $$= \sum_z \left(\frac{1}{2^n}\sum_x(-1)^{x\cdot(s\oplus z)}\right)\ket{z}$$
+              <p>
+                <strong>After $H^{\otimes n}$:</strong> Use the identity $H^{\otimes n}\ket{x} =
+                \frac{1}{\sqrt{2^n}}\sum_z (-1)^{x\cdot z}\ket{z}$:
+              </p>
+              $$H^{\otimes n}\left(\frac{1}{\sqrt{2^n}}\sum_x (-1)^{s\cdot x}\ket{x}\right) = \sum_z
+              \left(\frac{1}{2^n}\sum_x(-1)^{s\cdot x + x\cdot z}\right)\ket{z}$$ $$= \sum_z
+              \left(\frac{1}{2^n}\sum_x(-1)^{x\cdot(s\oplus z)}\right)\ket{z}$$
 
-    <p>
-      The inner sum $\frac{1}{2^n}\sum_x(-1)^{x\cdot(s\oplus z)}$ equals $1$ if $s = z$, and $0$ otherwise (it's the orthogonality of characters of the group $(\mathbb{Z}_2)^n$).
-    </p>
-    $$\Rightarrow \ket{\psi_3} = \ket{s}$$
-  </div>
+              <p>
+                The inner sum $\frac{1}{2^n}\sum_x(-1)^{x\cdot(s\oplus z)}$ equals $1$ if $s = z$,
+                and $0$ otherwise (it's the orthogonality of characters of the group
+                $(\mathbb{Z}_2)^n$).
+              </p>
+              $$\Rightarrow \ket{\psi_3} = \ket{s}$$
+            </div>
 
-  <div class="callout insight">
-    <div class="callout-title">The miracle of BV</div>
-    <p>
-      After the second Hadamard layer, the state has collapsed deterministically to $\ket{s}$ — the exact bitstring we're looking for. Measuring gives $s$ with probability 1. In a single query, we have performed $n$ independent classical computations simultaneously and read off all their results through interference. This is sometimes called <strong>quantum learning</strong>.
-    </p>
-  </div>
+            <div class="callout insight">
+              <div class="callout-title">The miracle of BV</div>
+              <p>
+                After the second Hadamard layer, the state has collapsed deterministically to
+                $\ket{s}$ — the exact bitstring we're looking for. Measuring gives $s$ with
+                probability 1. In a single query, we have performed $n$ independent classical
+                computations simultaneously and read off all their results through interference.
+                This is sometimes called <strong>quantum learning</strong>.
+              </p>
+            </div>
 
-  <div class="callout insight">
-    <div class="callout-title">The Deep Reason BV Works: Fourier Analysis over GF(2)</div>
-    <p>
-      The function $f_s(x) = s \cdot x \bmod 2$ is linear over the field $\mathbb{F}_2 = \{0,1\}$.
-      The Hadamard transform $H^{\otimes n}$ is exactly the <strong>quantum Fourier transform over $(\mathbb{Z}_2)^n$</strong> (i.e., over $n$-bit binary strings with componentwise XOR).
-      The BV algorithm performs Fourier analysis of $f_s$ in a single shot — it "probes all $n$ Fourier frequencies simultaneously" using superposition, and the inverse transform picks out the unique frequency $s$ that characterises $f_s$.
-    </p>
-    <p>
-      This insight generalises directly: Shor's algorithm uses the <strong>Quantum Fourier Transform over $\mathbb{Z}_N$</strong> (the cyclic group) to find the period of the modular exponentiation function $f(x) = a^x \bmod N$. BV is the $\mathbb{F}_2^n$ version; Shor is the $\mathbb{Z}_N$ version.
-    </p>
-  </div>
+            <div class="callout insight">
+              <div class="callout-title">The Deep Reason BV Works: Fourier Analysis over GF(2)</div>
+              <p>
+                The function $f_s(x) = s \cdot x \bmod 2$ is linear over the field $\mathbb{F}_2 =
+                \{0,1\}$. The Hadamard transform $H^{\otimes n}$ is exactly the
+                <strong>quantum Fourier transform over $(\mathbb{Z}_2)^n$</strong> (i.e., over
+                $n$-bit binary strings with componentwise XOR). The BV algorithm performs Fourier
+                analysis of $f_s$ in a single shot — it "probes all $n$ Fourier frequencies
+                simultaneously" using superposition, and the inverse transform picks out the unique
+                frequency $s$ that characterises $f_s$.
+              </p>
+              <p>
+                This insight generalises directly: Shor's algorithm uses the
+                <strong>Quantum Fourier Transform over $\mathbb{Z}_N$</strong> (the cyclic group) to
+                find the period of the modular exponentiation function $f(x) = a^x \bmod N$. BV is
+                the $\mathbb{F}_2^n$ version; Shor is the $\mathbb{Z}_N$ version.
+              </p>
+            </div>
 
-  <div class="callout insight">
-    <div class="callout-title">Complexity Separation: Oracle BPP ≠ Oracle BQP</div>
-    <p>
-      The BV problem gives a provable <strong>oracle separation</strong> between BPP (randomised classical) and BQP (quantum polynomial time):
-      $$Q(BV_n) = 1 \qquad \text{vs} \qquad R(BV_n) = n$$
-      No randomised classical algorithm can solve BV in fewer than $n$ queries. Each query gives at most 1 bit of information about the $n$-bit string $s$, and $s$ has $n$ bits. The quantum algorithm extracts all $n$ bits in a <em>single parallel query</em> via superposition. This is an unconditional separation in the oracle model — not dependent on unproven complexity assumptions like $P \ne NP$.
-    </p>
-  </div>
+            <div class="callout insight">
+              <div class="callout-title">Complexity Separation: Oracle BPP ≠ Oracle BQP</div>
+              <p>
+                The BV problem gives a provable <strong>oracle separation</strong> between BPP
+                (randomised classical) and BQP (quantum polynomial time): $$Q(BV_n) = 1 \qquad
+                \text{vs} \qquad R(BV_n) = n$$ No randomised classical algorithm can solve BV in
+                fewer than $n$ queries. Each query gives at most 1 bit of information about the
+                $n$-bit string $s$, and $s$ has $n$ bits. The quantum algorithm extracts all $n$
+                bits in a <em>single parallel query</em> via superposition. This is an unconditional
+                separation in the oracle model — not dependent on unproven complexity assumptions
+                like $P \ne NP$.
+              </p>
+            </div>
 
-  <h3 id="s4-interactive">4.3 Interactive Demo — Recover the Secret String</h3>
-  <div class="bv-wrap">
-    <p style="margin:0 0 .5rem;color:var(--text-secondary);font-size:.9rem;">
-      Set the secret bit-string $s$ by toggling the bits below. The BV algorithm finds $s$ in a single oracle query.
-    </p>
-    <div style="font-size:.85rem;color:var(--text-muted);margin-bottom:.5rem;">Secret string s (click bits to toggle):</div>
-    <div class="bv-input" id="bv-bits"></div>
-    <div style="font-size:.85rem;color:var(--text-muted);margin-top:.8rem;">
-      Oracle: <code id="bv-oracle-label" style="color:var(--accent-cyan)">f(x) = s·x mod 2</code>
-    </div>
-    <div class="bv-result" id="bv-result"></div>
-    <div class="bv-circuit-wrap" id="bv-circuit"></div>
-  </div>
+            <h3 id="s4-interactive">4.3 Interactive Demo — Recover the Secret String</h3>
+            <div class="bv-wrap">
+              <p style="margin: 0 0 0.5rem; color: var(--text-secondary); font-size: 0.9rem">
+                Set the secret bit-string $s$ by toggling the bits below. The BV algorithm finds $s$
+                in a single oracle query.
+              </p>
+              <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem">
+                Secret string s (click bits to toggle):
+              </div>
+              <div class="bv-input" id="bv-bits"></div>
+              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.8rem">
+                Oracle:
+                <code id="bv-oracle-label" style="color: var(--accent-cyan)">f(x) = s·x mod 2</code>
+              </div>
+              <div class="bv-result" id="bv-result"></div>
+              <div class="bv-circuit-wrap" id="bv-circuit"></div>
+            </div>
 
-  <p>Qiskit code for BV:</p>
-  <pre><code>from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+            <p>Qiskit code for BV:</p>
+            <pre><code>from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 
 def bernstein_vazirani(s: str) -&gt; QuantumCircuit:
     """
@@ -857,288 +1482,508 @@ s = '10110'
 qc = bernstein_vazirani(s)
 print(f"Hidden string: {s}")
 print(f"Circuit depth: {qc.depth()}")</code></pre>
-</section>
+          </section>
 
-<!-- ═══════════════════════════════════════════════════════
+          <!-- ═══════════════════════════════════════════════════════
      SECTION 5 — SIMON'S ALGORITHM
 ═══════════════════════════════════════════════════════ -->
-<section id="s5" class="reveal">
-  <h2><span class="section-num">5</span> Simon's Algorithm</h2>
+          <section id="s5" class="reveal">
+            <h2><span class="section-num">5</span> Simon's Algorithm</h2>
 
-  <h3 id="s5-problem">5.1 The Problem</h3>
+            <h3 id="s5-problem">5.1 The Problem</h3>
 
-  <div class="callout definition">
-    <div class="callout-title">Simon's Problem</div>
-    <p>
-      You are given a function $f : \{0,1\}^n \to \{0,1\}^n$ with the promise that there exists a secret $s \in \{0,1\}^n$ such that for all $x, y \in \{0,1\}^n$:
-      $$f(x) = f(y) \iff x = y \text{ or } x = y \oplus s$$
-      That is, $f$ is two-to-one with a hidden XOR symmetry $s$ (or one-to-one if $s = 0^n$).
-      Find $s$.
-    </p>
-  </div>
+            <div class="callout definition">
+              <div class="callout-title">Simon's Problem</div>
+              <p>
+                You are given a function $f : \{0,1\}^n \to \{0,1\}^n$ with the promise that there
+                exists a secret $s \in \{0,1\}^n$ such that for all $x, y \in \{0,1\}^n$: $$f(x) =
+                f(y) \iff x = y \text{ or } x = y \oplus s$$ That is, $f$ is two-to-one with a
+                hidden XOR symmetry $s$ (or one-to-one if $s = 0^n$). Find $s$.
+              </p>
+            </div>
 
-  <p>
-    If $s = 0^n$, then $f$ is one-to-one (injective). Otherwise, every output value is hit exactly twice, by $x$ and $x \oplus s$. 
-    This is like a "hidden XOR subgroup problem" — and the technique used to solve it is the prototype for Shor's algorithm.
-  </p>
+            <p>
+              If $s = 0^n$, then $f$ is one-to-one (injective). Otherwise, every output value is hit
+              exactly twice, by $x$ and $x \oplus s$. This is like a "hidden XOR subgroup problem" —
+              and the technique used to solve it is the prototype for Shor's algorithm.
+            </p>
 
-  <div class="algo-compare">
-    <div class="algo-box classical">
-      <h5>🖥 Classical Complexity</h5>
-      <p>
-        By the birthday paradox, you need $\Omega(\sqrt{2^n}) = \Omega(2^{n/2})$ queries to find a collision $f(x) = f(x \oplus s)$. This is exponential in $n$.
-      </p>
-    </div>
-    <div class="algo-box quantum">
-      <h5>⚛ Quantum Complexity</h5>
-      <p>
-        $O(n)$ quantum queries (plus $O(n^3)$ classical post-processing with Gaussian elimination). An exponential quantum speedup.
-      </p>
-    </div>
-  </div>
+            <div class="algo-compare">
+              <div class="algo-box classical">
+                <h5>🖥 Classical Complexity</h5>
+                <p>
+                  By the birthday paradox, you need $\Omega(\sqrt{2^n}) = \Omega(2^{n/2})$ queries
+                  to find a collision $f(x) = f(x \oplus s)$. This is exponential in $n$.
+                </p>
+              </div>
+              <div class="algo-box quantum">
+                <h5>⚛ Quantum Complexity</h5>
+                <p>
+                  $O(n)$ quantum queries (plus $O(n^3)$ classical post-processing with Gaussian
+                  elimination). An exponential quantum speedup.
+                </p>
+              </div>
+            </div>
 
-  <h3 id="s5-circuit">5.2 Circuit and Classical Post-Processing</h3>
-  <p>Simon's circuit has $2n$ qubits: $n$ data qubits and $n$ ancilla (output) qubits.</p>
+            <h3 id="s5-circuit">5.2 Circuit and Classical Post-Processing</h3>
+            <p>Simon's circuit has $2n$ qubits: $n$ data qubits and $n$ ancilla (output) qubits.</p>
 
-  <div class="callout theorem">
-    <div class="callout-title">Simon's Algorithm — Single-Shot Analysis</div>
+            <div class="callout theorem">
+              <div class="callout-title">Simon's Algorithm — Single-Shot Analysis</div>
 
-    <p><strong>After $H^{\otimes n}$ on data register:</strong> $\frac{1}{\sqrt{2^n}}\sum_x \ket{x}\ket{0^n}$</p>
+              <p>
+                <strong>After $H^{\otimes n}$ on data register:</strong> $\frac{1}{\sqrt{2^n}}\sum_x
+                \ket{x}\ket{0^n}$
+              </p>
 
-    <p><strong>After oracle $U_f$:</strong> $\frac{1}{\sqrt{2^n}}\sum_x \ket{x}\ket{f(x)}$</p>
+              <p>
+                <strong>After oracle $U_f$:</strong> $\frac{1}{\sqrt{2^n}}\sum_x \ket{x}\ket{f(x)}$
+              </p>
 
-    <p><strong>Measure the ancilla register:</strong> Suppose outcome is $f(x_0)$. The data register collapses to the superposition of all pre-images of $f(x_0)$:
-    $$\frac{1}{\sqrt{2}}\left(\ket{x_0} + \ket{x_0 \oplus s}\right)$$
-    (assuming $s \ne 0^n$, so there are exactly two pre-images).</p>
+              <p>
+                <strong>Measure the ancilla register:</strong> Suppose outcome is $f(x_0)$. The data
+                register collapses to the superposition of all pre-images of $f(x_0)$:
+                $$\frac{1}{\sqrt{2}}\left(\ket{x_0} + \ket{x_0 \oplus s}\right)$$ (assuming $s \ne
+                0^n$, so there are exactly two pre-images).
+              </p>
 
-    <p><strong>After $H^{\otimes n}$ on data register:</strong></p>
-    $$H^{\otimes n}\cdot\frac{1}{\sqrt{2}}(\ket{x_0} + \ket{x_0 \oplus s}) = \frac{1}{\sqrt{2^{n+1}}}\sum_z (-1)^{x_0 \cdot z}(1 + (-1)^{s\cdot z})\ket{z}$$
+              <p><strong>After $H^{\otimes n}$ on data register:</strong></p>
+              $$H^{\otimes n}\cdot\frac{1}{\sqrt{2}}(\ket{x_0} + \ket{x_0 \oplus s}) =
+              \frac{1}{\sqrt{2^{n+1}}}\sum_z (-1)^{x_0 \cdot z}(1 + (-1)^{s\cdot z})\ket{z}$$
 
-    <p>The factor $(1+(-1)^{s\cdot z})$ is 2 if $s \cdot z = 0 \pmod 2$, and 0 otherwise. So measurement only yields strings $z$ satisfying $s \cdot z = 0 \pmod 2$. These are uniformly distributed over the $n-1$ dimensional subspace $\{z : s\cdot z = 0\}$.</p>
-  </div>
+              <p>
+                The factor $(1+(-1)^{s\cdot z})$ is 2 if $s \cdot z = 0 \pmod 2$, and 0 otherwise.
+                So measurement only yields strings $z$ satisfying $s \cdot z = 0 \pmod 2$. These are
+                uniformly distributed over the $n-1$ dimensional subspace $\{z : s\cdot z = 0\}$.
+              </p>
+            </div>
 
-  <div class="callout insight">
-    <div class="callout-title">Classical Post-Processing</div>
-    <p>
-      Each run of the quantum circuit yields a uniformly random $z$ in the hyperplane $\{z : s \cdot z = 0\}$.
-      After $n-1$ linearly independent measurements $z_1, z_2, \ldots, z_{n-1}$, we have a linear system of $n-1$ equations in $n$ unknowns (the bits of $s$) over $\mathbb{F}_2$:
-      $$z_1 \cdot s = 0, \quad z_2 \cdot s = 0, \quad \ldots, \quad z_{n-1} \cdot s = 0$$
-      The null space of this system is 1-dimensional (over $\mathbb{F}_2$), giving either $s = 0^n$ or the correct $s$.
-      Gaussian elimination over $\mathbb{F}_2$ (O$(n^3)$ classical operations) yields $s$.
-    </p>
-    <p>
-      The probability that $n-1$ random samples are linearly independent is at least $\prod_{k=0}^{n-2}(1-2^{k-n}) \ge 1-O(2^{-(n-1)})$ — exponentially high. So $O(n)$ quantum queries suffice with high probability.
-    </p>
-  </div>
+            <div class="callout insight">
+              <div class="callout-title">Classical Post-Processing</div>
+              <p>
+                Each run of the quantum circuit yields a uniformly random $z$ in the hyperplane $\{z
+                : s \cdot z = 0\}$. After $n-1$ linearly independent measurements $z_1, z_2, \ldots,
+                z_{n-1}$, we have a linear system of $n-1$ equations in $n$ unknowns (the bits of
+                $s$) over $\mathbb{F}_2$: $$z_1 \cdot s = 0, \quad z_2 \cdot s = 0, \quad \ldots,
+                \quad z_{n-1} \cdot s = 0$$ The null space of this system is 1-dimensional (over
+                $\mathbb{F}_2$), giving either $s = 0^n$ or the correct $s$. Gaussian elimination
+                over $\mathbb{F}_2$ (O$(n^3)$ classical operations) yields $s$.
+              </p>
+              <p>
+                The probability that $n-1$ random samples are linearly independent is at least
+                $\prod_{k=0}^{n-2}(1-2^{k-n}) \ge 1-O(2^{-(n-1)})$ — exponentially high. So $O(n)$
+                quantum queries suffice with high probability.
+              </p>
+            </div>
 
-  <div class="callout example">
-    <div class="callout-title">Concrete Example: n=3, s=110</div>
-    <p>Oracle: $f(x) = f(x \oplus 110)$ for all $x$. The space $\{z : 110 \cdot z = 0\}$ consists of all $z$ with $z_1 \oplus z_2 = 0$, i.e., $z_1 = z_2$:</p>
-    <p>$z \in \{000, 001, 110, 111\}$ — all 4 have $z_1 = z_2$.</p>
-    <p>After two linearly independent measurements (e.g. $z_1 = 001$ and $z_2 = 110$), Gaussian elimination over $\mathbb{F}_2$ gives $s = 110$.</p>
-  </div>
+            <div class="callout example">
+              <div class="callout-title">Concrete Example: n=3, s=110</div>
+              <p>
+                Oracle: $f(x) = f(x \oplus 110)$ for all $x$. The space $\{z : 110 \cdot z = 0\}$
+                consists of all $z$ with $z_1 \oplus z_2 = 0$, i.e., $z_1 = z_2$:
+              </p>
+              <p>$z \in \{000, 001, 110, 111\}$ — all 4 have $z_1 = z_2$.</p>
+              <p>
+                After two linearly independent measurements (e.g. $z_1 = 001$ and $z_2 = 110$),
+                Gaussian elimination over $\mathbb{F}_2$ gives $s = 110$.
+              </p>
+            </div>
 
-  <div class="callout insight">
-    <div class="callout-title">Simon → Shor</div>
-    <p>
-      Simon's algorithm is the philosophical ancestor of Shor's factoring algorithm.
-      Shor's algorithm can be viewed as a continuous (or group-theoretic) version of Simon's — instead of XOR periodicity in $(\mathbb{Z}_2)^n$, Shor looks for additive periodicity in $\mathbb{Z}_{2^n}$.
-      The hidden subgroup problem (HSP) generalises both and is the unifying framework for many quantum speedups.
-    </p>
-  </div>
-</section>
+            <div class="callout insight">
+              <div class="callout-title">Simon → Shor</div>
+              <p>
+                Simon's algorithm is the philosophical ancestor of Shor's factoring algorithm.
+                Shor's algorithm can be viewed as a continuous (or group-theoretic) version of
+                Simon's — instead of XOR periodicity in $(\mathbb{Z}_2)^n$, Shor looks for additive
+                periodicity in $\mathbb{Z}_{2^n}$. The hidden subgroup problem (HSP) generalises
+                both and is the unifying framework for many quantum speedups.
+              </p>
+            </div>
+          </section>
 
-<!-- ═══════════════════════════════════════════════════════
+          <!-- ═══════════════════════════════════════════════════════
      SECTION 6 — GROVER'S SEARCH
 ═══════════════════════════════════════════════════════ -->
-<section id="s6" class="reveal">
-  <h2><span class="section-num">6</span> Grover's Search Algorithm</h2>
+          <section id="s6" class="reveal">
+            <h2><span class="section-num">6</span> Grover's Search Algorithm</h2>
 
-  <h3 id="s6-intuition">6.1 The Search Problem</h3>
-  <p>
-    Given $N = 2^n$ items (indexed $0, 1, \ldots, N-1$), of which $M$ are "marked" (satisfy some criterion), find one.
-    In the oracle model, we can ask "is item $x$ marked?" — a single yes/no query.
-  </p>
+            <h3 id="s6-intuition">6.1 The Search Problem</h3>
+            <p>
+              Given $N = 2^n$ items (indexed $0, 1, \ldots, N-1$), of which $M$ are "marked"
+              (satisfy some criterion), find one. In the oracle model, we can ask "is item $x$
+              marked?" — a single yes/no query.
+            </p>
 
-  <div class="algo-compare">
-    <div class="algo-box classical">
-      <h5>🖥 Classical Complexity</h5>
-      <p>
-        With a single marked item ($M=1$), a classical search must examine $O(N)$ items on average. No randomised classical algorithm can do better than $\Omega(N)$ queries in the worst case.
-      </p>
-    </div>
-    <div class="algo-box quantum">
-      <h5>⚛ Quantum Complexity</h5>
-      <p>
-        Grover's algorithm finds a marked item with probability $\ge 1/2$ in $O(\sqrt{N/M})$ queries. For $M=1$: $O(\sqrt{N})$ queries. This is a <strong>provably optimal quantum algorithm</strong> — no quantum algorithm can do better than $\Omega(\sqrt{N})$ for unstructured search (Bennett–Bernstein–Brassard–Vazirani 1997).
-      </p>
-    </div>
-  </div>
+            <div class="algo-compare">
+              <div class="algo-box classical">
+                <h5>🖥 Classical Complexity</h5>
+                <p>
+                  With a single marked item ($M=1$), a classical search must examine $O(N)$ items on
+                  average. No randomised classical algorithm can do better than $\Omega(N)$ queries
+                  in the worst case.
+                </p>
+              </div>
+              <div class="algo-box quantum">
+                <h5>⚛ Quantum Complexity</h5>
+                <p>
+                  Grover's algorithm finds a marked item with probability $\ge 1/2$ in
+                  $O(\sqrt{N/M})$ queries. For $M=1$: $O(\sqrt{N})$ queries. This is a
+                  <strong>provably optimal quantum algorithm</strong> — no quantum algorithm can do
+                  better than $\Omega(\sqrt{N})$ for unstructured search
+                  (Bennett–Bernstein–Brassard–Vazirani 1997).
+                </p>
+              </div>
+            </div>
 
-  <p>
-    For $n=30$ qubits ($N = 10^9$ items), Grover uses about $\pi/4 \cdot \sqrt{10^9} \approx 24{,}868$ queries; a classical search averages $500{,}000{,}000$. The speedup is quadratic — modest compared to Shor's exponential, but the setting is completely generic (no structure assumed on $f$).
-  </p>
+            <p>
+              For $n=30$ qubits ($N = 10^9$ items), Grover uses about $\pi/4 \cdot \sqrt{10^9}
+              \approx 24{,}868$ queries; a classical search averages $500{,}000{,}000$. The speedup
+              is quadratic — modest compared to Shor's exponential, but the setting is completely
+              generic (no structure assumed on $f$).
+            </p>
 
-  <h3 id="s6-oracle">6.2 The Phase Oracle</h3>
-  <p>
-    Grover's oracle marks the target state $\ket{t}$ with a phase flip:
-    $$\mathcal{O}\ket{x} = \begin{cases} -\ket{x} & \text{if } x = t \\ +\ket{x} & \text{otherwise} \end{cases} \equiv (-1)^{f(x)}\ket{x}$$
-    where $f(x) = 1$ iff $x$ is a marked item.
-    In matrix form, $\mathcal{O} = I - 2\ket{t}\bra{t}$.
-    This is a <em>reflection about the hyperplane orthogonal to $\ket{t}$</em> — the oracle simply flips the phase of the marked state.
-  </p>
+            <h3 id="s6-oracle">6.2 The Phase Oracle</h3>
+            <p>
+              Grover's oracle marks the target state $\ket{t}$ with a phase flip:
+              $$\mathcal{O}\ket{x} = \begin{cases} -\ket{x} & \text{if } x = t \\ +\ket{x} &
+              \text{otherwise} \end{cases} \equiv (-1)^{f(x)}\ket{x}$$ where $f(x) = 1$ iff $x$ is a
+              marked item. In matrix form, $\mathcal{O} = I - 2\ket{t}\bra{t}$. This is a
+              <em>reflection about the hyperplane orthogonal to $\ket{t}$</em> — the oracle simply
+              flips the phase of the marked state.
+            </p>
 
-  <h3 id="s6-diffuser">6.3 The Diffusion Operator</h3>
-  <p>The second component is the <strong>diffusion operator</strong> (Grover diffuser), which inverts about the average amplitude:</p>
-  $$D = H^{\otimes n}(2\ket{0^n}\bra{0^n} - I)H^{\otimes n} = 2\ket{s}\bra{s} - I$$
-  where $\ket{s} = H^{\otimes n}\ket{0^n} = \frac{1}{\sqrt{N}}\sum_x \ket{x}$ is the uniform superposition.
-  <p>
-    The action of $D$ on a state $\ket{\psi} = \sum_x \alpha_x \ket{x}$ with mean amplitude $\bar{\alpha} = \frac{1}{N}\sum_x \alpha_x$:
-    $$D\ket{\psi} = \sum_x (2\bar{\alpha} - \alpha_x)\ket{x}$$
-  </p>
-  <p>
-    This is exactly <em>inversion about the mean</em>: each amplitude $\alpha_x$ is replaced by $2\bar\alpha - \alpha_x$ (reflection of $\alpha_x$ across the average $\bar\alpha$). States with below-average amplitude get boosted; states with above-average amplitude get suppressed.
-  </p>
+            <h3 id="s6-diffuser">6.3 The Diffusion Operator</h3>
+            <p>
+              The second component is the <strong>diffusion operator</strong> (Grover diffuser),
+              which inverts about the average amplitude:
+            </p>
+            $$D = H^{\otimes n}(2\ket{0^n}\bra{0^n} - I)H^{\otimes n} = 2\ket{s}\bra{s} - I$$ where
+            $\ket{s} = H^{\otimes n}\ket{0^n} = \frac{1}{\sqrt{N}}\sum_x \ket{x}$ is the uniform
+            superposition.
+            <p>
+              The action of $D$ on a state $\ket{\psi} = \sum_x \alpha_x \ket{x}$ with mean
+              amplitude $\bar{\alpha} = \frac{1}{N}\sum_x \alpha_x$: $$D\ket{\psi} = \sum_x
+              (2\bar{\alpha} - \alpha_x)\ket{x}$$
+            </p>
+            <p>
+              This is exactly <em>inversion about the mean</em>: each amplitude $\alpha_x$ is
+              replaced by $2\bar\alpha - \alpha_x$ (reflection of $\alpha_x$ across the average
+              $\bar\alpha$). States with below-average amplitude get boosted; states with
+              above-average amplitude get suppressed.
+            </p>
 
-  <div class="callout insight">
-    <div class="callout-title">Amplitude Amplification Intuition</div>
-    <p>
-      Initially, every amplitude is $1/\sqrt{N}$, and the mean is also $1/\sqrt{N}$. The oracle reduces the marked amplitude to $-1/\sqrt{N}$ (flips sign) while leaving others positive. Now the mean drops slightly below $1/\sqrt{N}$. The diffuser reflects each amplitude about this new (lower) mean: the marked amplitude, being furthest below the mean, jumps by $\approx 2 \cdot 1/\sqrt{N}$ in the positive direction, while the unmarked amplitudes drop slightly. Repeating this process monotonically increases the marked amplitude until it's close to 1.
-    </p>
-  </div>
+            <div class="callout insight">
+              <div class="callout-title">Amplitude Amplification Intuition</div>
+              <p>
+                Initially, every amplitude is $1/\sqrt{N}$, and the mean is also $1/\sqrt{N}$. The
+                oracle reduces the marked amplitude to $-1/\sqrt{N}$ (flips sign) while leaving
+                others positive. Now the mean drops slightly below $1/\sqrt{N}$. The diffuser
+                reflects each amplitude about this new (lower) mean: the marked amplitude, being
+                furthest below the mean, jumps by $\approx 2 \cdot 1/\sqrt{N}$ in the positive
+                direction, while the unmarked amplitudes drop slightly. Repeating this process
+                monotonically increases the marked amplitude until it's close to 1.
+              </p>
+            </div>
 
-  <h3 id="s6-geometry">6.4 Geometric Picture — Rotation in 2D</h3>
-  <p>
-    Grover's algorithm has an elegant geometric interpretation. Consider the 2D plane spanned by:
-  </p>
-  <ul>
-    <li>$\ket{\alpha}$ = uniform superposition over <em>unmarked</em> states (normalised)</li>
-    <li>$\ket{\beta}$ = uniform superposition over <em>marked</em> states (normalised)</li>
-  </ul>
-  <p>
-    Any state in this plane can be written $\cos\theta\,\ket{\alpha} + \sin\theta\,\ket{\beta}$.
-    The initial uniform superposition $\ket{s} = \sqrt{1-M/N}\,\ket{\alpha} + \sqrt{M/N}\,\ket{\beta}$, so the initial angle is $\sin\theta_0 = \sqrt{M/N}$.
-  </p>
-  <div class="callout theorem">
-    <div class="callout-title">Geometric Theorem</div>
-    <p>
-      Each application of the Grover operator $G = D \cdot \mathcal{O}$ rotates the state by angle $2\theta_0$ towards $\ket{\beta}$ in this 2D plane. After $k$ iterations, the state is:
-      $$\ket{\psi_k} = \cos((2k+1)\theta_0)\,\ket{\alpha} + \sin((2k+1)\theta_0)\,\ket{\beta}$$
-      The probability of measuring a marked item is $\sin^2((2k+1)\theta_0)$.
-    </p>
-  </div>
-  <p>
-    We want $(2k+1)\theta_0 \approx \pi/2$, i.e., $k \approx \frac{\pi}{4\theta_0} - \frac{1}{2}$.
-    For $M=1$: $\theta_0 = \arcsin(1/\sqrt{N}) \approx 1/\sqrt{N}$ (for large $N$), giving:
-    $$k_{\text{opt}} \approx \frac{\pi}{4}\sqrt{N}$$
-  </p>
+            <h3 id="s6-geometry">6.4 Geometric Picture — Rotation in 2D</h3>
+            <p>
+              Grover's algorithm has an elegant geometric interpretation. Consider the 2D plane
+              spanned by:
+            </p>
+            <ul>
+              <li>
+                $\ket{\alpha}$ = uniform superposition over <em>unmarked</em> states (normalised)
+              </li>
+              <li>
+                $\ket{\beta}$ = uniform superposition over <em>marked</em> states (normalised)
+              </li>
+            </ul>
+            <p>
+              Any state in this plane can be written $\cos\theta\,\ket{\alpha} +
+              \sin\theta\,\ket{\beta}$. The initial uniform superposition $\ket{s} =
+              \sqrt{1-M/N}\,\ket{\alpha} + \sqrt{M/N}\,\ket{\beta}$, so the initial angle is
+              $\sin\theta_0 = \sqrt{M/N}$.
+            </p>
+            <div class="callout theorem">
+              <div class="callout-title">Geometric Theorem</div>
+              <p>
+                Each application of the Grover operator $G = D \cdot \mathcal{O}$ rotates the state
+                by angle $2\theta_0$ towards $\ket{\beta}$ in this 2D plane. After $k$ iterations,
+                the state is: $$\ket{\psi_k} = \cos((2k+1)\theta_0)\,\ket{\alpha} +
+                \sin((2k+1)\theta_0)\,\ket{\beta}$$ The probability of measuring a marked item is
+                $\sin^2((2k+1)\theta_0)$.
+              </p>
+            </div>
+            <p>
+              We want $(2k+1)\theta_0 \approx \pi/2$, i.e., $k \approx \frac{\pi}{4\theta_0} -
+              \frac{1}{2}$. For $M=1$: $\theta_0 = \arcsin(1/\sqrt{N}) \approx 1/\sqrt{N}$ (for
+              large $N$), giving: $$k_{\text{opt}} \approx \frac{\pi}{4}\sqrt{N}$$
+            </p>
 
-  <h3 id="s6-analysis">6.5 Iteration Count and Success Probability</h3>
+            <h3 id="s6-analysis">6.5 Iteration Count and Success Probability</h3>
 
-  <div class="callout theorem">
-    <div class="callout-title">Optimal Number of Grover Iterations</div>
-    $$k_{\text{opt}} = \left\lfloor \frac{\pi}{4}\sqrt{\frac{N}{M}} \right\rfloor$$
-    <p>The success probability after $k_{\text{opt}}$ iterations is at least $1 - M/N$ (close to 1 for $M \ll N$). More precisely:</p>
-    $$P(\text{success after } k_{\text{opt}} \text{ iterations}) = \sin^2\!\left(\,(2k_{\text{opt}}+1)\arcsin\!\sqrt{M/N}\,\right) \ge 1 - \frac{M}{N}$$
-  </div>
+            <div class="callout theorem">
+              <div class="callout-title">Optimal Number of Grover Iterations</div>
+              $$k_{\text{opt}} = \left\lfloor \frac{\pi}{4}\sqrt{\frac{N}{M}} \right\rfloor$$
+              <p>
+                The success probability after $k_{\text{opt}}$ iterations is at least $1 - M/N$
+                (close to 1 for $M \ll N$). More precisely:
+              </p>
+              $$P(\text{success after } k_{\text{opt}} \text{ iterations}) =
+              \sin^2\!\left(\,(2k_{\text{opt}}+1)\arcsin\!\sqrt{M/N}\,\right) \ge 1 - \frac{M}{N}$$
+            </div>
 
-  <table class="phase-table" style="margin:1rem 0;">
-    <thead><tr><th>N (database)</th><th>M (marked)</th><th>k_opt</th><th>Classical (avg)</th><th>Speedup</th></tr></thead>
-    <tbody>
-      <tr><td>4</td><td>1</td><td>1</td><td>2.5</td><td>2.5×</td></tr>
-      <tr><td>16</td><td>1</td><td>3</td><td>8</td><td>2.7×</td></tr>
-      <tr><td>256</td><td>1</td><td>12</td><td>128</td><td>10.7×</td></tr>
-      <tr><td>1,024</td><td>1</td><td>25</td><td>512</td><td>20.5×</td></tr>
-      <tr><td>1,048,576 (2²⁰)</td><td>1</td><td>804</td><td>524,288</td><td>652×</td></tr>
-      <tr><td>2³²</td><td>1</td><td>51,472</td><td>2.15×10⁹</td><td>41,774×</td></tr>
-    </tbody>
-  </table>
+            <table class="phase-table" style="margin: 1rem 0">
+              <thead>
+                <tr>
+                  <th>N (database)</th>
+                  <th>M (marked)</th>
+                  <th>k_opt</th>
+                  <th>Classical (avg)</th>
+                  <th>Speedup</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>4</td>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>2.5</td>
+                  <td>2.5×</td>
+                </tr>
+                <tr>
+                  <td>16</td>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>8</td>
+                  <td>2.7×</td>
+                </tr>
+                <tr>
+                  <td>256</td>
+                  <td>1</td>
+                  <td>12</td>
+                  <td>128</td>
+                  <td>10.7×</td>
+                </tr>
+                <tr>
+                  <td>1,024</td>
+                  <td>1</td>
+                  <td>25</td>
+                  <td>512</td>
+                  <td>20.5×</td>
+                </tr>
+                <tr>
+                  <td>1,048,576 (2²⁰)</td>
+                  <td>1</td>
+                  <td>804</td>
+                  <td>524,288</td>
+                  <td>652×</td>
+                </tr>
+                <tr>
+                  <td>2³²</td>
+                  <td>1</td>
+                  <td>51,472</td>
+                  <td>2.15×10⁹</td>
+                  <td>41,774×</td>
+                </tr>
+              </tbody>
+            </table>
 
-  <div class="callout warning">
-    <div class="callout-title">Don't over-iterate!</div>
-    <p>
-      If you apply too many Grover iterations (past $k_{\text{opt}}$), the angle overshoots $\pi/2$ and the success probability <em>decreases</em>. Running $2k_{\text{opt}}$ iterations brings you back to the initial state with near-zero success probability. The rotation is reversible; Grover's algorithm must be stopped at the right moment.
-    </p>
-  </div>
+            <div class="callout warning">
+              <div class="callout-title">Don't over-iterate!</div>
+              <p>
+                If you apply too many Grover iterations (past $k_{\text{opt}}$), the angle
+                overshoots $\pi/2$ and the success probability <em>decreases</em>. Running
+                $2k_{\text{opt}}$ iterations brings you back to the initial state with near-zero
+                success probability. The rotation is reversible; Grover's algorithm must be stopped
+                at the right moment.
+              </p>
+            </div>
 
-  <h3 id="s6-interactive">6.6 Interactive Grover Visualizer</h3>
-  <p>
-    The visualization below shows the geometric rotation in the $(\ket{\alpha}, \ket{\beta})$ plane.
-    The blue arrow shows the current state; the gold arrow shows the target direction.
-    Adjust $N$ and watch how many iterations are needed.
-  </p>
-  <div class="viz-container" style="padding:1.5rem;">
-    <div class="grover-controls">
-      <label>N (database size):
-        <select id="grover-N-sel">
-          <option value="4">N=4</option>
-          <option value="8">N=8</option>
-          <option value="16" selected>N=16</option>
-          <option value="32">N=32</option>
-          <option value="64">N=64</option>
-          <option value="128">N=128</option>
-          <option value="256">N=256</option>
-        </select>
-      </label>
-      <label>M (marked items):
-        <select id="grover-M-sel">
-          <option value="1" selected>M=1</option>
-          <option value="2">M=2</option>
-          <option value="4">M=4</option>
-        </select>
-      </label>
-      <button class="btn btn-primary" id="grover-step-btn" style="padding:.35rem .9rem;font-size:.85rem;">▶ Next Iteration</button>
-      <button class="btn btn-secondary" id="grover-reset-btn" style="padding:.35rem .9rem;font-size:.85rem;">↺ Reset</button>
-      <button class="btn btn-secondary" id="grover-auto-btn" style="padding:.35rem .9rem;font-size:.85rem;">⚡ Auto-Run</button>
-      <span class="grover-stat" id="grover-stat">k=0 | P=1/N</span>
-    </div>
-    <canvas id="grover-canvas-w3" width="700" height="340"></canvas>
-  </div>
+            <h3 id="s6-interactive">6.6 Interactive Grover Visualizer</h3>
+            <p>
+              The visualization below shows the geometric rotation in the $(\ket{\alpha},
+              \ket{\beta})$ plane. The blue arrow shows the current state; the gold arrow shows the
+              target direction. Adjust $N$ and watch how many iterations are needed.
+            </p>
+            <div class="viz-container" style="padding: 1.5rem">
+              <div class="grover-controls">
+                <label
+                  >N (database size):
+                  <select id="grover-N-sel">
+                    <option value="4">N=4</option>
+                    <option value="8">N=8</option>
+                    <option value="16" selected>N=16</option>
+                    <option value="32">N=32</option>
+                    <option value="64">N=64</option>
+                    <option value="128">N=128</option>
+                    <option value="256">N=256</option>
+                  </select>
+                </label>
+                <label
+                  >M (marked items):
+                  <select id="grover-M-sel">
+                    <option value="1" selected>M=1</option>
+                    <option value="2">M=2</option>
+                    <option value="4">M=4</option>
+                  </select>
+                </label>
+                <button
+                  class="btn btn-primary"
+                  id="grover-step-btn"
+                  style="padding: 0.35rem 0.9rem; font-size: 0.85rem"
+                >
+                  ▶ Next Iteration
+                </button>
+                <button
+                  class="btn btn-secondary"
+                  id="grover-reset-btn"
+                  style="padding: 0.35rem 0.9rem; font-size: 0.85rem"
+                >
+                  ↺ Reset
+                </button>
+                <button
+                  class="btn btn-secondary"
+                  id="grover-auto-btn"
+                  style="padding: 0.35rem 0.9rem; font-size: 0.85rem"
+                >
+                  ⚡ Auto-Run
+                </button>
+                <span class="grover-stat" id="grover-stat">k=0 | P=1/N</span>
+              </div>
+              <canvas id="grover-canvas-w3" width="700" height="340"></canvas>
+            </div>
 
-  <h3 id="s6-amplitude">6.7 Amplitude Evolution Visualizer — The Full Picture</h3>
-  <p>
-    The geometric view shows <em>why</em> Grover works; the amplitude bar chart shows <em>how</em> it feels from inside.
-    Watch every basis state's amplitude bar evolve with each iteration — the marked element's bar shoots up while all others are suppressed. The gold dashed line is the mean amplitude (the pivot for the diffusion operator).
-  </p>
+            <h3 id="s6-amplitude">6.7 Amplitude Evolution Visualizer — The Full Picture</h3>
+            <p>
+              The geometric view shows <em>why</em> Grover works; the amplitude bar chart shows
+              <em>how</em> it feels from inside. Watch every basis state's amplitude bar evolve with
+              each iteration — the marked element's bar shoots up while all others are suppressed.
+              The gold dashed line is the mean amplitude (the pivot for the diffusion operator).
+            </p>
 
-  <div class="viz-container" style="padding:1.5rem;" id="grover-amp-viz">
-    <div class="grover-controls">
-      <label>n qubits (N = 2ⁿ):
-        <select id="gamp-n-sel">
-          <option value="2">n=2 (N=4)</option>
-          <option value="3" selected>n=3 (N=8)</option>
-          <option value="4">n=4 (N=16)</option>
-          <option value="5">n=5 (N=32)</option>
-          <option value="6">n=6 (N=64)</option>
-        </select>
-      </label>
-      <label>Target index:
-        <input type="number" id="gamp-target" min="0" max="63" value="5" style="width:56px;padding:.25rem .4rem;background:var(--bg-primary);border:1px solid var(--border-subtle);border-radius:6px;color:var(--text-primary);font-family:'JetBrains Mono',monospace;">
-      </label>
-      <button class="btn btn-primary" id="gamp-step-btn" style="padding:.35rem .9rem;font-size:.85rem;">▶ One Iteration</button>
-      <button class="btn btn-secondary" id="gamp-reset-btn" style="padding:.35rem .9rem;font-size:.85rem;">↺ Reset</button>
-      <button class="btn btn-secondary" id="gamp-auto-btn" style="padding:.35rem .9rem;font-size:.85rem;">⚡ Run to Optimal</button>
-      <span class="grover-stat" id="gamp-stat">k=0 — uniform superposition</span>
-    </div>
-    <canvas id="gamp-canvas" height="220" style="width:100%;border-radius:10px;background:var(--bg-card);display:block;margin-top:.8rem;"></canvas>
-    <div id="gamp-info" style="margin-top:.6rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text-secondary);"></div>
-  </div>
+            <div class="viz-container" style="padding: 1.5rem" id="grover-amp-viz">
+              <div class="grover-controls">
+                <label
+                  >n qubits (N = 2ⁿ):
+                  <select id="gamp-n-sel">
+                    <option value="2">n=2 (N=4)</option>
+                    <option value="3" selected>n=3 (N=8)</option>
+                    <option value="4">n=4 (N=16)</option>
+                    <option value="5">n=5 (N=32)</option>
+                    <option value="6">n=6 (N=64)</option>
+                  </select>
+                </label>
+                <label
+                  >Target index:
+                  <input
+                    type="number"
+                    id="gamp-target"
+                    min="0"
+                    max="63"
+                    value="5"
+                    style="
+                      width: 56px;
+                      padding: 0.25rem 0.4rem;
+                      background: var(--bg-primary);
+                      border: 1px solid var(--border-subtle);
+                      border-radius: 6px;
+                      color: var(--text-primary);
+                      font-family: 'JetBrains Mono', monospace;
+                    "
+                  />
+                </label>
+                <button
+                  class="btn btn-primary"
+                  id="gamp-step-btn"
+                  style="padding: 0.35rem 0.9rem; font-size: 0.85rem"
+                >
+                  ▶ One Iteration
+                </button>
+                <button
+                  class="btn btn-secondary"
+                  id="gamp-reset-btn"
+                  style="padding: 0.35rem 0.9rem; font-size: 0.85rem"
+                >
+                  ↺ Reset
+                </button>
+                <button
+                  class="btn btn-secondary"
+                  id="gamp-auto-btn"
+                  style="padding: 0.35rem 0.9rem; font-size: 0.85rem"
+                >
+                  ⚡ Run to Optimal
+                </button>
+                <span class="grover-stat" id="gamp-stat">k=0 — uniform superposition</span>
+              </div>
+              <canvas
+                id="gamp-canvas"
+                height="220"
+                style="
+                  width: 100%;
+                  border-radius: 10px;
+                  background: var(--bg-card);
+                  display: block;
+                  margin-top: 0.8rem;
+                "
+              ></canvas>
+              <div
+                id="gamp-info"
+                style="
+                  margin-top: 0.6rem;
+                  font-family: 'JetBrains Mono', monospace;
+                  font-size: 0.8rem;
+                  color: var(--text-secondary);
+                "
+              ></div>
+            </div>
 
-  <div class="callout example">
-    <div class="callout-title">Worked Example: N=4 (n=2), Target |11⟩ — 1 Iteration Gives 100% Success</div>
-    <p><strong>Initial state:</strong> $|\psi_0\rangle = \tfrac{1}{2}(|00\rangle + |01\rangle + |10\rangle + |11\rangle)$. All amplitudes $= +\tfrac{1}{2}$. Mean $\bar{\alpha} = \tfrac{1}{2}$.</p>
-    <p><strong>After oracle $\mathcal{O}$</strong> (flip sign of $|11\rangle$): amplitudes $= [+\tfrac{1}{2}, +\tfrac{1}{2}, +\tfrac{1}{2}, -\tfrac{1}{2}]$. New mean $\bar{\alpha} = \tfrac{1}{4}(3\cdot\tfrac{1}{2} + (-\tfrac{1}{2})) = \tfrac{1}{4}$.</p>
-    <p><strong>After diffuser $D$</strong> (reflect each amplitude about mean $\tfrac{1}{4}$, i.e., $\alpha_x \to 2\cdot\tfrac{1}{4} - \alpha_x$):</p>
-    <ul>
-      <li>$|00\rangle, |01\rangle, |10\rangle$: $2\cdot\tfrac{1}{4} - \tfrac{1}{2} = \tfrac{1}{2} - \tfrac{1}{2} = \mathbf{0}$</li>
-      <li>$|11\rangle$: $2\cdot\tfrac{1}{4} - (-\tfrac{1}{2}) = \tfrac{1}{2} + \tfrac{1}{2} = \mathbf{1}$</li>
-    </ul>
-    <p>After a single Grover iteration, $|11\rangle$ has amplitude $1$ — success probability $\mathbf{100\%}$! ($k_\text{opt} = \lfloor \tfrac{\pi}{4}\sqrt{4}\rfloor = \lfloor\tfrac{\pi}{2}\rfloor = 1$. ✓)</p>
-  </div>
+            <div class="callout example">
+              <div class="callout-title">
+                Worked Example: N=4 (n=2), Target |11⟩ — 1 Iteration Gives 100% Success
+              </div>
+              <p>
+                <strong>Initial state:</strong> $|\psi_0\rangle = \tfrac{1}{2}(|00\rangle +
+                |01\rangle + |10\rangle + |11\rangle)$. All amplitudes $= +\tfrac{1}{2}$. Mean
+                $\bar{\alpha} = \tfrac{1}{2}$.
+              </p>
+              <p>
+                <strong>After oracle $\mathcal{O}$</strong> (flip sign of $|11\rangle$): amplitudes
+                $= [+\tfrac{1}{2}, +\tfrac{1}{2}, +\tfrac{1}{2}, -\tfrac{1}{2}]$. New mean
+                $\bar{\alpha} = \tfrac{1}{4}(3\cdot\tfrac{1}{2} + (-\tfrac{1}{2})) = \tfrac{1}{4}$.
+              </p>
+              <p>
+                <strong>After diffuser $D$</strong> (reflect each amplitude about mean
+                $\tfrac{1}{4}$, i.e., $\alpha_x \to 2\cdot\tfrac{1}{4} - \alpha_x$):
+              </p>
+              <ul>
+                <li>
+                  $|00\rangle, |01\rangle, |10\rangle$: $2\cdot\tfrac{1}{4} - \tfrac{1}{2} =
+                  \tfrac{1}{2} - \tfrac{1}{2} = \mathbf{0}$
+                </li>
+                <li>
+                  $|11\rangle$: $2\cdot\tfrac{1}{4} - (-\tfrac{1}{2}) = \tfrac{1}{2} + \tfrac{1}{2}
+                  = \mathbf{1}$
+                </li>
+              </ul>
+              <p>
+                After a single Grover iteration, $|11\rangle$ has amplitude $1$ — success
+                probability $\mathbf{100\%}$! ($k_\text{opt} = \lfloor \tfrac{\pi}{4}\sqrt{4}\rfloor
+                = \lfloor\tfrac{\pi}{2}\rfloor = 1$. ✓)
+              </p>
+            </div>
 
-  <div class="callout example">
-    <div class="callout-title">Grover's Algorithm — Pseudocode</div>
-    <pre style="font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.7;color:var(--text-primary);">Algorithm GROVER(oracle O_f, n qubits, N = 2^n):
+            <div class="callout example">
+              <div class="callout-title">Grover's Algorithm — Pseudocode</div>
+              <pre
+                style="
+                  font-family: 'JetBrains Mono', monospace;
+                  font-size: 0.82rem;
+                  line-height: 1.7;
+                  color: var(--text-primary);
+                "
+              >
+Algorithm GROVER(oracle O_f, n qubits, N = 2^n):
   T_opt ← ⌊(π/4)·√N⌋         // optimal number of iterations
   |ψ⟩ ← H^⊗n |0⟩^n           // uniform superposition
 
@@ -1148,44 +1993,77 @@ print(f"Circuit depth: {qc.depth()}")</code></pre>
     // D = H^⊗n · (2|0^n⟩⟨0^n| − I) · H^⊗n
 
   result ← MEASURE(|ψ⟩)        // Success with prob ≥ 1 − 1/N
-  return result</pre>
-  </div>
+  return result</pre
+              >
+            </div>
 
-  <div class="callout warning">
-    <div class="callout-title">Optimality: The BBBV Lower Bound — Grover Cannot Be Improved</div>
-    <p>
-      Bennett, Bernstein, Brassard, and Vazirani (1997) proved using the <em>polynomial method</em> that <strong>no quantum algorithm can solve unstructured search in fewer than $\Omega(\sqrt{N})$ queries</strong>. Grover's algorithm is therefore optimal — no cleverer quantum circuit can beat the $\sqrt{N}$ barrier for a black-box oracle.
-    </p>
-    <p>
-      <strong>Critical implication for NP:</strong> Grover does <em>not</em> put NP inside BQP. For an NP problem with $N = 2^n$ potential witnesses to verify, Grover gives $O(2^{n/2})$ quantum queries — still exponential! The speedup is quadratic, not polynomial. NP-complete problems remain intractable quantumly (as far as we know).
-    </p>
-    <p>
-      <strong>Cryptographic implication:</strong> Any symmetric cipher with an $n$-bit key that is secure against $O(2^n)$ classical brute force offers only $O(2^{n/2})$ security against a quantum adversary with Grover. This is why post-quantum standards (NIST PQC 2022–24) doubled symmetric key sizes: AES-128 → AES-256.
-    </p>
-  </div>
+            <div class="callout warning">
+              <div class="callout-title">
+                Optimality: The BBBV Lower Bound — Grover Cannot Be Improved
+              </div>
+              <p>
+                Bennett, Bernstein, Brassard, and Vazirani (1997) proved using the
+                <em>polynomial method</em> that
+                <strong
+                  >no quantum algorithm can solve unstructured search in fewer than
+                  $\Omega(\sqrt{N})$ queries</strong
+                >. Grover's algorithm is therefore optimal — no cleverer quantum circuit can beat
+                the $\sqrt{N}$ barrier for a black-box oracle.
+              </p>
+              <p>
+                <strong>Critical implication for NP:</strong> Grover does <em>not</em> put NP inside
+                BQP. For an NP problem with $N = 2^n$ potential witnesses to verify, Grover gives
+                $O(2^{n/2})$ quantum queries — still exponential! The speedup is quadratic, not
+                polynomial. NP-complete problems remain intractable quantumly (as far as we know).
+              </p>
+              <p>
+                <strong>Cryptographic implication:</strong> Any symmetric cipher with an $n$-bit key
+                that is secure against $O(2^n)$ classical brute force offers only $O(2^{n/2})$
+                security against a quantum adversary with Grover. This is why post-quantum standards
+                (NIST PQC 2022–24) doubled symmetric key sizes: AES-128 → AES-256.
+              </p>
+            </div>
 
-  <h3 id="s6-generalise">6.8 Generalisations and Applications</h3>
+            <h3 id="s6-generalise">6.8 Generalisations and Applications</h3>
 
-  <div class="callout insight">
-    <div class="callout-title">Amplitude Amplification (Brassard et al. 2002)</div>
-    <p>
-      Grover's algorithm is a special case of the more general technique of <strong>amplitude amplification</strong>.
-      Given any quantum algorithm $\mathcal{A}$ that finds a solution with probability $p$ (starting from any initial state),
-      amplitude amplification can boost this to near-certainty in $O(1/\sqrt{p})$ calls to $\mathcal{A}$, quadratically improving any randomised algorithm.
-    </p>
-  </div>
+            <div class="callout insight">
+              <div class="callout-title">Amplitude Amplification (Brassard et al. 2002)</div>
+              <p>
+                Grover's algorithm is a special case of the more general technique of
+                <strong>amplitude amplification</strong>. Given any quantum algorithm $\mathcal{A}$
+                that finds a solution with probability $p$ (starting from any initial state),
+                amplitude amplification can boost this to near-certainty in $O(1/\sqrt{p})$ calls to
+                $\mathcal{A}$, quadratically improving any randomised algorithm.
+              </p>
+            </div>
 
-  <p>Grover's algorithm (or amplitude amplification) is used as a subroutine in:</p>
-  <ul>
-    <li><strong>Collision finding:</strong> Find two inputs with the same output in $O(N^{1/3})$ time (quantum birthday problem)</li>
-    <li><strong>Element distinctness:</strong> Determine if a list has duplicates in $O(N^{2/3})$ queries</li>
-    <li><strong>Triangle finding:</strong> Quantum speedup for graph problems</li>
-    <li><strong>Constraint satisfaction / SAT:</strong> Quadratic speedup over classical exhaustive search</li>
-    <li><strong>Quantum minimum finding:</strong> Find the minimum of $N$ values in $O(\sqrt{N})$ queries</li>
-    <li><strong>Cryptographic applications:</strong> Grover halves the effective key length of symmetric ciphers — AES-128 becomes equivalent to AES-64 against a quantum adversary, motivating post-quantum cryptography</li>
-  </ul>
+            <p>Grover's algorithm (or amplitude amplification) is used as a subroutine in:</p>
+            <ul>
+              <li>
+                <strong>Collision finding:</strong> Find two inputs with the same output in
+                $O(N^{1/3})$ time (quantum birthday problem)
+              </li>
+              <li>
+                <strong>Element distinctness:</strong> Determine if a list has duplicates in
+                $O(N^{2/3})$ queries
+              </li>
+              <li><strong>Triangle finding:</strong> Quantum speedup for graph problems</li>
+              <li>
+                <strong>Constraint satisfaction / SAT:</strong> Quadratic speedup over classical
+                exhaustive search
+              </li>
+              <li>
+                <strong>Quantum minimum finding:</strong> Find the minimum of $N$ values in
+                $O(\sqrt{N})$ queries
+              </li>
+              <li>
+                <strong>Cryptographic applications:</strong> Grover halves the effective key length
+                of symmetric ciphers — AES-128 becomes equivalent to AES-64 against a quantum
+                adversary, motivating post-quantum cryptography
+              </li>
+            </ul>
 
-  <pre><code>from qiskit import QuantumCircuit
+            <pre><code>from qiskit import QuantumCircuit
 from qiskit.circuit.library import GroverOperator
 from qiskit.primitives import StatevectorSampler
 import math
@@ -1232,413 +2110,548 @@ qc = grover_circuit(n=3, target=5)
 sampler = StatevectorSampler()
 result = sampler.run([qc], shots=1000).result()[0]
 print(result.data.meas.get_counts())</code></pre>
+          </section>
+        </main>
+      </div>
+      <!-- content-wrapper -->
+    </div>
+    <!-- page-wrapper -->
 
-</section>
+    <footer
+      style="
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        border-top: 1px solid var(--border-subtle);
+      "
+    >
+      <p>Week 3 · Quantum Algorithms · NPTEL Course Notes</p>
+      <p style="margin-top: 0.4rem">
+        References: Nielsen &amp; Chuang Ch. 6 · Bernstein &amp; Vazirani (1997) · Simon (1997) ·
+        Grover (1996) · BBCV (1997) lower bound
+      </p>
+      <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 1.5rem">
+        <a href="week2.html" style="color: var(--accent-cyan); text-decoration: none">← Week 2</a>
+        <a href="index.html" style="color: var(--accent-cyan); text-decoration: none">Home</a>
+        <a href="week4.html" style="color: var(--accent-cyan); text-decoration: none">Week 4 →</a>
+      </div>
+    </footer>
 
-    </main>
-  </div><!-- content-wrapper -->
-</div><!-- page-wrapper -->
+    <script src="js/main.js"></script>
+    <script>
+      /* ─── Deutsch–Jozsa Interactive ──────────────────────────────── */
+      (function () {
+        const oracles = {
+          c0: {
+            name: 'Constant-0',
+            type: 'constant',
+            phases: [1, 1, 1, 1],
+            tableHTML:
+              '<tr><td>00</td><td>0</td><td class="plus">+1</td></tr><tr><td>01</td><td>0</td><td class="plus">+1</td></tr><tr><td>10</td><td>0</td><td class="plus">+1</td></tr><tr><td>11</td><td>0</td><td class="plus">+1</td></tr>',
+          },
+          c1: {
+            name: 'Constant-1',
+            type: 'constant',
+            phases: [-1, -1, -1, -1],
+            tableHTML:
+              '<tr><td>00</td><td>1</td><td class="minus">−1</td></tr><tr><td>01</td><td>1</td><td class="minus">−1</td></tr><tr><td>10</td><td>1</td><td class="minus">−1</td></tr><tr><td>11</td><td>1</td><td class="minus">−1</td></tr>',
+          },
+          b1: { name: 'Balanced A', type: 'balanced', phases: [1, -1, 1, -1] },
+          b2: { name: 'Balanced B', type: 'balanced', phases: [-1, 1, -1, 1] },
+          b3: { name: 'Balanced C', type: 'balanced', phases: [1, 1, -1, -1] },
+          b4: { name: 'Balanced D', type: 'balanced', phases: [-1, -1, 1, 1] },
+        };
 
-<footer style="text-align:center;padding:2rem;color:var(--text-muted);font-size:.85rem;border-top:1px solid var(--border-subtle);">
-  <p>Week 3 · Quantum Algorithms · NPTEL Course Notes</p>
-  <p style="margin-top:.4rem;">
-    References: Nielsen &amp; Chuang Ch. 6 · Bernstein &amp; Vazirani (1997) · Simon (1997) · Grover (1996) · BBCV (1997) lower bound
-  </p>
-  <div style="margin-top:1rem;display:flex;justify-content:center;gap:1.5rem;">
-    <a href="week2.html" style="color:var(--accent-cyan);text-decoration:none;">← Week 2</a>
-    <a href="index.html" style="color:var(--accent-cyan);text-decoration:none;">Home</a>
-    <a href="week4.html" style="color:var(--accent-cyan);text-decoration:none;">Week 4 →</a>
-  </div>
-</footer>
+        document.querySelectorAll('.dj-oracle-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            document
+              .querySelectorAll('.dj-oracle-btn')
+              .forEach((b) => b.classList.remove('active'));
+            btn.classList.add('active');
+            const o = oracles[btn.dataset.type];
+            runDJ(o);
+          });
+        });
 
-<script src="js/main.js"></script>
-<script>
-/* ─── Deutsch–Jozsa Interactive ──────────────────────────────── */
-(function(){
-  const oracles = {
-    c0: { name:'Constant-0', type:'constant', phases:[1,1,1,1], tableHTML:'<tr><td>00</td><td>0</td><td class="plus">+1</td></tr><tr><td>01</td><td>0</td><td class="plus">+1</td></tr><tr><td>10</td><td>0</td><td class="plus">+1</td></tr><tr><td>11</td><td>0</td><td class="plus">+1</td></tr>' },
-    c1: { name:'Constant-1', type:'constant', phases:[-1,-1,-1,-1], tableHTML:'<tr><td>00</td><td>1</td><td class="minus">−1</td></tr><tr><td>01</td><td>1</td><td class="minus">−1</td></tr><tr><td>10</td><td>1</td><td class="minus">−1</td></tr><tr><td>11</td><td>1</td><td class="minus">−1</td></tr>' },
-    b1: { name:'Balanced A', type:'balanced', phases:[1,-1,1,-1] },
-    b2: { name:'Balanced B', type:'balanced', phases:[-1,1,-1,1] },
-    b3: { name:'Balanced C', type:'balanced', phases:[1,1,-1,-1] },
-    b4: { name:'Balanced D', type:'balanced', phases:[-1,-1,1,1] },
-  };
+        function runDJ(o) {
+          const steps = [1, 2, 3, 4, 5].map((i) => document.getElementById('dj-s' + i));
+          const texts = [2, 3, 4, 5].map((i) => document.getElementById('dj-s' + i + '-text'));
+          const ans = document.getElementById('dj-answer');
+          steps.forEach((s) => s.classList.remove('active'));
+          ans.textContent = '';
+          ans.className = 'dj-answer';
 
-  document.querySelectorAll('.dj-oracle-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.dj-oracle-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      const o = oracles[btn.dataset.type];
-      runDJ(o);
-    });
-  });
+          const phi = o.phases;
+          const sum = phi.reduce((a, b) => a + b, 0);
+          const ampZero = sum / 4;
 
-  function runDJ(o) {
-    const steps = [1,2,3,4,5].map(i=>document.getElementById('dj-s'+i));
-    const texts = [2,3,4,5].map(i=>document.getElementById('dj-s'+i+'-text'));
-    const ans   = document.getElementById('dj-answer');
-    steps.forEach(s=>s.classList.remove('active'));
-    ans.textContent=''; ans.className='dj-answer';
-    
-    const phi = o.phases;
-    const sum = phi.reduce((a,b)=>a+b,0);
-    const ampZero = sum/4;
+          function show(i, txt, delay) {
+            setTimeout(() => {
+              steps[i].classList.add('active');
+              if (texts[i - 1]) texts[i - 1].textContent = txt;
+            }, delay);
+          }
 
-    function show(i,txt,delay){
-      setTimeout(()=>{
-        steps[i].classList.add('active');
-        if(texts[i-1]) texts[i-1].textContent=txt;
-      }, delay);
-    }
+          show(0, `Select oracle: ${o.name}`, 0);
+          show(1, `Apply H⊗² to data, H to ancilla → |ψ₁⟩ = ¼(|00⟩+|01⟩+|10⟩+|11⟩)|−⟩`, 400);
+          show(2, `Oracle applies phase (−1)^f(x). Phases: [${phi.join(', ')}]`, 900);
+          const phaseStr = phi
+            .map((p, i) => `${p > 0 ? '+' : '-'}|${['00', '01', '10', '11'][i]}⟩`)
+            .join(' ');
+          show(3, `After U_f: ½(${phaseStr})|−⟩`, 1400);
+          show(4, `Apply H⊗² again. Amplitude of |00⟩ = (${phi.join('+')})/4 = ${ampZero}`, 1900);
 
-    show(0,`Select oracle: ${o.name}`,0);
-    show(1,`Apply H⊗² to data, H to ancilla → |ψ₁⟩ = ¼(|00⟩+|01⟩+|10⟩+|11⟩)|−⟩`,400);
-    show(2,`Oracle applies phase (−1)^f(x). Phases: [${phi.join(', ')}]`,900);
-    const phaseStr = phi.map((p,i)=>`${p>0?'+':'-'}|${['00','01','10','11'][i]}⟩`).join(' ');
-    show(3,`After U_f: ½(${phaseStr})|−⟩`,1400);
-    show(4,`Apply H⊗² again. Amplitude of |00⟩ = (${phi.join('+')})/4 = ${ampZero}`,1900);
+          setTimeout(() => {
+            steps[4].classList.add('active');
+            if (texts[3])
+              texts[3].textContent =
+                ampZero !== 0
+                  ? `|amplitude of |00⟩|² = ${ampZero ** 2} → measure |00⟩ with probability ${ampZero ** 2 * 100}%`
+                  : `Amplitude of |00⟩ = 0 → will NEVER measure all-zeros`;
+            ans.textContent =
+              o.type === 'constant'
+                ? `✔ CONSTANT — measured |00⟩ (prob = ${ampZero ** 2})`
+                : `✔ BALANCED — amplitude of |00⟩ is zero; measured non-zero string`;
+            ans.className = 'dj-answer ' + o.type;
+          }, 2400);
+        }
+      })();
 
-    setTimeout(()=>{
-      steps[4].classList.add('active');
-      if(texts[3]) texts[3].textContent = ampZero!==0
-        ? `|amplitude of |00⟩|² = ${ampZero**2} → measure |00⟩ with probability ${ampZero**2*100}%`
-        : `Amplitude of |00⟩ = 0 → will NEVER measure all-zeros`;
-      ans.textContent = o.type==='constant'
-        ? `✔ CONSTANT — measured |00⟩ (prob = ${ampZero**2})`
-        : `✔ BALANCED — amplitude of |00⟩ is zero; measured non-zero string`;
-      ans.className = 'dj-answer ' + o.type;
-    }, 2400);
-  }
-})();
+      /* ─── Bernstein–Vazirani Interactive ─────────────────────────── */
+      (function () {
+        const n = 5;
+        let s = Array(n).fill(0);
+        const container = document.getElementById('bv-bits');
+        const result = document.getElementById('bv-result');
+        const oracleLabel = document.getElementById('bv-oracle-label');
+        const circuitDiv = document.getElementById('bv-circuit');
 
-/* ─── Bernstein–Vazirani Interactive ─────────────────────────── */
-(function(){
-  const n = 5;
-  let s = Array(n).fill(0);
-  const container = document.getElementById('bv-bits');
-  const result    = document.getElementById('bv-result');
-  const oracleLabel = document.getElementById('bv-oracle-label');
-  const circuitDiv  = document.getElementById('bv-circuit');
+        for (let i = 0; i < n; i++) {
+          const btn = document.createElement('div');
+          btn.className = 'bv-bit';
+          btn.textContent = '0';
+          btn.dataset.idx = i;
+          btn.addEventListener('click', () => {
+            s[i] = 1 - s[i];
+            btn.textContent = s[i];
+            btn.classList.toggle('on', s[i] === 1);
+            update();
+          });
+          container.appendChild(btn);
+        }
 
-  for(let i=0;i<n;i++){
-    const btn = document.createElement('div');
-    btn.className='bv-bit';
-    btn.textContent='0';
-    btn.dataset.idx=i;
-    btn.addEventListener('click',()=>{
-      s[i]=1-s[i];
-      btn.textContent=s[i];
-      btn.classList.toggle('on', s[i]===1);
-      update();
-    });
-    container.appendChild(btn);
-  }
+        function update() {
+          const sStr = s.join('');
+          oracleLabel.textContent = `f(x) = s·x mod 2, s = ${sStr}`;
+          result.innerHTML = `<span style="color:var(--text-muted)">BV algorithm queries oracle once → measures </span><span style="color:var(--accent-gold)">${sStr}</span>`;
+          // Draw simple circuit SVG
+          const svgW = 520,
+            svgH = n * 40 + 40;
+          let svg = `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="max-width:100%">`;
+          for (let i = 0; i < n; i++) {
+            const y = 30 + i * 40;
+            svg += `<line x1="60" y1="${y}" x2="${svgW - 40}" y2="${y}" stroke="#334155" stroke-width="1.5"/>`;
+            svg += `<text x="5" y="${y + 4}" fill="#94a3b8" font-size="12" font-family="JetBrains Mono,monospace">q${i}|0⟩</text>`;
+            // H gate
+            svg += `<rect x="70" y="${y - 12}" width="26" height="24" rx="4" fill="#0f172a" stroke="#00d4ff" stroke-width="1.5"/>`;
+            svg += `<text x="83" y="${y + 4}" fill="#00d4ff" font-size="12" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">H</text>`;
+            // CNOT if s[i]=1
+            if (s[i] === 1) {
+              svg += `<circle cx="240" cy="${y}" r="12" fill="none" stroke="#f4c430" stroke-width="1.5"/>`;
+              svg += `<text x="240" y="${y + 4}" fill="#f4c430" font-size="12" text-anchor="middle" font-family="JetBrains Mono,monospace">⊕</text>`;
+              svg += `<text x="250" y="${y - 14}" fill="#9b5de5" font-size="9" font-family="JetBrains Mono,monospace">CNOT</text>`;
+            }
+            // H gate after oracle
+            svg += `<rect x="380" y="${y - 12}" width="26" height="24" rx="4" fill="#0f172a" stroke="#00d4ff" stroke-width="1.5"/>`;
+            svg += `<text x="393" y="${y + 4}" fill="#00d4ff" font-size="12" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">H</text>`;
+            // Measurement
+            svg += `<rect x="420" y="${y - 12}" width="28" height="24" rx="4" fill="#1e293b" stroke="#f4c430" stroke-width="1.5"/>`;
+            svg += `<text x="434" y="${y + 5}" fill="#f4c430" font-size="11" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">M</text>`;
+            svg += `<text x="458" y="${y + 5}" fill="#f4c430" font-size="11" font-family="JetBrains Mono,monospace">=${s[i]}</text>`;
+          }
+          // Oracle box
+          svg += `<rect x="155" y="15" width="110" height="${n * 40 + 5}" rx="6" fill="rgba(155,93,229,0.1)" stroke="#9b5de5" stroke-width="1.5"/>`;
+          svg += `<text x="210" y="${n * 20 + 20}" fill="#9b5de5" font-size="12" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">U_f</text>`;
+          svg += '</svg>';
+          circuitDiv.innerHTML = svg;
+        }
+        update();
+      })();
 
-  function update(){
-    const sStr=s.join('');
-    oracleLabel.textContent=`f(x) = s·x mod 2, s = ${sStr}`;
-    result.innerHTML=`<span style="color:var(--text-muted)">BV algorithm queries oracle once → measures </span><span style="color:var(--accent-gold)">${sStr}</span>`;
-    // Draw simple circuit SVG
-    const svgW=520, svgH=n*40+40;
-    let svg=`<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="max-width:100%">`;
-    for(let i=0;i<n;i++){
-      const y=30+i*40;
-      svg+=`<line x1="60" y1="${y}" x2="${svgW-40}" y2="${y}" stroke="#334155" stroke-width="1.5"/>`;
-      svg+=`<text x="5" y="${y+4}" fill="#94a3b8" font-size="12" font-family="JetBrains Mono,monospace">q${i}|0⟩</text>`;
-      // H gate
-      svg+=`<rect x="70" y="${y-12}" width="26" height="24" rx="4" fill="#0f172a" stroke="#00d4ff" stroke-width="1.5"/>`;
-      svg+=`<text x="83" y="${y+4}" fill="#00d4ff" font-size="12" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">H</text>`;
-      // CNOT if s[i]=1
-      if(s[i]===1){
-        svg+=`<circle cx="240" cy="${y}" r="12" fill="none" stroke="#f4c430" stroke-width="1.5"/>`;
-        svg+=`<text x="240" y="${y+4}" fill="#f4c430" font-size="12" text-anchor="middle" font-family="JetBrains Mono,monospace">⊕</text>`;
-        svg+=`<text x="250" y="${y-14}" fill="#9b5de5" font-size="9" font-family="JetBrains Mono,monospace">CNOT</text>`;
-      }
-      // H gate after oracle
-      svg+=`<rect x="380" y="${y-12}" width="26" height="24" rx="4" fill="#0f172a" stroke="#00d4ff" stroke-width="1.5"/>`;
-      svg+=`<text x="393" y="${y+4}" fill="#00d4ff" font-size="12" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">H</text>`;
-      // Measurement
-      svg+=`<rect x="420" y="${y-12}" width="28" height="24" rx="4" fill="#1e293b" stroke="#f4c430" stroke-width="1.5"/>`;
-      svg+=`<text x="434" y="${y+5}" fill="#f4c430" font-size="11" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">M</text>`;
-      svg+=`<text x="458" y="${y+5}" fill="#f4c430" font-size="11" font-family="JetBrains Mono,monospace">=${s[i]}</text>`;
-    }
-    // Oracle box
-    svg+=`<rect x="155" y="15" width="110" height="${n*40+5}" rx="6" fill="rgba(155,93,229,0.1)" stroke="#9b5de5" stroke-width="1.5"/>`;
-    svg+=`<text x="210" y="${n*20+20}" fill="#9b5de5" font-size="12" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">U_f</text>`;
-    svg+='</svg>';
-    circuitDiv.innerHTML=svg;
-  }
-  update();
-})();
+      /* ─── Grover Amplitude Bar Chart ─────────────────────────────── */
+      (function () {
+        const canvas = document.getElementById('gamp-canvas');
+        const stepBtn = document.getElementById('gamp-step-btn');
+        const resetBtn = document.getElementById('gamp-reset-btn');
+        const autoBtn = document.getElementById('gamp-auto-btn');
+        const nSel = document.getElementById('gamp-n-sel');
+        const tgtIn = document.getElementById('gamp-target');
+        const statEl = document.getElementById('gamp-stat');
+        const infoEl = document.getElementById('gamp-info');
 
-/* ─── Grover Amplitude Bar Chart ─────────────────────────────── */
-(function(){
-  const canvas  = document.getElementById('gamp-canvas');
-  const stepBtn = document.getElementById('gamp-step-btn');
-  const resetBtn= document.getElementById('gamp-reset-btn');
-  const autoBtn = document.getElementById('gamp-auto-btn');
-  const nSel    = document.getElementById('gamp-n-sel');
-  const tgtIn   = document.getElementById('gamp-target');
-  const statEl  = document.getElementById('gamp-stat');
-  const infoEl  = document.getElementById('gamp-info');
+        let n = 3,
+          N = 8,
+          target = 5,
+          amps = [],
+          iter = 0,
+          kOpt = 0,
+          autoTimer = null;
 
-  let n=3, N=8, target=5, amps=[], iter=0, kOpt=0, autoTimer=null;
+        function init() {
+          n = parseInt(nSel.value);
+          N = 1 << n;
+          target = Math.max(0, Math.min(N - 1, parseInt(tgtIn.value) || 0));
+          tgtIn.max = N - 1;
+          if (target >= N) target = Math.floor(N / 2);
+          kOpt = Math.floor((Math.PI / 4) * Math.sqrt(N));
+          amps = new Array(N).fill(1 / Math.sqrt(N));
+          iter = 0;
+          draw();
+        }
 
-  function init(){
-    n = parseInt(nSel.value);
-    N = 1<<n;
-    target = Math.max(0, Math.min(N-1, parseInt(tgtIn.value)||0));
-    tgtIn.max = N-1;
-    if(target >= N) target = Math.floor(N/2);
-    kOpt = Math.floor(Math.PI/4*Math.sqrt(N));
-    amps = new Array(N).fill(1/Math.sqrt(N));
-    iter = 0;
-    draw();
-  }
+        function oracle() {
+          amps[target] *= -1;
+        }
+        function diffuse() {
+          const mean = amps.reduce((a, b) => a + b, 0) / N;
+          for (let i = 0; i < N; i++) amps[i] = 2 * mean - amps[i];
+        }
 
-  function oracle(){ amps[target] *= -1; }
-  function diffuse(){
-    const mean = amps.reduce((a,b)=>a+b,0)/N;
-    for(let i=0;i<N;i++) amps[i] = 2*mean - amps[i];
-  }
+        function step() {
+          oracle();
+          diffuse();
+          iter++;
+          draw();
+        }
 
-  function step(){
-    oracle(); diffuse(); iter++;
-    draw();
-  }
+        function draw() {
+          // Sync canvas size to rendered width
+          canvas.width = canvas.offsetWidth || 660;
+          const W = canvas.width,
+            H = canvas.height;
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, W, H);
+          ctx.fillStyle = '#070b14';
+          ctx.fillRect(0, 0, W, H);
 
-  function draw(){
-    // Sync canvas size to rendered width
-    canvas.width = canvas.offsetWidth || 660;
-    const W = canvas.width, H = canvas.height;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0,0,W,H);
-    ctx.fillStyle = '#070b14'; ctx.fillRect(0,0,W,H);
+          const pad = { l: 40, r: 12, t: 20, b: 44 };
+          const gW = W - pad.l - pad.r,
+            gH = H - pad.t - pad.b;
+          const barW = Math.max(2, gW / N - 1);
+          const zeroY = pad.t + gH * 0.72; // zero line at 72% from top
+          const scale = gH * 0.6; // max bar height
 
-    const pad={l:40,r:12,t:20,b:44};
-    const gW = W-pad.l-pad.r, gH = H-pad.t-pad.b;
-    const barW = Math.max(2, gW/N - 1);
-    const zeroY = pad.t + gH*0.72; // zero line at 72% from top
-    const scale = gH * 0.60; // max bar height
+          // Mean line
+          const mean = amps.reduce((a, b) => a + b, 0) / N;
+          const meanY = zeroY - mean * scale;
+          ctx.beginPath();
+          ctx.setLineDash([5, 4]);
+          ctx.strokeStyle = '#f4c430';
+          ctx.lineWidth = 1.5;
+          ctx.moveTo(pad.l, meanY);
+          ctx.lineTo(pad.l + gW, meanY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = '#f4c430';
+          ctx.font = '10px JetBrains Mono,monospace';
+          ctx.fillText(`mean=${mean.toFixed(3)}`, pad.l + 3, meanY - 4);
 
-    // Mean line
-    const mean = amps.reduce((a,b)=>a+b,0)/N;
-    const meanY = zeroY - mean*scale;
-    ctx.beginPath();
-    ctx.setLineDash([5,4]);
-    ctx.strokeStyle = '#f4c430'; ctx.lineWidth=1.5;
-    ctx.moveTo(pad.l, meanY); ctx.lineTo(pad.l+gW, meanY);
-    ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle='#f4c430'; ctx.font='10px JetBrains Mono,monospace';
-    ctx.fillText(`mean=${mean.toFixed(3)}`, pad.l+3, meanY-4);
+          // Bars
+          for (let i = 0; i < N; i++) {
+            const x = pad.l + i * (barW + 1);
+            const a = amps[i];
+            const bH = Math.abs(a) * scale;
+            const isTarget = i === target;
+            ctx.fillStyle = isTarget ? '#9b5de5' : a < 0 ? '#f87171' : '#334e78';
+            if (isTarget) ctx.fillStyle = a < 0 ? '#ff6b9d' : '#9b5de5';
+            if (a >= 0) ctx.fillRect(x, zeroY - bH, barW, bH);
+            else ctx.fillRect(x, zeroY, barW, bH);
+            // Label for small N
+            if (N <= 16 && barW >= 14) {
+              ctx.fillStyle = isTarget ? '#f4c430' : '#94a3b8';
+              ctx.font = '9px JetBrains Mono,monospace';
+              ctx.textAlign = 'center';
+              ctx.fillText(a.toFixed(2), x + barW / 2, a >= 0 ? zeroY - bH - 4 : zeroY + bH + 12);
+            }
+          }
 
-    // Bars
-    for(let i=0;i<N;i++){
-      const x = pad.l + i*(barW+1);
-      const a = amps[i];
-      const bH = Math.abs(a)*scale;
-      const isTarget = i===target;
-      ctx.fillStyle = isTarget ? '#9b5de5' : (a<0 ? '#f87171' : '#334e78');
-      if(isTarget) ctx.fillStyle = a<0 ? '#ff6b9d' : '#9b5de5';
-      if(a >= 0) ctx.fillRect(x, zeroY-bH, barW, bH);
-      else       ctx.fillRect(x, zeroY,    barW, bH);
-      // Label for small N
-      if(N<=16 && barW>=14){
-        ctx.fillStyle = isTarget ? '#f4c430' : '#94a3b8';
-        ctx.font = '9px JetBrains Mono,monospace';
-        ctx.textAlign='center';
-        ctx.fillText(a.toFixed(2), x+barW/2, a>=0 ? zeroY-bH-4 : zeroY+bH+12);
-      }
-    }
+          // Zero line
+          ctx.beginPath();
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 1;
+          ctx.moveTo(pad.l, zeroY);
+          ctx.lineTo(pad.l + gW, zeroY);
+          ctx.stroke();
 
-    // Zero line
-    ctx.beginPath(); ctx.strokeStyle='#334155'; ctx.lineWidth=1;
-    ctx.moveTo(pad.l,zeroY); ctx.lineTo(pad.l+gW,zeroY); ctx.stroke();
+          // Target label
+          const tx = pad.l + target * (barW + 1);
+          ctx.fillStyle = '#f4c430';
+          ctx.font = 'bold 10px JetBrains Mono,monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(`|${target}⟩★`, tx + barW / 2, H - 6);
 
-    // Target label
-    const tx = pad.l + target*(barW+1);
-    ctx.fillStyle='#f4c430'; ctx.font='bold 10px JetBrains Mono,monospace'; ctx.textAlign='center';
-    ctx.fillText(`|${target}⟩★`, tx+barW/2, H-6);
+          // Title
+          ctx.textAlign = 'left';
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '11px JetBrains Mono,monospace';
+          ctx.fillText(`Iteration ${iter}/${kOpt} — N=${N}, target=|${target}⟩`, pad.l, 14);
 
-    // Title
-    ctx.textAlign='left'; ctx.fillStyle='#94a3b8'; ctx.font='11px JetBrains Mono,monospace';
-    ctx.fillText(`Iteration ${iter}/${kOpt} — N=${N}, target=|${target}⟩`, pad.l, 14);
+          // Axes
+          ctx.strokeStyle = '#475569';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(pad.l, pad.t);
+          ctx.lineTo(pad.l, H - pad.b + 4);
+          ctx.stroke();
+          ctx.fillStyle = '#475569';
+          ctx.font = '10px JetBrains Mono,monospace';
+          ctx.textAlign = 'right';
+          ctx.fillText('1.0', pad.l - 3, zeroY - scale + 4);
+          ctx.fillText('0', pad.l - 3, zeroY + 4);
+          ctx.fillText('-1', pad.l - 3, zeroY + scale + 4);
 
-    // Axes
-    ctx.strokeStyle='#475569'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,H-pad.b+4); ctx.stroke();
-    ctx.fillStyle='#475569'; ctx.font='10px JetBrains Mono,monospace'; ctx.textAlign='right';
-    ctx.fillText('1.0', pad.l-3, zeroY-scale+4);
-    ctx.fillText('0',   pad.l-3, zeroY+4);
-    ctx.fillText('-1',  pad.l-3, zeroY+scale+4);
+          const prob = amps[target] ** 2;
+          statEl.textContent = `k=${iter} | P(target)=${(prob * 100).toFixed(2)}% | k_opt=${kOpt}`;
+          infoEl.textContent = `Marked |${target}⟩ amplitude: ${amps[target].toFixed(4)} (prob=${(prob * 100).toFixed(2)}%)  |  Mean amplitude: ${mean.toFixed(4)} (gold dashed line = diffusion pivot)${iter >= kOpt ? ' ← OPTIMAL POINT!' : ''}`;
+        }
 
-    const prob = amps[target]**2;
-    statEl.textContent = `k=${iter} | P(target)=${(prob*100).toFixed(2)}% | k_opt=${kOpt}`;
-    infoEl.textContent = `Marked |${target}⟩ amplitude: ${amps[target].toFixed(4)} (prob=${(prob*100).toFixed(2)}%)  |  Mean amplitude: ${mean.toFixed(4)} (gold dashed line = diffusion pivot)${iter>=kOpt?' ← OPTIMAL POINT!':''}`;
-  }
+        stepBtn.addEventListener('click', step);
+        resetBtn.addEventListener('click', () => {
+          clearInterval(autoTimer);
+          autoTimer = null;
+          autoBtn.textContent = '⚡ Run to Optimal';
+          init();
+        });
+        autoBtn.addEventListener('click', () => {
+          if (autoTimer) {
+            clearInterval(autoTimer);
+            autoTimer = null;
+            autoBtn.textContent = '⚡ Run to Optimal';
+            return;
+          }
+          autoBtn.textContent = '⏹ Stop';
+          autoTimer = setInterval(() => {
+            step();
+            if (iter >= kOpt) {
+              clearInterval(autoTimer);
+              autoTimer = null;
+              autoBtn.textContent = '⚡ Run to Optimal';
+            }
+          }, 400);
+        });
+        nSel.addEventListener('change', init);
+        tgtIn.addEventListener('change', init);
+        window.addEventListener('resize', draw);
 
-  stepBtn.addEventListener('click', step);
-  resetBtn.addEventListener('click',()=>{ clearInterval(autoTimer); autoTimer=null; autoBtn.textContent='⚡ Run to Optimal'; init(); });
-  autoBtn.addEventListener('click',()=>{
-    if(autoTimer){ clearInterval(autoTimer); autoTimer=null; autoBtn.textContent='⚡ Run to Optimal'; return; }
-    autoBtn.textContent='⏹ Stop';
-    autoTimer=setInterval(()=>{
-      step();
-      if(iter>=kOpt){ clearInterval(autoTimer); autoTimer=null; autoBtn.textContent='⚡ Run to Optimal'; }
-    }, 400);
-  });
-  nSel.addEventListener('change', init);
-  tgtIn.addEventListener('change', init);
-  window.addEventListener('resize', draw);
+        init();
+      })();
 
-  init();
-})();
+      /* ─── Grover Visualizer ───────────────────────────────────────── */
+      (function () {
+        const canvas = document.getElementById('grover-canvas-w3');
+        const ctx = canvas.getContext('2d');
+        const stepBtn = document.getElementById('grover-step-btn');
+        const resetBtn = document.getElementById('grover-reset-btn');
+        const autoBtn = document.getElementById('grover-auto-btn');
+        const statEl = document.getElementById('grover-stat');
+        const selN = document.getElementById('grover-N-sel');
+        const selM = document.getElementById('grover-M-sel');
 
-/* ─── Grover Visualizer ───────────────────────────────────────── */
-(function(){
-  const canvas = document.getElementById('grover-canvas-w3');
-  const ctx    = canvas.getContext('2d');
-  const stepBtn  = document.getElementById('grover-step-btn');
-  const resetBtn = document.getElementById('grover-reset-btn');
-  const autoBtn  = document.getElementById('grover-auto-btn');
-  const statEl   = document.getElementById('grover-stat');
-  const selN     = document.getElementById('grover-N-sel');
-  const selM     = document.getElementById('grover-M-sel');
+        let N = 16,
+          M = 1,
+          k = 0,
+          theta0,
+          kOpt,
+          autoTimer = null;
 
-  let N=16, M=1, k=0, theta0, kOpt, autoTimer=null;
+        function init() {
+          N = parseInt(selN.value);
+          M = parseInt(selM.value);
+          theta0 = Math.asin(Math.sqrt(M / N));
+          kOpt = Math.round((Math.PI / 4) * Math.sqrt(N / M));
+          k = 0;
+          draw();
+        }
 
-  function init(){
-    N=parseInt(selN.value);
-    M=parseInt(selM.value);
-    theta0=Math.asin(Math.sqrt(M/N));
-    kOpt=Math.round((Math.PI/4)*Math.sqrt(N/M));
-    k=0;
-    draw();
-  }
+        function currentAngle() {
+          return (2 * k + 1) * theta0;
+        }
+        function prob() {
+          const a = currentAngle();
+          return Math.sin(a) * Math.sin(a);
+        }
 
-  function currentAngle(){ return (2*k+1)*theta0; }
-  function prob(){ const a=currentAngle(); return Math.sin(a)*Math.sin(a); }
+        function draw() {
+          const W = canvas.width,
+            H = canvas.height;
+          ctx.clearRect(0, 0, W, H);
 
-  function draw(){
-    const W=canvas.width, H=canvas.height;
-    ctx.clearRect(0,0,W,H);
+          // Background
+          ctx.fillStyle = '#070b14';
+          ctx.fillRect(0, 0, W, H);
 
-    // Background
-    ctx.fillStyle='#070b14';
-    ctx.fillRect(0,0,W,H);
+          const cx = W / 2,
+            cy = H / 2 + 20,
+            R = 120;
 
-    const cx=W/2, cy=H/2+20, R=120;
+          // Axes labels
+          ctx.fillStyle = '#334155';
+          ctx.font = '12px JetBrains Mono,monospace';
+          ctx.fillText('|α⟩ (unmarked)', cx + R + 8, cy + 4);
+          ctx.fillText('|β⟩ (marked)', cx - 20, cy - R - 10);
 
-    // Axes labels
-    ctx.fillStyle='#334155';
-    ctx.font='12px JetBrains Mono,monospace';
-    ctx.fillText('|α⟩ (unmarked)',cx+R+8,cy+4);
-    ctx.fillText('|β⟩ (marked)',cx-20,cy-R-10);
+          // Draw circle
+          ctx.beginPath();
+          ctx.arc(cx, cy, R, 0, -Math.PI, false);
+          ctx.strokeStyle = 'rgba(51,65,85,0.6)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
 
-    // Draw circle
-    ctx.beginPath();
-    ctx.arc(cx,cy,R,0,-Math.PI,false);
-    ctx.strokeStyle='rgba(51,65,85,0.6)';
-    ctx.lineWidth=1;
-    ctx.stroke();
+          // Axes
+          ctx.beginPath();
+          ctx.moveTo(cx - R - 20, cy);
+          ctx.lineTo(cx + R + 20, cy);
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(cx, cy + 20);
+          ctx.lineTo(cx, cy - R - 20);
+          ctx.stroke();
 
-    // Axes
-    ctx.beginPath();
-    ctx.moveTo(cx-R-20,cy); ctx.lineTo(cx+R+20,cy);
-    ctx.strokeStyle='#334155'; ctx.lineWidth=1.5; ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(cx,cy+20); ctx.lineTo(cx,cy-R-20);
-    ctx.stroke();
+          // Initial angle indicator
+          const angle0 = Math.PI / 2 - theta0;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + R * Math.cos(angle0), cy - R * Math.sin(angle0));
+          ctx.strokeStyle = 'rgba(0,212,255,0.25)';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = 'rgba(0,212,255,0.5)';
+          ctx.font = '11px JetBrains Mono,monospace';
+          ctx.fillText('θ₀', cx + R * 0.4 * Math.cos(angle0) + 5, cy - R * 0.4 * Math.sin(angle0));
 
-    // Initial angle indicator
-    const angle0 = Math.PI/2 - theta0;
-    ctx.beginPath();
-    ctx.moveTo(cx,cy);
-    ctx.lineTo(cx+R*Math.cos(angle0), cy-R*Math.sin(angle0));
-    ctx.strokeStyle='rgba(0,212,255,0.25)'; ctx.lineWidth=1.5;
-    ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle='rgba(0,212,255,0.5)';
-    ctx.font='11px JetBrains Mono,monospace';
-    ctx.fillText('θ₀',cx+R*0.4*Math.cos(angle0)+5,cy-R*0.4*Math.sin(angle0));
+          // Current state arrow
+          const ang = Math.PI / 2 - currentAngle();
+          const vx = R * Math.cos(ang),
+            vy = R * Math.sin(ang);
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + vx, cy - vy);
+          ctx.strokeStyle = '#00d4ff';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          // Arrowhead
+          const headLen = 12,
+            headAng = 0.4;
+          const dx = vx / R,
+            dy = -vy / R;
+          ctx.beginPath();
+          ctx.moveTo(cx + vx, cy - vy);
+          ctx.lineTo(
+            cx + vx - headLen * (dx * Math.cos(headAng) + dy * Math.sin(headAng)),
+            cy - vy - headLen * (-dx * Math.sin(headAng) + dy * Math.cos(headAng))
+          );
+          ctx.lineTo(
+            cx + vx - headLen * (dx * Math.cos(-headAng) + dy * Math.sin(-headAng)),
+            cy - vy - headLen * (-dx * Math.sin(-headAng) + dy * Math.cos(-headAng))
+          );
+          ctx.closePath();
+          ctx.fillStyle = '#00d4ff';
+          ctx.fill();
 
-    // Current state arrow
-    const ang = Math.PI/2 - currentAngle();
-    const vx=R*Math.cos(ang), vy=R*Math.sin(ang);
-    ctx.beginPath();
-    ctx.moveTo(cx,cy);
-    ctx.lineTo(cx+vx, cy-vy);
-    ctx.strokeStyle='#00d4ff'; ctx.lineWidth=3;
-    ctx.stroke();
-    // Arrowhead
-    const headLen=12, headAng=0.4;
-    const dx=vx/R, dy=-vy/R;
-    ctx.beginPath();
-    ctx.moveTo(cx+vx,cy-vy);
-    ctx.lineTo(cx+vx-headLen*(dx*Math.cos(headAng)+dy*Math.sin(headAng)),
-               cy-vy-headLen*(-dx*Math.sin(headAng)+dy*Math.cos(headAng)));
-    ctx.lineTo(cx+vx-headLen*(dx*Math.cos(-headAng)+dy*Math.sin(-headAng)),
-               cy-vy-headLen*(-dx*Math.sin(-headAng)+dy*Math.cos(-headAng)));
-    ctx.closePath();
-    ctx.fillStyle='#00d4ff'; ctx.fill();
+          // Target (|β⟩) indicator
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx, cy - R);
+          ctx.strokeStyle = 'rgba(244,196,48,0.4)';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+          ctx.stroke();
+          ctx.setLineDash([]);
 
-    // Target (|β⟩) indicator
-    ctx.beginPath();
-    ctx.moveTo(cx,cy);
-    ctx.lineTo(cx, cy-R);
-    ctx.strokeStyle='rgba(244,196,48,0.4)'; ctx.lineWidth=1.5;
-    ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+          // Probability bar
+          const barX = W * 0.7,
+            barY = 50,
+            barW = 20,
+            barH = H - 100;
+          ctx.fillStyle = '#0f172a';
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 1;
+          ctx.fillRect(barX, barY, barW, barH);
+          ctx.strokeRect(barX, barY, barW, barH);
+          const p = prob();
+          ctx.fillStyle = p > 0.5 ? '#4ade80' : '#f87171';
+          ctx.fillRect(barX, barY + barH * (1 - p), barW, barH * p);
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '11px JetBrains Mono,monospace';
+          ctx.fillText('P(marked)', barX - 6, barY - 8);
+          ctx.fillStyle = '#f4c430';
+          ctx.fillText((p * 100).toFixed(1) + '%', barX - 4, barY + barH + 16);
 
-    // Probability bar
-    const barX=W*0.7, barY=50, barW=20, barH=H-100;
-    ctx.fillStyle='#0f172a';
-    ctx.strokeStyle='#334155';
-    ctx.lineWidth=1;
-    ctx.fillRect(barX,barY,barW,barH);
-    ctx.strokeRect(barX,barY,barW,barH);
-    const p=prob();
-    ctx.fillStyle=p>0.5?'#4ade80':'#f87171';
-    ctx.fillRect(barX,barY+barH*(1-p),barW,barH*p);
-    ctx.fillStyle='#94a3b8';
-    ctx.font='11px JetBrains Mono,monospace';
-    ctx.fillText('P(marked)',barX-6,barY-8);
-    ctx.fillStyle='#f4c430';
-    ctx.fillText((p*100).toFixed(1)+'%',barX-4,barY+barH+16);
+          // Info
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '12px JetBrains Mono,monospace';
+          ctx.fillText(`N=${N}, M=${M}, k=${k}/${kOpt}`, 16, 24);
+          ctx.fillStyle = p > 0.5 ? '#4ade80' : '#f4c430';
+          ctx.fillText(`P(success)=${(p * 100).toFixed(2)}%`, 16, 44);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText(
+            `Angle = (2k+1)θ₀ = ${((currentAngle() * 180) / Math.PI).toFixed(1)}°`,
+            16,
+            64
+          );
+          ctx.fillText(`k_opt ≈ π√N/4 = ${kOpt}`, 16, 84);
 
-    // Info
-    ctx.fillStyle='#94a3b8'; ctx.font='12px JetBrains Mono,monospace';
-    ctx.fillText(`N=${N}, M=${M}, k=${k}/${kOpt}`, 16, 24);
-    ctx.fillStyle=p>0.5?'#4ade80':'#f4c430';
-    ctx.fillText(`P(success)=${(p*100).toFixed(2)}%`, 16, 44);
-    ctx.fillStyle='#94a3b8';
-    ctx.fillText(`Angle = (2k+1)θ₀ = ${(currentAngle()*180/Math.PI).toFixed(1)}°`, 16, 64);
-    ctx.fillText(`k_opt ≈ π√N/4 = ${kOpt}`, 16, 84);
+          statEl.textContent = `k=${k} | P=${(p * 100).toFixed(1)}% | k_opt=${kOpt}`;
+        }
 
-    statEl.textContent=`k=${k} | P=${(p*100).toFixed(1)}% | k_opt=${kOpt}`;
-  }
+        stepBtn.addEventListener('click', () => {
+          k = (k + 1) % (kOpt * 2 + 2);
+          draw();
+        });
+        resetBtn.addEventListener('click', () => {
+          clearInterval(autoTimer);
+          autoTimer = null;
+          autoBtn.textContent = '⚡ Auto-Run';
+          k = 0;
+          draw();
+        });
+        selN.addEventListener('change', init);
+        selM.addEventListener('change', init);
+        autoBtn.addEventListener('click', () => {
+          if (autoTimer) {
+            clearInterval(autoTimer);
+            autoTimer = null;
+            autoBtn.textContent = '⚡ Auto-Run';
+          } else {
+            autoBtn.textContent = '⏹ Stop';
+            autoTimer = setInterval(() => {
+              k = (k + 1) % (kOpt * 2 + 2);
+              draw();
+              if (k === 0) {
+                clearInterval(autoTimer);
+                autoTimer = null;
+                autoBtn.textContent = '⚡ Auto-Run';
+              }
+            }, 350);
+          }
+        });
 
-  stepBtn.addEventListener('click',()=>{ k=(k+1)%(kOpt*2+2); draw(); });
-  resetBtn.addEventListener('click',()=>{ clearInterval(autoTimer); autoTimer=null; autoBtn.textContent='⚡ Auto-Run'; k=0; draw(); });
-  selN.addEventListener('change',init);
-  selM.addEventListener('change',init);
-  autoBtn.addEventListener('click',()=>{
-    if(autoTimer){ clearInterval(autoTimer); autoTimer=null; autoBtn.textContent='⚡ Auto-Run'; }
-    else {
-      autoBtn.textContent='⏹ Stop';
-      autoTimer=setInterval(()=>{ k=(k+1)%(kOpt*2+2); draw(); if(k===0){ clearInterval(autoTimer); autoTimer=null; autoBtn.textContent='⚡ Auto-Run'; } }, 350);
-    }
-  });
-
-  // Resize
-  function resize(){
-    const wrap=canvas.parentElement;
-    canvas.width=Math.min(700,wrap.clientWidth-32);
-    canvas.height=Math.max(260,Math.min(340,canvas.width*0.49));
-    draw();
-  }
-  window.addEventListener('resize',resize);
-  resize();
-  init();
-})();
-</script>
-</body>
+        // Resize
+        function resize() {
+          const wrap = canvas.parentElement;
+          canvas.width = Math.min(700, wrap.clientWidth - 32);
+          canvas.height = Math.max(260, Math.min(340, canvas.width * 0.49));
+          draw();
+        }
+        window.addEventListener('resize', resize);
+        resize();
+        init();
+      })();
+    </script>
+  </body>
 </html>
