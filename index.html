@@ -179,6 +179,25 @@
       text-transform: uppercase;
       letter-spacing: 0.1em;
     }
+    
+    @media (max-width: 768px) {
+      .week-cards {
+        grid-template-columns: 1fr;
+        padding: 0 1rem;
+        margin-top: 3rem;
+      }
+      .stats-row {
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        padding: 2rem 1rem;
+      }
+      .stat {
+        width: 40%;
+      }
+      .psi-symbol { font-size: 4rem; margin-bottom: 1rem; }
+      .main-title { font-size: 2.2rem; }
+      .index-hero { padding: 5rem 1rem 2rem; }
+    }
   </style>
 </head>
 <body>

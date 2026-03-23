@@ -118,12 +118,20 @@
     .dv-table td:first-child { color:var(--accent-cyan); font-family:'JetBrains Mono',monospace; font-size:.8rem; }
 
     /* Steane / roadmap */
-    .roadmap-row { display:flex; gap:1rem; overflow-x:auto; padding-bottom:.5rem; margin:1.5rem 0; }
-    .roadmap-item { flex-shrink:0; background:var(--bg-card); border-radius:12px; padding:1rem 1.2rem;
-      border:1px solid var(--border-subtle); min-width:160px; }
-    .roadmap-item .rm-year { font-family:'JetBrains Mono',monospace; color:var(--accent-gold); font-size:.8rem; }
-    .roadmap-item .rm-qubits { font-size:1.4rem; font-weight:700; color:var(--accent-cyan); }
-    .roadmap-item .rm-label { font-size:.75rem; color:var(--text-secondary); margin-top:.3rem; }
+    .roadmap-row { display:flex; gap:1rem; overflow-x:auto; padding-bottom:.5rem; margin:1.5rem 0; -webkit-overflow-scrolling: touch; }
+    .roadmap-item { flex-shrink:0; background:var(--bg-2); border-radius:12px; padding:1rem 1.2rem;
+      border:1px solid var(--border); min-width:160px; }
+    .roadmap-item .rm-year { font-family:var(--font-mono); color:var(--gold); font-size:.8rem; }
+    .roadmap-item .rm-qubits { font-size:1.4rem; font-weight:700; color:var(--cyan); }
+    .roadmap-item .rm-label { font-size:.75rem; color:var(--text-dim); margin-top:.3rem; }
+
+    @media (max-width: 640px) {
+      .gen-grid, .noise-grid, .bp-row { grid-template-columns: 1fr !important; }
+      .vqa-box { min-width: 100%; }
+      .qec-wrap { padding: 1rem; }
+      .qec-state-btn, .qec-error-btn { flex: 1 1 40%; font-size: 0.75rem; padding: 0.4rem; }
+      .roadmap-item { min-width: 140px; padding: 0.75rem; }
+    }
   </style>
 </head>
 <body>
@@ -1609,7 +1617,7 @@ for eq in [None, 0, 1, 2]:
     ctx.fillStyle='#94a3b8'; ctx.font='11px Source Serif 4,serif';
     ctx.fillText('θ (circuit parameter)', pad.l+gW/2-60,H-5);
     ctx.save(); ctx.translate(14,pad.t+gH/2); ctx.rotate(-Math.PI/2);
-    ctx.fillText('Energy ⟨H⟩ (Hartree)',−70,0); ctx.restore();
+    ctx.fillText('Energy ⟨H⟩ (Hartree)',-70,0); ctx.restore();
 
     // Title
     ctx.fillStyle='#94a3b8'; ctx.font='12px JetBrains Mono,monospace';
