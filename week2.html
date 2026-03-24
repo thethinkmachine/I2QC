@@ -209,6 +209,35 @@
                   </tbody>
                 </table>
               </div>
+
+              <details class="math-details">
+                <summary>Detailed derivation: how the $\ket{10}$ input generates $\ket{\Phi^-}$</summary>
+                <div class="math-details-content">
+                  <p>
+                    Start with $\ket{10}$. First, $H$ acts on qubit 1 (the first qubit).
+                    Since $H\ket{1} = \frac{1}{\sqrt{2}}(\ket{0}-\ket{1})$:
+                    $$\ket{10} \xrightarrow{H\otimes I} \frac{1}{\sqrt{2}}(\ket{0}-\ket{1})\ket{0} = \frac{1}{\sqrt{2}}(\ket{00}-\ket{10})$$
+                  </p>
+                  <p>
+                    Now apply CNOT (control = qubit 1, target = qubit 2) to each
+                    basis state individually:
+                  </p>
+                  <ul style="margin: 0.4rem 0 0.6rem 1rem; color: var(--text-dim)">
+                    <li style="margin: 0.25rem 0">
+                      $\text{CNOT}\ket{00} = \ket{00}$ (control is 0, no flip)
+                    </li>
+                    <li style="margin: 0.25rem 0">
+                      $\text{CNOT}\ket{10} = \ket{11}$ (control is 1, target flips)
+                    </li>
+                  </ul>
+                  <p>
+                    By linearity:
+                    $$\frac{1}{\sqrt{2}}(\ket{00}-\ket{10}) \xrightarrow{\text{CNOT}} \frac{1}{\sqrt{2}}(\ket{00}-\ket{11}) = \ket{\Phi^-}$$
+                    The negative sign from $H\ket{1}$ has been preserved through the CNOT,
+                    giving us a minus sign between the two terms.
+                  </p>
+                </div>
+              </details>
             </div>
 
             <!-- Bell State Interactive Visualizer -->
@@ -480,9 +509,36 @@
 
               <h4 class="subsubsection-title">Step 3: The "Magic" of Rearrangement</h4>
               <p>
-                By grouping terms according to the state of Alice's two qubits ($\ket{q_1 q_2}$),
-                we can see what state Bob's qubit ($\ket{q_3}$) "receives" in each scenario:
+                Now comes the crucial step: we regroup the 8 terms by what Alice's two qubits
+                ($\ket{q_1 q_2}$) look like, so we can see what Bob ends up with in each case.
+                Let's do this one group at a time.
               </p>
+              <p>
+                <strong>Collect all terms where Alice's qubits are $\ket{00}$</strong>
+                (i.e., the first two qubits are both $\ket{0}$):
+              </p>
+              <div class="math-block" style="font-size: 0.9rem;">
+                $$\alpha\ket{\mathbf{00}0} + \beta\ket{\mathbf{00}1} = \ket{00}\otimes(\alpha\ket{0}+\beta\ket{1}) = \ket{00}\otimes\ket{\psi}$$
+              </div>
+              <p>
+                <strong>Collect all terms where Alice's qubits are $\ket{01}$:</strong>
+              </p>
+              <div class="math-block" style="font-size: 0.9rem;">
+                $$\alpha\ket{\mathbf{01}1} + \beta\ket{\mathbf{01}0} = \ket{01}\otimes(\alpha\ket{1}+\beta\ket{0}) = \ket{01}\otimes X\ket{\psi}$$
+              </div>
+              <p>
+                <strong>Collect all terms where Alice's qubits are $\ket{10}$:</strong>
+              </p>
+              <div class="math-block" style="font-size: 0.9rem;">
+                $$\alpha\ket{\mathbf{10}0} - \beta\ket{\mathbf{10}1} = \ket{10}\otimes(\alpha\ket{0}-\beta\ket{1}) = \ket{10}\otimes Z\ket{\psi}$$
+              </div>
+              <p>
+                <strong>Collect all terms where Alice's qubits are $\ket{11}$:</strong>
+              </p>
+              <div class="math-block" style="font-size: 0.9rem;">
+                $$\alpha\ket{\mathbf{11}1} - \beta\ket{\mathbf{11}0} = \ket{11}\otimes(\alpha\ket{1}-\beta\ket{0}) = \ket{11}\otimes XZ\ket{\psi}$$
+              </div>
+              <p>Putting all four groups together gives the beautifully structured result:</p>
               <div class="math-block highlighted">
                 $$\begin{aligned} \ket{\Psi_2} = \frac{1}{2} \Big[ \quad &\ket{00} (\alpha\ket{0} +
                 \beta\ket{1}) \\ +\ &\ket{01} (\alpha\ket{1} + \beta\ket{0}) \\ +\ &\ket{10}
@@ -540,6 +596,17 @@
                 </table>
               </div>
               <div class="callout insight" style="margin-top: 1.5rem;">
+                <div class="callout-header">💡 Why is the Correction $ZX$ (not $XZ$)?</div>
+                <p>
+                  When Alice measures $\ket{11}$, Bob's qubit is in state $XZ\ket{\psi}$.
+                  To undo this and recover $\ket{\psi}$, Bob needs the <em>inverse</em> of $XZ$.
+                  Since both $X$ and $Z$ are self-inverse ($X^2 = Z^2 = I$), the inverse is:
+                  $$(XZ)^{-1} = Z^{-1}X^{-1} = ZX$$
+                  This is why matrix inverses reverse the order! Let's verify:
+                  $ZX \cdot XZ\ket{\psi} = Z\underbrace{XX}_{I}Z\ket{\psi} = \underbrace{ZZ}_{I}\ket{\psi} = \ket{\psi}\;\checkmark$
+                </p>
+              </div>
+              <div class="callout insight" style="margin-top: 1rem;">
                 <strong>No-Cloning Intact:</strong> When Alice measures her qubit, the original
                 $\ket{\psi}_1$ is destroyed. Bob creates the replica only after receiving the
                 classical information. No information traveled faster than light!
@@ -712,6 +779,60 @@
                 interfere constructively (reinforce). At the end, measuring yields the correct
                 answer with high probability.
               </p>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-title">Phase Kickback — The Engine of Quantum Algorithms</h3>
+              <p>
+                Phase kickback is the central mechanism powering nearly every quantum algorithm
+                you'll encounter (Deutsch–Jozsa, Bernstein–Vazirani, Grover's, Shor's). It
+                deserves a careful derivation.
+              </p>
+
+              <div class="callout theorem">
+                <div class="callout-header">⚡ Phase Kickback Theorem</div>
+                <p>
+                  Given a quantum oracle $U_f$ defined by $U_f\ket{x}\ket{y} = \ket{x}\ket{y \oplus f(x)}$,
+                  if the ancilla qubit is prepared in the state
+                  $\ket{-} = \frac{1}{\sqrt{2}}(\ket{0}-\ket{1})$, then:
+                  $$\boxed{U_f\ket{x}\ket{-} = (-1)^{f(x)}\ket{x}\ket{-}}$$
+                  The phase $(-1)^{f(x)}$ "kicks back" from the ancilla onto the data register.
+                  The ancilla state is unchanged.
+                </p>
+              </div>
+
+              <details class="math-details">
+                <summary>Full derivation of phase kickback</summary>
+                <div class="math-details-content">
+                  <p>
+                    Start with $U_f\ket{x}\ket{-}$ and expand $\ket{-} = \frac{1}{\sqrt{2}}(\ket{0}-\ket{1})$:
+                    $$U_f\ket{x}\ket{-} = \frac{1}{\sqrt{2}}\big(U_f\ket{x}\ket{0} - U_f\ket{x}\ket{1}\big)$$
+                  </p>
+                  <p>
+                    By the oracle definition $U_f\ket{x}\ket{y} = \ket{x}\ket{y\oplus f(x)}$:
+                    $$= \frac{1}{\sqrt{2}}\big(\ket{x}\ket{0\oplus f(x)} - \ket{x}\ket{1\oplus f(x)}\big)$$
+                  </p>
+                  <p>
+                    Now we consider the two cases for $f(x)$:
+                  </p>
+                  <p>
+                    <strong>Case $f(x) = 0$:</strong> $0\oplus 0 = 0$ and $1\oplus 0 = 1$, so:
+                    $$= \frac{1}{\sqrt{2}}\ket{x}(\ket{0} - \ket{1}) = (+1)\cdot\ket{x}\ket{-}$$
+                  </p>
+                  <p>
+                    <strong>Case $f(x) = 1$:</strong> $0\oplus 1 = 1$ and $1\oplus 1 = 0$, so:
+                    $$= \frac{1}{\sqrt{2}}\ket{x}(\ket{1} - \ket{0}) = -\frac{1}{\sqrt{2}}\ket{x}(\ket{0} - \ket{1}) = (-1)\cdot\ket{x}\ket{-}$$
+                  </p>
+                  <p>
+                    In both cases, the result is $(-1)^{f(x)}\ket{x}\ket{-}$. The crucial
+                    observation: <strong>the ancilla qubit is left in the same state
+                    $\ket{-}$</strong>, but a phase factor has appeared on $\ket{x}$.
+                    The function evaluation $f(x)$ has been encoded as a <em>phase</em> rather
+                    than in a register — hence "kickback." This is what makes quantum
+                    interference possible: phases can interfere, register values cannot.
+                  </p>
+                </div>
+              </details>
             </div>
 
             <!-- Phase Kickback Interactive Visualizer -->

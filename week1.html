@@ -432,11 +432,36 @@
                 \begin{pmatrix}1&0\\0&0\end{pmatrix}$$
               </div>
               <p>
-                This is the <strong>projection operator</strong> onto $\ket{0}$. The completeness
-                relation states that for any orthonormal basis $\{\ket{i}\}$:
+                Notice the key difference from the inner product: a <em>bra times ket</em>
+                $\braket{\phi|\psi}$ produces a scalar (a complex number), while a <em>ket times
+                bra</em> $\ket{\psi}\bra{\phi}$ produces a matrix (an operator). The ordering
+                matters! The outer product $\ket{0}\bra{0}$ is the
+                <strong>projection operator</strong> onto $\ket{0}$ — it "filters out" the
+                $\ket{0}$-component of any state it acts on. Let's see it in action:
+              </p>
+              <div class="callout example">
+                <div class="callout-header">🧪 Example — Projection Operator in Action</div>
+                <p>
+                  Apply $\ket{0}\bra{0}$ to the state $\ket{+} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})$:
+                  $$\ket{0}\bra{0}\ket{+} = \ket{0}\braket{0|+} = \ket{0} \cdot \frac{1}{\sqrt{2}} = \frac{1}{\sqrt{2}}\ket{0}$$
+                  The projection extracted only the $\ket{0}$ part of $\ket{+}$ and discarded the
+                  $\ket{1}$ part — exactly what "projection" means geometrically (dropping a
+                  vector onto an axis and keeping only that component). In matrix form:
+                  $$\begin{pmatrix}1&0\\0&0\end{pmatrix}\frac{1}{\sqrt{2}}\begin{pmatrix}1\\1\end{pmatrix} = \frac{1}{\sqrt{2}}\begin{pmatrix}1\\0\end{pmatrix} \checkmark$$
+                </p>
+              </div>
+              <p>
+                The completeness relation states that for any orthonormal basis $\{\ket{i}\}$:
               </p>
               <div class="math-block highlighted">
                 $$\sum_i \ket{i}\bra{i} = \mathbb{I} \qquad \text{(Resolution of Identity)}$$
+              </div>
+              <p>
+                Let's verify this for the computational basis by explicitly summing the two
+                projection matrices:
+              </p>
+              <div class="math-block">
+                $$\ket{0}\bra{0} + \ket{1}\bra{1} = \begin{pmatrix}1&0\\0&0\end{pmatrix} + \begin{pmatrix}0&0\\0&1\end{pmatrix} = \begin{pmatrix}1&0\\0&1\end{pmatrix} = \mathbb{I} \quad \checkmark$$
               </div>
               <p>
                 This identity is perhaps the single most frequently used tool in quantum
@@ -885,7 +910,7 @@
                   $\sin(\theta/2)$, not $\cos\theta$ and $\sin\theta$. A rotation of $\theta=\pi$
                   (pole to pole, 180° on the sphere) corresponds to a rotation by $\theta/2 = \pi/2$
                   in the Hilbert space — exactly what it takes to go from $\ket{0}$ to
-                  $\ket{i\ket{1}}$ (up to global phase, i.e., $\ket{1}$).
+                  $i\ket{1}$ (which is $\ket{1}$ up to a global phase).
                   <strong
                     >Two states are orthogonal iff they are antipodal on the Bloch sphere.</strong
                   >
@@ -1222,6 +1247,33 @@
               countless experiments.
             </p>
 
+            <details class="math-details">
+              <summary>Derivation: connecting the general formula to the Born rule</summary>
+              <div class="math-details-content">
+                <p>
+                  How does the general formula $p(m) = \bra{\psi}M_m^\dagger M_m\ket{\psi}$
+                  simplify to $p(a_i) = |\braket{a_i|\psi}|^2$? Let's work through it step by step.
+                </p>
+                <p>
+                  For a projective measurement in the basis $\{\ket{a_i}\}$, the measurement
+                  operators are the projectors $M_i = \ket{a_i}\bra{a_i}$. First, compute
+                  $M_i^\dagger$:
+                  $$M_i^\dagger = (\ket{a_i}\bra{a_i})^\dagger = \ket{a_i}\bra{a_i} = M_i$$
+                  (projectors are Hermitian). Now compute $M_i^\dagger M_i$:
+                  $$M_i^\dagger M_i = \ket{a_i}\bra{a_i}\ket{a_i}\bra{a_i} = \ket{a_i}\underbrace{\braket{a_i|a_i}}_{=\,1}\bra{a_i} = \ket{a_i}\bra{a_i}$$
+                  (we used orthonormality: $\braket{a_i|a_i} = 1$). Substituting into the
+                  probability formula:
+                  $$p(a_i) = \bra{\psi}\ket{a_i}\bra{a_i}\ket{\psi} = \underbrace{\braket{\psi|a_i}}_{=\,\braket{a_i|\psi}^*} \cdot \braket{a_i|\psi} = |\braket{a_i|\psi}|^2$$
+                </p>
+                <p>
+                  <strong>Concrete example:</strong> Measure $\ket{+} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})$
+                  in the $Z$-basis. The probability of outcome $\ket{0}$:
+                  $$p(0) = |\braket{0|+}|^2 = \left|\frac{1}{\sqrt{2}}\right|^2 = \frac{1}{2}$$
+                  As expected — a 50/50 outcome.
+                </p>
+              </div>
+            </details>
+
             <div class="subsection">
               <h3 class="subsection-title">The Stern-Gerlach Experiment</h3>
               <p>
@@ -1376,11 +1428,20 @@
                 \cos\!\tfrac{\alpha}{2}\,\mathbb{I} - i\sin\!\tfrac{\alpha}{2}(n_x X + n_y Y + n_z
                 Z)$$
               </div>
-              <p>
-                In particular, the rotation gates around the cardinal axes: $$R_x(\theta) =
+              <p>In particular, the rotation gates around the three cardinal axes:</p>
+              <div class="math-block">
+                $$R_x(\theta) =
                 \begin{pmatrix}\cos\frac\theta2 & -i\sin\frac\theta2 \\ -i\sin\frac\theta2 &
+                \cos\frac\theta2\end{pmatrix},\quad R_y(\theta) =
+                \begin{pmatrix}\cos\frac\theta2 & -\sin\frac\theta2 \\ \sin\frac\theta2 &
                 \cos\frac\theta2\end{pmatrix},\quad R_z(\theta) =
                 \begin{pmatrix}e^{-i\theta/2}&0\\0&e^{i\theta/2}\end{pmatrix}$$
+              </div>
+              <p>
+                Note that $R_y$ is the only rotation gate with purely real matrix entries — it
+                rotates amplitude between $\ket{0}$ and $\ket{1}$ without introducing any
+                complex phase. For this reason, $R_y$ is heavily used in variational quantum
+                circuits (Week 4's hardware-efficient ansätze).
               </p>
             </div>
 
@@ -1537,9 +1598,26 @@
                 <div class="callout-header">💡 CNOT Creates Entanglement</div>
                 <p>
                   Applying CNOT with control on qubit 1 to $\ket{+}\ket{0} =
-                  \frac{1}{\sqrt{2}}(\ket{00}+\ket{10})$:
+                  \frac{1}{\sqrt{2}}(\ket{00}+\ket{10})$. Let's apply CNOT to each
+                  basis state individually (this is how linearity works — we handle each
+                  term in the superposition separately):
+                </p>
+                <ul style="margin: 0.5rem 0 0.8rem 1rem; color: var(--text-dim)">
+                  <li style="margin: 0.3rem 0">
+                    $\text{CNOT}\ket{00} = \ket{00}$ — control is $\ket{0}$, so the
+                    target is left alone
+                  </li>
+                  <li style="margin: 0.3rem 0">
+                    $\text{CNOT}\ket{10} = \ket{11}$ — control is $\ket{1}$, so the
+                    target qubit is flipped: $\ket{0} \to \ket{1}$
+                  </li>
+                </ul>
+                <p>
+                  Now by linearity of quantum mechanics (gates act on each term independently):
                   $$\text{CNOT}\cdot\frac{1}{\sqrt{2}}(\ket{00}+\ket{10}) =
-                  \frac{1}{\sqrt{2}}(\ket{00}+\ket{11}) = \ket{\Phi^+}$$ One Hadamard plus one CNOT
+                  \frac{1}{\sqrt{2}}(\underbrace{\text{CNOT}\ket{00}}_{\ket{00}}+\underbrace{\text{CNOT}\ket{10}}_{\ket{11}}) =
+                  \frac{1}{\sqrt{2}}(\ket{00}+\ket{11}) = \ket{\Phi^+}$$
+                  One Hadamard plus one CNOT
                   creates a maximally entangled Bell state — the most fundamental entangling
                   circuit.
                 </p>

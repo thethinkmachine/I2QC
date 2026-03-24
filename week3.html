@@ -1021,10 +1021,37 @@
 
               <p><strong>After $H^{\otimes n}$ on data qubits:</strong></p>
               <p>
-                Recall the key identity: $H^{\otimes n}\ket{x} =
+                We use the key identity: $H^{\otimes n}\ket{x} =
                 \frac{1}{\sqrt{2^n}}\sum_{z=0}^{2^n-1}(-1)^{x\cdot z}\ket{z}$ where $x\cdot z =
                 \bigoplus_{i=1}^n x_i z_i$ is the binary inner product.
               </p>
+
+              <details class="math-details">
+                <summary>Proof of the $H^{\otimes n}$ identity</summary>
+                <div class="math-details-content">
+                  <p>
+                    <strong>Step 1 — verify for $n=1$:</strong> The single-qubit Hadamard
+                    gives $H\ket{x} = \frac{1}{\sqrt{2}}\sum_{z\in\{0,1\}}(-1)^{xz}\ket{z}$.
+                    Let's check both cases:
+                  </p>
+                  <ul style="margin: 0.3rem 0 0.6rem 1rem; color: var(--text-dim)">
+                    <li style="margin: 0.2rem 0">
+                      $H\ket{0} = \frac{1}{\sqrt{2}}((-1)^{0\cdot0}\ket{0}+(-1)^{0\cdot1}\ket{1}) = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\;\checkmark$
+                    </li>
+                    <li style="margin: 0.2rem 0">
+                      $H\ket{1} = \frac{1}{\sqrt{2}}((-1)^{1\cdot0}\ket{0}+(-1)^{1\cdot1}\ket{1}) = \frac{1}{\sqrt{2}}(\ket{0}-\ket{1})\;\checkmark$
+                    </li>
+                  </ul>
+                  <p>
+                    <strong>Step 2 — general $n$:</strong> Since $\ket{x} = \ket{x_1}\otimes\ket{x_2}\otimes\cdots\otimes\ket{x_n}$
+                    and $H^{\otimes n} = H\otimes H\otimes\cdots\otimes H$, the tensor product
+                    factors:
+                    $$H^{\otimes n}\ket{x} = \bigotimes_{i=1}^n H\ket{x_i} = \bigotimes_{i=1}^n \frac{1}{\sqrt{2}}\sum_{z_i}(-1)^{x_i z_i}\ket{z_i}$$
+                    Distributing the products:
+                    $$= \frac{1}{\sqrt{2^n}}\sum_{z_1,z_2,\ldots,z_n}(-1)^{x_1 z_1 + x_2 z_2 + \cdots + x_n z_n}\ket{z_1 z_2\cdots z_n} = \frac{1}{\sqrt{2^n}}\sum_{z}(-1)^{x\cdot z}\ket{z}\;\square$$
+                  </p>
+                </div>
+              </details>
               $$\ket{\psi_3} = \frac{1}{\sqrt{2^n}}\sum_{x}(-1)^{f(x)} \cdot
               \frac{1}{\sqrt{2^n}}\sum_{z}(-1)^{x\cdot z}\ket{z}$$ $$=
               \sum_{z}\left[\frac{1}{2^n}\sum_{x}(-1)^{f(x)+x\cdot z}\right]\ket{z}$$
@@ -1536,35 +1563,104 @@ print(f"Circuit depth: {qc.depth()}")</code></pre>
             </div>
 
             <h3 id="s5-circuit">5.2 Circuit and Classical Post-Processing</h3>
-            <p>Simon's circuit has $2n$ qubits: $n$ data qubits and $n$ ancilla (output) qubits.</p>
+            <p>
+              Simon's circuit has $2n$ qubits: $n$ data qubits and $n$ ancilla (output) qubits.
+              Let's walk through each step carefully — this algorithm has a subtle interplay
+              between entanglement, measurement, and interference that deserves a slow build-up.
+            </p>
 
             <div class="callout theorem">
-              <div class="callout-title">Simon's Algorithm — Single-Shot Analysis</div>
+              <div class="callout-title">Simon's Algorithm — Step-by-Step State Evolution</div>
 
               <p>
-                <strong>After $H^{\otimes n}$ on data register:</strong> $\frac{1}{\sqrt{2^n}}\sum_x
-                \ket{x}\ket{0^n}$
+                <strong>Step 1 — Prepare uniform superposition:</strong> Apply $H^{\otimes n}$ to
+                the data register (ancilla stays $\ket{0^n}$):
+                $$\ket{\psi_1} = \frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}\ket{x}\ket{0^n}$$
               </p>
 
               <p>
-                <strong>After oracle $U_f$:</strong> $\frac{1}{\sqrt{2^n}}\sum_x \ket{x}\ket{f(x)}$
+                <strong>Step 2 — Apply the oracle $U_f$:</strong> The oracle writes $f(x)$ into the
+                ancilla register:
+                $$\ket{\psi_2} = \frac{1}{\sqrt{2^n}}\sum_x \ket{x}\ket{f(x)}$$
+                Notice something crucial: the data and ancilla registers are now
+                <em>entangled</em>. Each input $\ket{x}$ is correlated with its function
+                value $\ket{f(x)}$.
               </p>
 
               <p>
-                <strong>Measure the ancilla register:</strong> Suppose outcome is $f(x_0)$. The data
-                register collapses to the superposition of all pre-images of $f(x_0)$:
-                $$\frac{1}{\sqrt{2}}\left(\ket{x_0} + \ket{x_0 \oplus s}\right)$$ (assuming $s \ne
-                0^n$, so there are exactly two pre-images).
+                <strong>Step 3 — Measure the ancilla register:</strong> This is the key step
+                that beginners often find mysterious. Let's be very explicit about what happens.
               </p>
+            </div>
 
-              <p><strong>After $H^{\otimes n}$ on data register:</strong></p>
-              $$H^{\otimes n}\cdot\frac{1}{\sqrt{2}}(\ket{x_0} + \ket{x_0 \oplus s}) =
-              \frac{1}{\sqrt{2^{n+1}}}\sum_z (-1)^{x_0 \cdot z}(1 + (-1)^{s\cdot z})\ket{z}$$
+            <details class="math-details">
+              <summary>Why does measuring the ancilla collapse the data register?</summary>
+              <div class="math-details-content">
+                <p>
+                  Before measurement, the state $\ket{\psi_2} = \frac{1}{\sqrt{2^n}}\sum_x\ket{x}\ket{f(x)}$
+                  contains all $2^n$ input-output pairs in superposition. Because $f$ is 2-to-1
+                  with period $s$, every output value $y$ has exactly two pre-images:
+                  $x_0$ and $x_0 \oplus s$. So we can regroup the sum by unique output values:
+                </p>
+                <p>
+                  $$\ket{\psi_2} = \frac{1}{\sqrt{2^n}}\sum_{\text{coset representatives } x_0}\big(\ket{x_0}+\ket{x_0\oplus s}\big)\ket{f(x_0)}$$
+                </p>
+                <p>
+                  Now, when we measure the ancilla and get a specific outcome $y_0 = f(x_0)$,
+                  quantum mechanics tells us the state <strong>projects</strong> onto the
+                  subspace where the ancilla equals $y_0$. This keeps only the terms with
+                  $\ket{f(x_0)}$ in the ancilla, killing everything else:
+                </p>
+                <p>
+                  $$\text{Data register after measurement:} \quad \frac{1}{\sqrt{2}}\big(\ket{x_0}+\ket{x_0\oplus s}\big)$$
+                </p>
+                <p>
+                  This collapse happens because of <strong>entanglement</strong> — the data
+                  and ancilla were correlated. Measuring one forces the other into a
+                  definite state. The data register now contains a superposition of exactly
+                  the two inputs that map to the measured output.
+                </p>
+              </div>
+            </details>
 
+            <div class="callout theorem">
+              <div class="callout-title">Simon's Algorithm — Continued</div>
               <p>
-                The factor $(1+(-1)^{s\cdot z})$ is 2 if $s \cdot z = 0 \pmod 2$, and 0 otherwise.
-                So measurement only yields strings $z$ satisfying $s \cdot z = 0 \pmod 2$. These are
-                uniformly distributed over the $n-1$ dimensional subspace $\{z : s\cdot z = 0\}$.
+                <strong>Step 4 — Apply $H^{\otimes n}$ to the data register:</strong>
+                Now we have $\frac{1}{\sqrt{2}}(\ket{x_0}+\ket{x_0\oplus s})$. Let's apply
+                the Hadamard transform to each term individually (using the identity
+                $H^{\otimes n}\ket{x} = \frac{1}{\sqrt{2^n}}\sum_z(-1)^{x\cdot z}\ket{z}$
+                that we proved in §3.2):
+              </p>
+              <p>
+                <strong>First term:</strong>
+                $$H^{\otimes n}\ket{x_0} = \frac{1}{\sqrt{2^n}}\sum_z(-1)^{x_0\cdot z}\ket{z}$$
+              </p>
+              <p>
+                <strong>Second term:</strong> Since $(x_0\oplus s)\cdot z = x_0\cdot z \oplus s\cdot z$
+                (the binary inner product distributes over XOR):
+                $$H^{\otimes n}\ket{x_0\oplus s} = \frac{1}{\sqrt{2^n}}\sum_z(-1)^{(x_0\oplus s)\cdot z}\ket{z} = \frac{1}{\sqrt{2^n}}\sum_z(-1)^{x_0\cdot z}\cdot(-1)^{s\cdot z}\ket{z}$$
+              </p>
+              <p>
+                <strong>Adding both terms</strong> (with the $\frac{1}{\sqrt{2}}$ normalization):
+                $$\ket{\psi_4} = \frac{1}{\sqrt{2^{n+1}}}\sum_z(-1)^{x_0\cdot z}\underbrace{\big(1+(-1)^{s\cdot z}\big)}_{\text{interference filter}}\ket{z}$$
+              </p>
+              <p>
+                The factor $(1+(-1)^{s\cdot z})$ is an <strong>interference filter</strong>:
+              </p>
+              <ul style="margin: 0.4rem 0 0.6rem 1rem; color: var(--text-dim)">
+                <li style="margin: 0.25rem 0">
+                  When $s\cdot z = 0$: $(1+(-1)^0) = 1+1 = 2$ — <strong>constructive</strong>
+                  interference. This $z$ can be measured.
+                </li>
+                <li style="margin: 0.25rem 0">
+                  When $s\cdot z = 1$: $(1+(-1)^1) = 1-1 = 0$ — <strong>destructive</strong>
+                  interference. This $z$ has zero amplitude and can <em>never</em> be measured.
+                </li>
+              </ul>
+              <p>
+                So measurement <strong>only yields strings $z$ satisfying $s\cdot z = 0 \pmod{2}$</strong>.
+                Each measurement gives us one linear equation about $s$ — for free!
               </p>
             </div>
 
@@ -1577,7 +1673,7 @@ print(f"Circuit depth: {qc.depth()}")</code></pre>
                 $s$) over $\mathbb{F}_2$: $$z_1 \cdot s = 0, \quad z_2 \cdot s = 0, \quad \ldots,
                 \quad z_{n-1} \cdot s = 0$$ The null space of this system is 1-dimensional (over
                 $\mathbb{F}_2$), giving either $s = 0^n$ or the correct $s$. Gaussian elimination
-                over $\mathbb{F}_2$ (O$(n^3)$ classical operations) yields $s$.
+                over $\mathbb{F}_2$ ($O(n^3)$ classical operations) yields $s$.
               </p>
               <p>
                 The probability that $n-1$ random samples are linearly independent is at least
@@ -1587,15 +1683,39 @@ print(f"Circuit depth: {qc.depth()}")</code></pre>
             </div>
 
             <div class="callout example">
-              <div class="callout-title">Concrete Example: n=3, s=110</div>
+              <div class="callout-title">Worked Example: n=3, s=110 — Full Gaussian Elimination</div>
               <p>
-                Oracle: $f(x) = f(x \oplus 110)$ for all $x$. The space $\{z : 110 \cdot z = 0\}$
-                consists of all $z$ with $z_1 \oplus z_2 = 0$, i.e., $z_1 = z_2$:
+                <strong>Setup:</strong> We have $n=3$ qubits, and the hidden string is
+                $s = 110$. The oracle satisfies $f(x) = f(x \oplus 110)$ for all $x$.
+                The valid measurement outcomes are all $z$ with $s\cdot z = 0$, i.e.,
+                $z_1 \oplus z_2 = 0$ (so $z_1 = z_2$):
               </p>
-              <p>$z \in \{000, 001, 110, 111\}$ — all 4 have $z_1 = z_2$.</p>
+              <p>$z \in \{000, 001, 110, 111\}$ — these are the only possible outcomes.</p>
+
               <p>
-                After two linearly independent measurements (e.g. $z_1 = 001$ and $z_2 = 110$),
-                Gaussian elimination over $\mathbb{F}_2$ gives $s = 110$.
+                <strong>Run 1:</strong> Suppose we measure $z_1 = 001$. This gives us the equation:
+                $$001 \cdot s = 0 \quad\Rightarrow\quad s_3 = 0$$
+                So the last bit of $s$ is 0. Good — one equation from one query.
+              </p>
+              <p>
+                <strong>Run 2:</strong> Suppose we measure $z_2 = 110$. This gives:
+                $$110 \cdot s = 0 \quad\Rightarrow\quad s_1 \oplus s_2 = 0 \quad\Rightarrow\quad s_1 = s_2$$
+              </p>
+              <p>
+                <strong>Gaussian elimination over GF(2):</strong> We now have the system:
+              </p>
+              <div class="math-block" style="font-size: 0.9rem;">
+                $$\begin{pmatrix}0&0&1\\1&1&0\end{pmatrix}\begin{pmatrix}s_1\\s_2\\s_3\end{pmatrix} = \begin{pmatrix}0\\0\end{pmatrix}$$
+              </div>
+              <p>
+                Row 1 tells us $s_3 = 0$. Row 2 tells us $s_1 = s_2$.
+                The null space is $\{(0,0,0),\;(1,1,0)\}$. Since we want $s \neq 0^n$,
+                the answer is $\boxed{s = 110}$ ✓
+              </p>
+              <p style="margin-top: 0.5rem; color: var(--text-dim); font-size: 0.9rem;">
+                Two quantum queries + simple linear algebra → the secret string that would take
+                $\Omega(2^{3/2}) \approx 3$ classical queries to find in the best case (and
+                exponentially many for larger $n$).
               </p>
             </div>
 
@@ -1670,6 +1790,31 @@ print(f"Circuit depth: {qc.depth()}")</code></pre>
             $$D = H^{\otimes n}(2\ket{0^n}\bra{0^n} - I)H^{\otimes n} = 2\ket{s}\bra{s} - I$$ where
             $\ket{s} = H^{\otimes n}\ket{0^n} = \frac{1}{\sqrt{N}}\sum_x \ket{x}$ is the uniform
             superposition.
+
+            <details class="math-details">
+              <summary>Derivation: why $H^{\otimes n}(2\ket{0^n}\bra{0^n} - I)H^{\otimes n} = 2\ket{s}\bra{s} - I$</summary>
+              <div class="math-details-content">
+                <p>
+                  <strong>Step 1 — Conjugation of the projector:</strong>
+                  Since $\ket{s} = H^{\otimes n}\ket{0^n}$, we have:
+                  $$H^{\otimes n}\ket{0^n}\bra{0^n}H^{\otimes n} = \ket{s}\bra{s}$$
+                </p>
+                <p>
+                  <strong>Step 2 — Distribute the conjugation</strong> using $(H^{\otimes n})^2 = I$:
+                  $$H^{\otimes n}(2\ket{0^n}\bra{0^n} - I)H^{\otimes n} = 2\underbrace{H^{\otimes n}\ket{0^n}\bra{0^n}H^{\otimes n}}_{\ket{s}\bra{s}} - \underbrace{H^{\otimes n} I\, H^{\otimes n}}_{I}$$
+                  $$= 2\ket{s}\bra{s} - I \quad \checkmark$$
+                </p>
+                <p>
+                  <strong>Step 3 — Inversion about the mean:</strong>
+                  For any state $\ket{\psi} = \sum_x \alpha_x\ket{x}$, note that
+                  $\braket{s|\psi} = \frac{1}{\sqrt{N}}\sum_x \alpha_x = \sqrt{N}\,\bar{\alpha}$
+                  where $\bar{\alpha}$ is the mean amplitude. Therefore:
+                  $$(2\ket{s}\bra{s}-I)\ket{\psi} = 2\ket{s}\braket{s|\psi} - \ket{\psi} = 2\sqrt{N}\bar{\alpha}\cdot\frac{1}{\sqrt{N}}\sum_x\ket{x} - \sum_x\alpha_x\ket{x} = \sum_x(2\bar{\alpha}-\alpha_x)\ket{x}$$
+                  Each amplitude $\alpha_x$ is reflected across the mean $\bar{\alpha}$.
+                </p>
+              </div>
+            </details>
+
             <p>
               The action of $D$ on a state $\ket{\psi} = \sum_x \alpha_x \ket{x}$ with mean
               amplitude $\bar{\alpha} = \frac{1}{N}\sum_x \alpha_x$: $$D\ket{\psi} = \sum_x

@@ -606,14 +606,35 @@
             </div>
 
             <p>
-              From the perspective of open quantum systems (Lindblad master equation formalism),
-              decoherence is described as follows. The qubit evolves not unitarily but via the
-              Lindblad equation: $$\frac{d\rho}{dt} = -\frac{i}{\hbar}[H,\rho] + \sum_k \left(L_k
-              \rho L_k^\dagger - \frac{1}{2}\{L_k^\dagger L_k, \rho\}\right)$$ where the $L_k$ are
-              <strong>jump operators</strong> (Lindblad operators) representing the different noise
-              channels: amplitude damping ($L_1 = \sqrt{\gamma_1}\ket{0}\bra{1}$, rate $\gamma_1 =
-              1/T_1$), and phase damping ($L_2 = \sqrt{\gamma_2/2}\sigma_z$, rate related to $T_2$).
+              The physical picture: a qubit in state $\ket{1}$ can spontaneously
+              lose energy to the environment (dropping to $\ket{0}$, governed by $T_1$), and
+              the relative phase between $\ket{0}$ and $\ket{1}$ can randomise due to
+              fluctuating electromagnetic fields (governed by $T_2$). Both processes are
+              irreversible — they cannot be undone by applying a unitary gate.
             </p>
+
+            <details class="math-details">
+              <summary>Advanced: the Lindblad master equation (formal description of decoherence)</summary>
+              <div class="math-details-content">
+                <p>
+                  For readers familiar with density matrices ($\rho$): the evolution of an
+                  open quantum system is described by the Lindblad equation:
+                  $$\frac{d\rho}{dt} = -\frac{i}{\hbar}[H,\rho] + \sum_k \left(L_k
+                  \rho L_k^\dagger - \frac{1}{2}\{L_k^\dagger L_k, \rho\}\right)$$
+                  where $[\cdot,\cdot]$ is the commutator, $\{\cdot,\cdot\}$ is the
+                  anti-commutator ($\{A,B\}=AB+BA$), and the $L_k$ are <strong>jump
+                  operators</strong> (Lindblad operators) representing noise channels:
+                  amplitude damping ($L_1 = \sqrt{\gamma_1}\ket{0}\bra{1}$, rate
+                  $\gamma_1 = 1/T_1$), and phase damping ($L_2 = \sqrt{\gamma_2/2}\sigma_z$,
+                  rate related to $T_2$). The first term is ordinary unitary evolution;
+                  the second term captures irreversible noise. Don't worry if
+                  this notation is unfamiliar — the density matrix formalism is covered in
+                  advanced quantum mechanics courses. The key takeaway for us is simply
+                  that $T_1$ and $T_2$ set the timescales for energy loss and phase
+                  randomisation, respectively.
+                </p>
+              </div>
+            </details>
 
             <div style="overflow-x: auto; margin: 1.5rem 0">
               <table class="syn-table" style="min-width: 560px">
@@ -936,6 +957,39 @@
               </p>
             </div>
 
+            <div class="callout insight">
+              <div class="callout-title">Quick Primer: Creation & Annihilation Operators</div>
+              <p>
+                In quantum chemistry, the state of electrons in a molecule is described
+                using <strong>creation</strong> ($a_i^\dagger$) and <strong>annihilation</strong>
+                ($a_i$) operators. Think of them as "place" and "remove" operators for
+                electrons:
+              </p>
+              <ul style="margin: 0.3rem 0 0.6rem 1rem; color: var(--text-dim)">
+                <li style="margin: 0.25rem 0">
+                  $a_i^\dagger$ <strong>creates</strong> an electron in orbital $i$:
+                  maps $\ket{0}_i \to \ket{1}_i$ (empty → occupied)
+                </li>
+                <li style="margin: 0.25rem 0">
+                  $a_i$ <strong>annihilates</strong> an electron from orbital $i$:
+                  maps $\ket{1}_i \to \ket{0}_i$ (occupied → empty)
+                </li>
+                <li style="margin: 0.25rem 0">
+                  $a_a^\dagger a_i$ <strong>moves</strong> an electron from orbital $i$
+                  to orbital $a$ (a "single excitation")
+                </li>
+                <li style="margin: 0.25rem 0">
+                  $a_a^\dagger a_b^\dagger a_j a_i$ moves <strong>two</strong> electrons at once
+                  (a "double excitation")
+                </li>
+              </ul>
+              <p>
+                These operators obey anti-commutation relations (swapping two fermions
+                picks up a minus sign), which is why mapping them to qubits requires
+                special transforms (Jordan–Wigner, Bravyi–Kitaev — see §3.2 below).
+              </p>
+            </div>
+
             <div class="noise-grid">
               <div class="noise-card info">
                 <h6>Problem-Inspired Ansatz</h6>
@@ -947,6 +1001,10 @@
                 <p>
                   $U_{\text{UCCSD}} = e^{T-T^\dagger}$ where $T = \sum_{ia}t_i^a a_a^\dagger a_i +
                   \sum_{ijab}t_{ij}^{ab}a_a^\dagger a_b^\dagger a_j a_i$
+                  <br /><span style="font-size: 0.85rem; color: var(--text-dim)">
+                  (Here $t_i^a, t_{ij}^{ab}$ are the trainable parameters — "how much
+                  to excite electrons between orbitals.")
+                  </span>
                 </p>
                 <p>
                   <strong>Pro:</strong> Physically motivated, often works well.<br /><strong
@@ -1062,6 +1120,26 @@
               </p>
             </div>
 
+            <div class="callout insight">
+              <div class="callout-title">💡 Why Does Shifting by $\pm\pi/2$ Give the Exact Gradient?</div>
+              <p>
+                The key insight: when the gate $U(\theta) = e^{-i\theta G}$ has a Pauli generator
+                $G$ (with eigenvalues $\pm \frac{1}{2}$), the expectation value
+                $C(\theta) = \langle\hat{O}\rangle_\theta$ is a <strong>sinusoidal function</strong>
+                of $\theta$ — it has the form $C(\theta) = A + B\cos\theta + D\sin\theta$.
+              </p>
+              <p>
+                For any pure sinusoid $f(\theta) = A\sin(\theta + \phi)$, its derivative
+                $f'(\theta) = A\cos(\theta+\phi) = A\sin(\theta+\phi+\frac{\pi}{2})$, so:
+                $$f'(\theta) = \frac{f(\theta+\pi/2) - f(\theta-\pi/2)}{2}$$
+                This is the central difference formula, but for a sinusoid it is <em>exact</em>
+                (no truncation error!). The parameter-shift rule is simply this fact applied
+                to quantum circuits — classical finite differences are approximate for
+                general functions, but quantum gates produce pure sinusoids, so the
+                "shift trick" gives exact gradients.
+              </p>
+            </div>
+
             <h3 id="s2-opt">2.5 Classical Optimizers for VQAs</h3>
             <p>
               The classical optimizer takes gradient information (from the parameter-shift rule) and
@@ -1106,18 +1184,42 @@
             <h2><span class="section-num">3</span> Variational Quantum Eigensolver (VQE)</h2>
 
             <h3 id="s3-chem">3.1 Quantum Chemistry Motivation</h3>
+
+            <div class="callout insight">
+              <div class="callout-title">Why VQE Matters: The Real-World Problem</div>
+              <p>
+                Imagine you're designing a new drug molecule, a better battery electrolyte,
+                or a more efficient solar cell. The bottleneck is <strong>predicting how electrons
+                behave</strong> inside your candidate material — specifically, finding the
+                <strong>ground state energy</strong> (the lowest-energy configuration of
+                electrons). This single number determines whether a chemical reaction will
+                happen, how strongly a drug binds to a protein, or how much energy a
+                battery can store.
+              </p>
+              <p>
+                Classical computers are remarkably good at approximate methods
+                (Hartree–Fock, DFT), but for <em>exact</em> answers on strongly correlated
+                systems (transition metals, enzyme active sites), the exponentially growing
+                quantum state space makes classical simulation intractable.
+                VQE is the NISQ-era approach to this problem.
+              </p>
+            </div>
+
             <p>
-              The electronic structure problem is the central problem of quantum chemistry: given a
-              molecule's nuclear positions, find the ground state energy of the electronic
-              Hamiltonian $\hat{H}_{\text{el}}$. The ground state energy determines molecular
+              More formally: the electronic structure problem asks us to find the ground state
+              energy of the electronic Hamiltonian $\hat{H}_{\text{el}}$, given a molecule's
+              nuclear positions. The ground state energy determines molecular
               geometry, binding energies, reaction rates, and optical properties.
             </p>
             <p>
-              The electronic Hamiltonian (in second quantization) is: $$H =
+              The electronic Hamiltonian (using the creation/annihilation operators
+              from §2.3) is: $$H =
               \sum_{pq}h_{pq}\,a_p^\dagger a_q + \frac{1}{2}\sum_{pqrs}h_{pqrs}\,a_p^\dagger
-              a_q^\dagger a_r a_s$$ where $a_p^\dagger, a_p$ are fermionic creation/annihilation
-              operators, and $h_{pq}, h_{pqrs}$ are one-electron and two-electron integrals
-              (computed classically).
+              a_q^\dagger a_r a_s$$ where $a_p^\dagger, a_p$ are the fermionic creation/annihilation
+              operators (the first sum describes single-electron terms like kinetic energy;
+              the second describes electron-electron repulsion), and $h_{pq}, h_{pqrs}$ are
+              one-electron and two-electron integrals (computed classically from the
+              molecular geometry).
             </p>
             <p>
               The Hilbert space grows exponentially: $N$ spin-orbitals require a $2^N$-dimensional
@@ -1143,6 +1245,29 @@
                 within the variational manifold defined by the ansatz.
               </p>
             </div>
+
+            <details class="math-details">
+              <summary>Proof of the variational principle (3 lines of linear algebra)</summary>
+              <div class="math-details-content">
+                <p>
+                  Since $H$ is Hermitian, it has an orthonormal eigenbasis $\{\ket{E_n}\}$
+                  with $H\ket{E_n} = E_n\ket{E_n}$ and $E_0 \le E_1 \le E_2 \le \cdots$.
+                  Expand the trial state: $\ket{\psi} = \sum_n c_n\ket{E_n}$ with
+                  $\sum_n|c_n|^2 = 1$ (normalisation).
+                </p>
+                <p>
+                  Now compute the expectation value:
+                  $$\langle\psi|H|\psi\rangle = \sum_n |c_n|^2 E_n$$
+                  Since $E_n \ge E_0$ for all $n$:
+                  $$\sum_n |c_n|^2 E_n \ge \sum_n |c_n|^2 E_0 = E_0 \underbrace{\sum_n |c_n|^2}_{=\,1} = E_0 \quad \square$$
+                </p>
+                <p>
+                  Equality holds iff $c_n = 0$ for all $n \ne 0$, i.e., $\ket{\psi} = \ket{E_0}$.
+                  This is why VQE works: by minimising $\langle H\rangle$ over the parameter space,
+                  we are guaranteed to approach the true ground state energy from above.
+                </p>
+              </div>
+            </details>
 
             <h3 id="s3-encode">3.2 Fermion-to-Qubit Encodings</h3>
             <p>
@@ -1342,11 +1467,17 @@ print(f"Error: {abs(result.eigenvalue - (-1.137270))*1000:.2f} mHa")</code></pre
             </p>
 
             <p>
-              <strong>Why does this happen?</strong> A random deep parameterised circuit forms a
-              2-design (or approximate unitary t-design) — its output state is essentially
-              Haar-random. In a Haar-random Hilbert space, the expectation value of any observable
-              is constant ($=\tr(H)/d$) almost everywhere, and fluctuations are exponentially
-              suppressed by the dimension $d=2^n$.
+              <strong>Why does this happen?</strong> A sufficiently deep random parameterised
+              circuit generates states that are, for all practical purposes,
+              <strong>uniformly random</strong> in the exponentially large Hilbert space.
+              (Technically, the circuit forms a <em>unitary 2-design</em> — it mimics drawing a
+              unitary matrix uniformly at random from the group $U(2^n)$. The uniform distribution
+              over this group is called the <em>Haar measure</em>, so the output state is called
+              "Haar-random".) In such a uniformly random state, the expectation value of any
+              observable is essentially constant ($\approx \tr(H)/2^n$) almost everywhere, and
+              fluctuations are exponentially suppressed by the Hilbert space dimension $d=2^n$.
+              In plain terms: after enough random rotations, you're equally likely to be
+              <em>anywhere</em> in Hilbert space, so the landscape looks flat from every direction.
             </p>
 
             <div class="callout insight">
@@ -1573,9 +1704,37 @@ print(f"Error: {abs(result.eigenvalue - (-1.137270))*1000:.2f} mHa")</code></pre
             </h2>
 
             <h3 id="s5-classic">5.1 Classical GAN Recap</h3>
+
+            <div class="callout insight">
+              <div class="callout-title">No Machine Learning Background? Start Here</div>
+              <p>
+                If you haven't encountered machine learning before: a <strong>neural
+                network</strong> is a parameterised function (think of it like a
+                parameterised quantum circuit, but classical — layers of simple
+                operations with trainable weights). A <strong>GAN</strong> (Generative
+                Adversarial Network) trains <em>two</em> such networks in a game:
+              </p>
+              <ul style="margin: 0.3rem 0 0.6rem 1rem; color: var(--text-dim)">
+                <li style="margin: 0.25rem 0">
+                  The <strong>generator</strong> tries to produce fake data that
+                  looks real (like a counterfeiter)
+                </li>
+                <li style="margin: 0.25rem 0">
+                  The <strong>discriminator</strong> tries to tell real data from
+                  fake (like a detective)
+                </li>
+              </ul>
+              <p>
+                They improve against each other until the generator's fakes are
+                indistinguishable from real data. The quantum version replaces
+                the classical generator with a quantum circuit — you don't
+                need deep ML knowledge to follow the quantum part.
+              </p>
+            </div>
+
             <p>
-              A classical Generative Adversarial Network (GAN) — introduced by Goodfellow et al.
-              (2014) — consists of two neural networks trained adversarially:
+              More formally, a classical GAN (Goodfellow et al., 2014) consists of two neural
+              networks trained adversarially:
             </p>
             <ul>
               <li>
@@ -1591,7 +1750,8 @@ print(f"Error: {abs(result.eigenvalue - (-1.137270))*1000:.2f} mHa")</code></pre
             $$\min_G \max_D \; \mathbb{E}_{x\sim p_\text{data}}[\log D(x)] + \mathbb{E}_{z\sim
             p_z}[\log(1-D(G(z)))]$$
             <p>
-              At equilibrium (Nash equilibrium), the generator perfectly replicates the data
+              At equilibrium (so-called Nash equilibrium — neither player can improve by changing
+              strategy), the generator perfectly replicates the data
               distribution and the discriminator cannot distinguish real from fake ($D = 1/2$
               everywhere).
             </p>
@@ -1644,12 +1804,34 @@ print(f"Error: {abs(result.eigenvalue - (-1.137270))*1000:.2f} mHa")</code></pre
             </div>
 
             <h3 id="s5-finance">5.3 Financial Application: Option Pricing</h3>
+
+            <div class="callout insight">
+              <div class="callout-title">What's an Option? (Finance Primer)</div>
+              <p>
+                An <strong>option</strong> is a financial contract that gives you the right
+                (but not the obligation) to buy an asset (say, a stock) at a pre-agreed
+                price $K$ (the <em>strike price</em>) at some future date $T$. If the
+                stock ends up worth more than $K$, you exercise the option and profit;
+                if not, you walk away.
+              </p>
+              <p>
+                The big question: <strong>how much should this contract cost today?</strong>
+                The answer depends on how likely the stock is to be worth more than $K$,
+                which requires computing an expectation value over many possible future
+                price scenarios. Classically, this is done via <strong>Monte Carlo
+                simulation</strong> — generating millions of random price paths and
+                averaging. The quantum speedup comes from replacing this sampling with
+                <strong>quantum amplitude estimation</strong>, which achieves the same
+                result with quadratically fewer samples.
+              </p>
+            </div>
             <p>
-              A key application of qGANs is in finance: learning probability distributions of
-              financial returns and pricing derivative contracts. A European call option on an asset
+              More precisely: a European call option on an asset
               $S$ pays $\max(S_T - K, 0)$ at expiry $T$, where $K$ is the strike price and $S_T$ is
               the asset price at expiry. The option price is the discounted expected payoff: $$C =
-              e^{-rT}\,\mathbb{E}[{\max(S_T - K,\, 0)}]$$ where $r$ is the risk-free rate.
+              e^{-rT}\,\mathbb{E}[{\max(S_T - K,\, 0)}]$$ where $r$ is the risk-free rate (the
+              return you'd get from a "safe" investment like government bonds — it sets the
+              baseline for discounting future cash flows to their present value).
             </p>
             <p>In the qGAN approach (Zoufal et al. 2019, Stamatopoulos et al. 2020):</p>
             <ol>
@@ -1745,8 +1927,28 @@ print(f"Estimated option price: {price:.4f}")</code></pre>
               <p>
                 MaxCut: given a graph $G=(V,E)$, partition vertices into two sets to maximise the
                 number of edges between them. Cost Hamiltonian: $$C = \frac{1}{2}\sum_{(i,j)\in E}(I
-                - Z_i Z_j)$$ Each edge contributes $+1$ to $C$ if its endpoints are in different
-                partitions ($Z_iZ_j = -1$) and $0$ otherwise. QAOA applies $e^{-i\gamma Z_i Z_j/2}$
+                - Z_i Z_j)$$
+              </p>
+              <p>
+                But <strong>why does this formula count cut edges?</strong> Let's check.
+                Each vertex $i$ is assigned to partition 0 or 1, which we encode as
+                $Z_i = +1$ (for $\ket{0}$) or $Z_i = -1$ (for $\ket{1}$). Then for
+                each edge $(i,j)$:
+              </p>
+              <ul style="margin: 0.3rem 0 0.6rem 1rem; color: var(--text-dim)">
+                <li style="margin: 0.25rem 0">
+                  <strong>Same partition</strong> ($Z_i = Z_j$): $Z_iZ_j = +1$, so
+                  $\frac{1}{2}(I-Z_iZ_j) = \frac{1}{2}(1-1) = 0$ — edge is <em>not</em> cut.
+                </li>
+                <li style="margin: 0.25rem 0">
+                  <strong>Different partitions</strong> ($Z_i \neq Z_j$): $Z_iZ_j = -1$, so
+                  $\frac{1}{2}(I-Z_iZ_j) = \frac{1}{2}(1-(-1)) = 1$ — edge <em>is</em> cut. ✓
+                </li>
+              </ul>
+              <p>
+                So $C$ simply counts the number of edges between the two partitions.
+                Maximising $C$ = maximising the cut!
+                QAOA applies $e^{-i\gamma Z_i Z_j/2}$
                 for each edge (a ZZ-rotation) and $e^{-i\beta X_j}$ for each vertex (an X-rotation).
                 After measurement, the bit string $x \in \{0,1\}^n$ is a candidate cut — the QAOA
                 distribution concentrates on high-quality cuts.
@@ -1908,33 +2110,8 @@ print(f"Estimated option price: {price:.4f}")</code></pre>
               </table>
             </div>
 
-            <div class="callout insight">
-              <div class="callout-title">Classical vs Quantum Error Correction</div>
-              <p>
-                Classical error correction is simple: store 3 copies of each bit (repetition code).
-                If one flips ($0\to 1$ or $1\to 0$), a majority vote recovers the correct value.
-                Quantum error correction faces three additional challenges:
-              </p>
-              <ul>
-                <li>
-                  <strong>No-cloning:</strong> You cannot copy a quantum state ($\ket{\psi} \to
-                  \ket{\psi}\ket{\psi}$ violates unitarity), so the naive repetition code approach
-                  doesn't apply directly.
-                </li>
-                <li>
-                  <strong>Continuous errors:</strong> Unlike classical bits (which can only flip), a
-                  qubit can undergo any unitary rotation — infinitely many possible errors.
-                  (Remarkably, QEC discretises these errors.)
-                </li>
-                <li>
-                  <strong>Measurement destroys superposition:</strong> You cannot check qubits
-                  directly — measurement collapses them. Instead, QEC uses <em>ancilla</em> qubits
-                  and <em>syndrome measurements</em> to diagnose errors without disturbing the data.
-                </li>
-              </ul>
-            </div>
 
-            <h3 id="s6-pauli">6.1 Quantum Noise Model</h3>
+            <h3 id="s6-pauli">6.2 Pauli Decomposition of Errors</h3>
             <p>Any single-qubit error can be decomposed in the Pauli basis $\{I, X, Y, Z\}$:</p>
             <ul>
               <li>
