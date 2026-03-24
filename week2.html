@@ -596,14 +596,25 @@
                 </table>
               </div>
               <div class="callout insight" style="margin-top: 1.5rem;">
-                <div class="callout-header">💡 Why is the Correction $ZX$ (not $XZ$)?</div>
+                <div class="callout-header">💡 The "Socks and Shoes" Analogy: Why $(XZ)^{-1} = ZX$?</div>
                 <p>
-                  When Alice measures $\ket{11}$, Bob's qubit is in state $XZ\ket{\psi}$.
-                  To undo this and recover $\ket{\psi}$, Bob needs the <em>inverse</em> of $XZ$.
-                  Since both $X$ and $Z$ are self-inverse ($X^2 = Z^2 = I$), the inverse is:
+                  When Alice measures $\ket{11}$, Bob's qubit is accidentally scrambled into the state $XZ\ket{\psi}$.
+                  To undo this and recover the clean $\ket{\psi}$, Bob needs the <em>inverse</em> of $XZ$. 
+                </p>
+                <p>
+                  Why wouldn't he just apply $XZ$ again? Think of $Z$ as "putting on your socks", and $X$ as 
+                  "putting on your shoes". Applying $XZ$ means: socks first, then shoes. 
+                </p>
+                <p>
+                  To undo this process, you can't take off your socks while wearing your shoes! You must 
+                  take off your shoes ($X$) first, and <strong>then</strong> your socks ($Z$). 
+                </p>
+                <div class="math-block highlighted" style="margin: 0.8rem 0">
                   $$(XZ)^{-1} = Z^{-1}X^{-1} = ZX$$
-                  This is why matrix inverses reverse the order! Let's verify:
-                  $ZX \cdot XZ\ket{\psi} = Z\underbrace{XX}_{I}Z\ket{\psi} = \underbrace{ZZ}_{I}\ket{\psi} = \ket{\psi}\;\checkmark$
+                </div>
+                <p>
+                  This is why matrix inverses reverse the order! Let's verify by doing the math from right to left:
+                  $$ZX \cdot XZ\ket{\psi} = Z(\underbrace{XX}_{I})Z\ket{\psi} = \underbrace{ZZ}_{I}\ket{\psi} = \ket{\psi}\;\checkmark$$
                 </p>
               </div>
               <div class="callout insight" style="margin-top: 1rem;">
@@ -655,25 +666,45 @@
             </div>
 
             <div class="subsection">
-              <h3 class="subsection-title">Proof by Linearity</h3>
+              <h3 class="subsection-title">The "Photocopier Paradox" (Proof by Linearity)</h3>
               <p>
-                Suppose such a cloner $U$ existed. By assumption: $$U(\ket{0}\ket{0}) =
-                \ket{0}\ket{0} \quad \text{and} \quad U(\ket{1}\ket{0}) = \ket{1}\ket{1}$$ Now
-                consider the superposition $\ket{\psi} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})$. By
-                <em>linearity</em> of $U$: $$U(\ket{\psi}\ket{0}) =
-                U\left(\frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\ket{0}\right) =
-                \frac{1}{\sqrt{2}}(U\ket{0}\ket{0} + U\ket{1}\ket{0}) =
-                \frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$$
+                To understand why, imagine a magic quantum photocopier (a unitary machine $U$) that 
+                works perfectly on basic states. If you give it a "Black" paper ($\ket{0}$), it prints 
+                two Black papers. If you give it a "White" paper ($\ket{1}$), it prints two White papers.
+              </p>
+              <div class="math-block highlighted">
+                $$U(\ket{0}\ket{0}) = \ket{0}\ket{0} \quad \text{and} \quad U(\ket{1}\ket{0}) = \ket{1}\ket{1}$$
+              </div>
+              <p>
+                Now, you feed it a "Gray" paper — a superposition: $\ket{\psi} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})$. 
+                What should happen?
+              </p>
+              
+              <p>
+                <strong>What we WANT (A true clone):</strong> We want two identical Gray papers at the end.
+                <br>
+                Math: 
+                $$\ket{\psi}\ket{\psi} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1}) \otimes \frac{1}{\sqrt{2}}(\ket{0}+\ket{1}) = \frac{1}{2}(\ket{00}+\ket{01}+\ket{10}+\ket{11})$$
+              </p>
+
+              <p>
+                <strong>What MUST happen (By Quantum Linearity):</strong> Quantum mechanics forces the machine 
+                to process the inside of the superposition <em>independently</em>. It acts on the $\ket{0}$ part 
+                and the $\ket{1}$ part separately, and sums the result:
+                <br>
+                Math: 
+                $$U(\ket{\psi}\ket{0}) = \frac{1}{\sqrt{2}}\Big( U\ket{0}\ket{0} + U\ket{1}\ket{0} \Big) = \frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$$
+              </p>
+
+              <p>
+                <strong>The Contradiction:</strong> 
+                The mathematical rules of quantum linearity gave us an <em>entangled state</em> (either both Black or both White), 
+                not two independent Gray papers! 
+                $$\frac{1}{\sqrt{2}}(\ket{00}+\ket{11}) \neq \frac{1}{2}(\ket{00}+\ket{01}+\ket{10}+\ket{11})$$
               </p>
               <p>
-                But a perfect clone would give: $$\ket{\psi}\ket{\psi} =
-                \frac{1}{\sqrt{2}}(\ket{0}+\ket{1}) \otimes \frac{1}{\sqrt{2}}(\ket{0}+\ket{1}) =
-                \frac{1}{2}(\ket{00}+\ket{01}+\ket{10}+\ket{11})$$
-              </p>
-              <p>
-                These two results are different: $\frac{1}{\sqrt{2}}(\ket{00}+\ket{11}) \neq
-                \frac{1}{2}(\ket{00}+\ket{01}+\ket{10}+\ket{11})$. Contradiction — no such $U$
-                exists. $\square$
+                Because these two results are fundamentally different, a "perfect copy machine" $U$ 
+                cannot exist without breaking the very laws of quantum mechanics. $\square$
               </p>
 
               <div class="callout insight">
@@ -805,31 +836,37 @@
                 <summary>Full derivation of phase kickback</summary>
                 <div class="math-details-content">
                   <p>
-                    Start with $U_f\ket{x}\ket{-}$ and expand $\ket{-} = \frac{1}{\sqrt{2}}(\ket{0}-\ket{1})$:
-                    $$U_f\ket{x}\ket{-} = \frac{1}{\sqrt{2}}\big(U_f\ket{x}\ket{0} - U_f\ket{x}\ket{1}\big)$$
+                    Let's trace exactly how the minus sign travels from the oracle back to the data register.
                   </p>
                   <p>
-                    By the oracle definition $U_f\ket{x}\ket{y} = \ket{x}\ket{y\oplus f(x)}$:
-                    $$= \frac{1}{\sqrt{2}}\big(\ket{x}\ket{0\oplus f(x)} - \ket{x}\ket{1\oplus f(x)}\big)$$
+                    <strong>Step 1: Expand the ancilla</strong><br>
+                    Substitute the definition of $\ket{-}$ into the starting state:
+                    $$U_f\ket{x}\ket{-} = U_f \left( \ket{x} \otimes \frac{\ket{0}-\ket{1}}{\sqrt{2}} \right)$$
                   </p>
                   <p>
-                    Now we consider the two cases for $f(x)$:
+                    <strong>Step 2: Apply the Oracle (XOR addition)</strong><br>
+                    The oracle applies $\oplus f(x)$ to the terms inside the ancilla:
+                    $$= \ket{x} \otimes \frac{\ket{0\oplus f(x)} - \ket{1\oplus f(x)}}{\sqrt{2}}$$
                   </p>
                   <p>
-                    <strong>Case $f(x) = 0$:</strong> $0\oplus 0 = 0$ and $1\oplus 0 = 1$, so:
-                    $$= \frac{1}{\sqrt{2}}\ket{x}(\ket{0} - \ket{1}) = (+1)\cdot\ket{x}\ket{-}$$
+                    <strong>Step 3: Analyze the Cases</strong><br>
+                    Now we evaluate the two possible outcomes for the function $f(x)$:
                   </p>
+                  <ul style="margin: 0.4rem 0 0.6rem 1.5rem;">
+                    <li style="margin-bottom: 0.8rem">
+                      <strong>If $f(x) = 0$:</strong><br>
+                      The numerator becomes $\ket{0} - \ket{1}$.<br>
+                      State is unchanged: $(+1)\cdot\ket{x}\ket{-}$
+                    </li>
+                    <li>
+                      <strong>If $f(x) = 1$:</strong><br>
+                      The numerator becomes $\ket{1} - \ket{0}$, which is the exact negative of our starting state.<br>
+                      We pull the minus sign out front: $(-\ket{0} + \ket{1}) = -(\ket{0} - \ket{1})$.<br>
+                      State flips sign: $(-1)\cdot\ket{x}\ket{-}$
+                    </li>
+                  </ul>
                   <p>
-                    <strong>Case $f(x) = 1$:</strong> $0\oplus 1 = 1$ and $1\oplus 1 = 0$, so:
-                    $$= \frac{1}{\sqrt{2}}\ket{x}(\ket{1} - \ket{0}) = -\frac{1}{\sqrt{2}}\ket{x}(\ket{0} - \ket{1}) = (-1)\cdot\ket{x}\ket{-}$$
-                  </p>
-                  <p>
-                    In both cases, the result is $(-1)^{f(x)}\ket{x}\ket{-}$. The crucial
-                    observation: <strong>the ancilla qubit is left in the same state
-                    $\ket{-}$</strong>, but a phase factor has appeared on $\ket{x}$.
-                    The function evaluation $f(x)$ has been encoded as a <em>phase</em> rather
-                    than in a register — hence "kickback." This is what makes quantum
-                    interference possible: phases can interfere, register values cannot.
+                    <strong>The Conclusion:</strong> In both cases, the ancilla returns to its original $\ket{-}$ state unharmed (it acts as a <em>catalyst</em>). Meanwhile, the function's output $f(x)$ is permanently stamped into the <em>phase</em> of $\ket{x}$.
                   </p>
                 </div>
               </details>

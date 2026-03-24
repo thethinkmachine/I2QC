@@ -1338,26 +1338,32 @@
                   \sigma_B \geq \frac{1}{2}|\braket{[A,B]}|$$ where $\sigma_A = \sqrt{\braket{A^2} -
                   \braket{A}^2}$ is the standard deviation, and $[A,B] = AB - BA$ is the commutator.
                 </p>
+                <p>
+                  For spin operators, $[S_z, S_x] = i\hbar S_y$, so: $$\sigma_{S_z}\,\sigma_{S_x} \geq
+                  \frac{\hbar}{2}|\braket{S_y}|$$
+                </p>
               </div>
 
               <p>
-                For spin operators, $[S_z, S_x] = i\hbar S_y$, so: $$\sigma_{S_z}\,\sigma_{S_x} \geq
-                \frac{\hbar}{2}|\braket{S_y}|$$
-              </p>
-              <p>
                 The more famous position-momentum version: $[x, p] = i\hbar$ gives: $$\sigma_x
-                \sigma_p \geq \frac{\hbar}{2}$$ This is not about experimental imprecision — it is a
-                fundamental feature of nature. A quantum particle simply <em>does not have</em> a
-                simultaneously sharp position and momentum; these are incompatible observables.
+                \sigma_p \geq \frac{\hbar}{2}$$ This is not about experimental clumsiness — it is a
+                fundamental feature of the universe. A quantum particle simply <em>does not have</em> a
+                simultaneously sharp position and momentum.
               </p>
 
               <div class="callout insight">
-                <div class="callout-header">💡 Commuting vs Non-Commuting Observables</div>
+                <div class="callout-header">💡 The "Photo vs Video" Analogy (Commuting Observables)</div>
                 <p>
-                  If $[A, B] = 0$ (they commute), they share eigenstates and can be measured
-                  simultaneously without disturbing each other. If $[A, B] \neq 0$, they cannot —
-                  measuring one disturbs the other. This is precisely why $Z$ and $X$ cannot both be
-                  simultaneously sharp: $[Z, X] = 2iY \neq 0$.
+                  If $[A, B] = 0$ (they commute), it means $AB = BA$. You can measure them at the same time.
+                  Think of measuring a box's <strong>Width</strong> and then its <strong>Length</strong>. 
+                  The order doesn't matter, and you can know both perfectly.
+                </p>
+                <p>
+                  However, if $[A, B] \neq 0$, they do not commute. Measuring one fundamentally scrambles the other.
+                  Think of trying to know a car's exact <strong>position</strong> (requiring a hyper-fast, sharp photo) 
+                  and its exact <strong>velocity</strong> (requiring a slow-shutter video). The two properties 
+                  are incompatible by nature. This is why $Z$ and $X$ measurements cannot both be
+                  sharp: $[Z, X] = 2iY \neq 0$.
                 </p>
               </div>
             </div>
@@ -1537,25 +1543,42 @@
                 \in \mathcal{H}_B$. Otherwise, it is <strong>entangled</strong>.
               </p>
               <div class="callout example">
-                <div class="callout-header">🧪 Example — Product vs Entangled</div>
+                <div class="callout-header">🧪 The "Magic Coins" Analogy (Product vs Entangled)</div>
                 <p>
-                  <strong style="color: var(--green)">Product state:</strong>
-                  $\ket{+}\ket{0} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\otimes\ket{0} =
-                  \frac{1}{\sqrt{2}}(\ket{00}+\ket{10})$<br /><br />
-                  <strong style="color: var(--cyan)">Entangled state:</strong>
-                  $\ket{\Phi^+} = \frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$ — this <em>cannot</em> be
-                  written as any product $\ket{\phi}\otimes\ket{\chi}$. Measuring qubit 1 instantly
-                  determines qubit 2's state, regardless of distance.
+                  <strong style="color: var(--green)">Product state (Independent Coins):</strong>
+                  Suppose I have two normal coins. I flip one, you flip the other. The outcome of my coin 
+                  has absolutely no effect on yours. Mathematically, the overall state can be factored 
+                  into "My Coin" $\otimes$ "Your Coin".
+                  <br>
+                  Example: $\ket{+}\ket{0} = \frac{1}{\sqrt{2}}(\ket{0}+\ket{1})\otimes\ket{0} = \frac{1}{\sqrt{2}}(\ket{00}+\ket{10})$
+                </p>
+                <p>
+                  <strong style="color: var(--cyan)">Entangled state (Magic Coins):</strong>
+                  Now suppose we have two "magic" coins that always land on the same face, even if we are 
+                  light-years apart. If I get Heads ($\ket{0}$), you instantly get Heads ($\ket{0}$). 
+                  If I get Tails ($\ket{1}$), you get Tails ($\ket{1}$).
+                  <br>
+                  Example: $\ket{\Phi^+} = \frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$
                 </p>
               </div>
               <p>
-                To see why $\ket{\Phi^+}$ is entangled: suppose $\ket{\Phi^+} =
-                (\alpha\ket{0}+\beta\ket{1})\otimes(\gamma\ket{0}+\delta\ket{1})$. Expanding:
-                $\alpha\gamma\ket{00} + \alpha\delta\ket{01} + \beta\gamma\ket{10} +
-                \beta\delta\ket{11}$. For this to equal $\frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$, we
-                need $\alpha\delta = 0$ and $\beta\gamma = 0$, but also $\alpha\gamma = \beta\delta
-                = \frac{1}{\sqrt{2}} \neq 0$. These are contradictory — so no product state
-                decomposition exists.
+                <strong>The Mathematical Proof of Entanglement:</strong> Why can't we just factor 
+                $\ket{\Phi^+}$ into two independent coins? Let's try to force it. Suppose: 
+                $$\ket{\Phi^+} = (\alpha\ket{0}+\beta\ket{1})\otimes(\gamma\ket{0}+\delta\ket{1})$$
+              </p>
+              <p>
+                If we multiply this out, we get four terms:
+                $\alpha\gamma\ket{00} + \alpha\delta\ket{01} + \beta\gamma\ket{10} + \beta\delta\ket{11}$.
+              </p>
+              <p>
+                For this to equal our magic state $\frac{1}{\sqrt{2}}(\ket{00}+\ket{11})$, the mixed terms 
+                must vanish: we need $\alpha\delta = 0$ and $\beta\gamma = 0$. This means either $\alpha=0$, 
+                $\delta=0$, $\beta=0$, or $\gamma=0$. But if any of those are zero, it's impossible to get 
+                $\alpha\gamma = \frac{1}{\sqrt{2}}$ and $\beta\delta = \frac{1}{\sqrt{2}}$.
+              </p>
+              <p>
+                This is a <strong>mathematical contradiction</strong>. The state <em>cannot</em> be factored. 
+                The two qubits don't have individual states anymore; they only have a shared, collective state.
               </p>
             </div>
 

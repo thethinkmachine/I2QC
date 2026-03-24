@@ -590,29 +590,23 @@
             </div>
 
             <div class="callout insight">
-              <div class="callout-title">EQP vs BQP — Why Zero Error Matters</div>
+              <div class="callout-header">🤔 EQP vs BQP — Why "Perfect" Success Matters</div>
               <p>
-                The Deutsch–Jozsa algorithm is in <strong>EQP</strong> (Exact Quantum Polynomial
-                time) — it succeeds with probability exactly 1 in a single query. This is stronger
-                than merely being in BQP (which allows up to $1/3$ error probability, correctable by
-                repetition).
+                The Deutsch–Jozsa algorithm is in <strong>EQP</strong> (succeeds with probability
+                1). If you allow a classical computer to guess and be wrong $1/3$ of the time (BPP),
+                the "quantum speedup" actually disappears!
               </p>
               <p>
-                The classical comparison is <em>not</em> BPP (randomised polynomial) but rather the
-                zero-error class. No classical zero-error (deterministic) algorithm can do better
-                than $2^{n-1}+1$ queries. But with randomization and error tolerance (BPP), you can
-                solve DJ in $O(1)$ queries too — just query twice: if both outputs agree, guess
-                "constant"; if they differ, output "balanced". (The trick: for balanced $f$, two
-                random queries almost always disagree.)
+                <strong>The Classical Shortcut:</strong> A randomized classical computer can just
+                query the oracle twice. If $f$ is balanced, there is a 50% chance the two outputs
+                are different. If they are different, you <em>know</em> it's balanced. If they are the
+                same, you can still guess "constant" and be right with high probability.
               </p>
               <p>
-                So the precise separation is: in the <em>zero-error query model</em>, quantum wins
-                exponentially. If you allow classical randomisation and bounded error, there's no
-                separation (BPP also needs only $O(1)$ queries for DJ). This is why DJ is sometimes
-                described as an "artificial" exponential speedup — the separation collapses when
-                classical probabilism is properly accounted for. The BV algorithm has a more robust
-                separation: even allowing BPP, you need $n$ queries classically but only 1
-                quantumly.
+                <strong>The Real Win:</strong> DJ is only an exponential speedup if we demand
+                <strong>zero error</strong>. For zero error, the classical computer <em>must</em>
+                check $2^{n-1}+1$ inputs (more than half). Quantum computers, however, can provide
+                mathematical certainty in just 1 query.
               </p>
             </div>
             <div class="complexity-grid">
@@ -698,79 +692,151 @@
             </p>
 
             <div class="callout definition">
-              <div class="callout-title">Query Complexity</div>
+              <div class="callout-header">⏱️ The "Waiting in Line" Analogy</div>
               <p>
-                Given a function $f : \{0,1\}^n \to \{0,1\}^m$ accessible only through an oracle (a
-                black box that evaluates $f$ on any input in one step), the
-                <em>query complexity</em> of an algorithm is the number of oracle calls it makes
-                before returning an answer. Classical query complexity measures this for
-                deterministic or randomised classical machines; quantum query complexity measures it
-                for quantum machines.
+                In <strong>Query Complexity</strong>, we don't care how fast your computer
+                calculates $1+1$. We only care how many times you have to "knock on the oracle's
+                door" to ask for a result.
+              </p>
+              <ul style="margin-left: 1.5rem">
+                <li>
+                  <strong>Wait classically</strong>: To know if a secret box is balanced, you
+                  might need to knock $2^{n-1}+1$ times, which could take a while.
+                </li>
+                <li>
+                  <strong>Wait quantumly</strong>: We knock <strong>once</strong> and get the answer
+                  instantly.
+                </li>
+              </ul>
+              <p>
+                The query model is like comparing a person who has to visit every house in a
+                neighborhood to find someone, vs a person who can fly and shout to everyone at once.
               </p>
             </div>
 
-            <h3 id="s2-oracle">2.1 The Quantum Oracle (Phase Oracle)</h3>
-
+            <h3 id="s2-oracle">2.1 The Standard Oracle — The Starting Point</h3>
             <p>
-              In a classical setting, calling an oracle on input $x$ simply returns $f(x)$. A naive
-              quantum oracle would do $\ket{x}\ket{0} \mapsto \ket{x}\ket{f(x)}$. This is called a
-              <strong>standard oracle</strong> or <strong>bit oracle</strong>. But quantum
-              algorithms almost always exploit a cleverer construction — the
-              <strong>phase oracle</strong>.
+              In a classical setting, calling an oracle on input $x$ simply returns $f(x)$. In a
+              quantum setting, we use an operation $U_f$ on two registers: the input register
+              $\ket{x}$ and an ancilla (helper) register $\ket{y}$.
             </p>
-
-            <p>
-              Begin with the standard oracle $U_f$: $$U_f \ket{x}\ket{y} = \ket{x}\ket{y \oplus
-              f(x)}$$ where $\oplus$ denotes XOR (addition mod 2). The ancilla qubit starts in
-              $\ket{y}$ and gets XORed with $f(x)$.
-            </p>
-
-            <p>
-              Now, a key trick: if we prepare the ancilla in the state $\ket{-} =
-              \tfrac{1}{\sqrt{2}}(\ket{0}-\ket{1})$, watch what happens:
-            </p>
-
-            <div class="math-block">
-              $$U_f \ket{x}\ket{-} = U_f \ket{x} \cdot \frac{\ket{0}-\ket{1}}{\sqrt{2}} =
-              \ket{x}\cdot\frac{\ket{f(x)}-\ket{1\oplus f(x)}}{\sqrt{2}}$$
+            <div class="math-block highlighted">
+              $$U_f \ket{x}\ket{y} = \ket{x}\ket{y \oplus f(x)}$$
             </div>
-
-            <p>Case 1: $f(x) = 0$. Then $\frac{\ket{0}-\ket{1}}{\sqrt{2}} = \ket{-}$. No change.</p>
             <p>
-              Case 2: $f(x) = 1$. Then $\frac{\ket{1}-\ket{0}}{\sqrt{2}} = -\ket{-}$. A global phase
-              of $-1$ is introduced.
-            </p>
-            <p>
-              In both cases the ancilla is unchanged (still $\ket{-}$), but the
-              <em>data register</em> picks up a phase:
+              This is called a <strong>standard oracle</strong> or <strong>bit oracle</strong>. It
+              performs an XOR addition ($\oplus$) on the target register.
             </p>
 
-            <div class="math-block">$$\boxed{U_f \ket{x}\ket{-} = (-1)^{f(x)}\ket{x}\ket{-}}$$</div>
+            <h3 id="s2-trick">2.2 Setting up the Trick: The $|-\rangle$ State</h3>
+            <p>
+              To achieve phase kickback, we do not feed a basic $\ket{0}$ or $\ket{1}$ into the
+              ancilla register. Instead, we prepare it in the <strong>minus state</strong>, which is
+              a specific superposition:
+              $$\ket{-} = \frac{\ket{0} - \ket{1}}{\sqrt{2}}$$
+            </p>
 
-            <h3 id="s2-kickback">2.2 Phase Kickback — The Core Mechanism</h3>
+            <h3 id="s2-kickback">2.3 The Proof: Stepping Through the Phase Kickback</h3>
+            <div class="derivation-container">
+              <p>
+                Now, let's look at the algebra of what happens when we feed our input $\ket{x}$ and
+                our ancilla $\ket{-}$ into the oracle. First, we substitute our state into the
+                equation:
+                $$U_f \ket{x}\ket{-} = U_f \left( \ket{x} \otimes \frac{\ket{0} - \ket{1}}{\sqrt{2}}
+                \right)$$
+              </p>
+
+              <p>
+                Next, we apply the oracle $U_f$. It acts on the $\ket{0}$ and $\ket{1}$ inside the
+                superposition, XORing them with $f(x)$. Since $0 \oplus f(x)$ is simply $f(x)$:
+                $$= \ket{x} \otimes \frac{\ket{f(x)} - \ket{1 \oplus f(x)}}{\sqrt{2}}$$
+              </p>
+
+              <p>Now we evaluate the two possible outcomes for $f(x)$:</p>
+              <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem">
+                <li>
+                  <strong>Case 1: If $f(x) = 0$</strong><br />
+                  Plug $0$ into the numerator: $\ket{0} - \ket{1 \oplus 0} = \ket{0} - \ket{1}$.
+                  $$\frac{\ket{0} - \ket{1}}{\sqrt{2}} = \ket{-}$$
+                  <em>Result: The state is entirely unchanged.</em>
+                </li>
+                <li style="margin-top: 0.8rem">
+                  <strong>Case 2: If $f(x) = 1$</strong><br />
+                  Plug $1$ into the numerator: $\ket{1} - \ket{1 \oplus 1} = \ket{1} - \ket{0}$.
+                  $$\frac{\ket{1} - \ket{0}}{\sqrt{2}} = -\left( \frac{\ket{0} - \ket{1}}{\sqrt{2}}
+                  \right) = -\ket{-}$$
+                  <em>Result: A global phase of $-1$ is introduced.</em>
+                </li>
+              </ul>
+
+              <p>
+                Because multiplying by $(-1)^0$ gives $1$ (no change) and multiplying by $(-1)^1$
+                gives $-1$ (a phase flip), we can elegantly combine both cases into the core
+                <strong>phase kickback equation</strong>:
+              </p>
+              <div class="math-block highlighted">
+                $$\boxed{U_f \ket{x}\ket{-} = (-1)^{f(x)}\ket{x}\ket{-}}$$
+              </div>
+            </div>
 
             <div class="callout insight">
-              <div class="callout-title">Phase Kickback: Intuition</div>
+              <div class="callout-header">💡 The Catalyst Analogy</div>
               <p>
-                The ancilla qubit $\ket{-}$ is an eigenstate of the $X$ gate ($X\ket{-}=-\ket{-}$,
-                eigenvalue $-1$). When the oracle flips the ancilla controlled on $f(x)=1$, the $-1$
-                eigenvalue "kicks back" into the <em>control</em> register as a phase factor
-                $(-1)^{f(x)}$. The ancilla is unchanged — it acts as a phase catalyst. The
-                information about $f(x)$ is now encoded in the <em>phases</em> of the computational
-                basis states of $\ket{x}$, not in the state of any physical ancilla bit. This is
-                what interference can extract.
+                In chemistry, a <strong>catalyst</strong> is something that speeds up a reaction without being consumed itself. In quantum computing, the ancilla qubit in state $\ket{-}$ acts as a <strong>phase catalyst</strong>.
+              </p>
+              <p>
+                When we run the oracle, the ancilla goes in as $\ket{-}$ and comes out as $\ket{-}$ unaffected. However, it "kicks" a phase shift back onto the data qubits.
               </p>
             </div>
 
+            <h3 id="s2-parallel">2.4 Quantum Parallelism: The Engine at Work</h3>
             <p>
-              When the input is a superposition $\ket{\psi} = \sum_x \alpha_x \ket{x}$, the phase
-              oracle acts as: $$U_f \left(\sum_x \alpha_x \ket{x}\right)\ket{-} = \left(\sum_x
-              (-1)^{f(x)}\alpha_x \ket{x}\right)\ket{-}$$
+              The math above shows how a single input $\ket{x}$ gets a phase flip if $f(x)=1$. The
+              real power is applied when our input is a <strong>massive superposition</strong> of
+              all possible inputs:
+              $$\ket{\psi} = \sum_x \alpha_x \ket{x}$$
             </p>
             <p>
-              The function $f$ has been evaluated on <em>all</em> $2^n$ inputs simultaneously, with
-              the result written into the phases of each amplitude. This is quantum parallelism +
-              phase encoding — the fundamental engine behind all this week's algorithms.
+              When we apply the phase oracle, the math distributes perfectly across every single
+              term:
+            </p>
+            <div class="math-block highlighted">
+              $$U_f \left( \sum_x \alpha_x \ket{x} \right) \ket{-} = \left( \sum_x (-1)^{f(x)}
+              \alpha_x \ket{x} \right) \ket{-}$$
+            </div>
+
+            <div class="callout insight">
+              <div class="callout-header">🎯 The Takeaway</div>
+              <p>
+                Look closely at the final equation. The ancilla $\ket{-}$ is sitting at the end,
+                completely unchanged. However, inside the superposition, the oracle has evaluated
+                $f(x)$ for <strong>every single $x$ simultaneously</strong>. It wrote the answers
+                into the positive or negative phases without collapsing the state.
+              </p>
+            </div>
+
+            <div class="micro-quiz">
+              <div class="mq-header">⚡ Phase Kickback Check</div>
+              <div class="mq-body">
+                <div class="mq-question">
+                  In phase kickback, what is the state of the ancilla qubit after the oracle operation?
+                </div>
+                <div class="mq-options">
+                  <div class="mq-option">It is flipped to $\ket{+}$</div>
+                  <div class="mq-option">It collapses to $\ket{0}$ or $\ket{1}$</div>
+                  <div class="mq-option" data-correct>It remains in the $\ket{-}$ state</div>
+                  <div class="mq-option">It becomes entangled with the data qubits</div>
+                </div>
+                <div class="mq-feedback">
+                  <strong>Correct!</strong> The ancilla acts as a catalyst; it provides the mechanism for the phase flip but returns to its original $\ket{-}$ state, ready for the next operation (or discard).
+                </div>
+              </div>
+            </div>
+
+            <p>
+              When the input is a superposition, the phase oracle acts as a "filter" that marks certain states with a negative sign:
+              $$U_f \left(\sum_x \alpha_x \ket{x}\right)\ket{-} = \left(\sum_x (-1)^{f(x)}\alpha_x \ket{x}\right)\ket{-}$$
+              This is the fundamental engine behind all this week's algorithms.
             </p>
           </section>
 
@@ -1081,6 +1147,25 @@
               <p>This succeeds with probability exactly $1$ in one query.</p>
             </div>
 
+            <div class="micro-quiz">
+              <div class="mq-header">⚡ DJ Logic Check</div>
+              <div class="mq-body">
+                <div class="mq-question">
+                  If the Deutsch-Jozsa algorithm measures the state $\ket{001}$, what do we conclude
+                  about the function $f$?
+                </div>
+                <div class="mq-options">
+                  <div class="mq-option">It is Constant</div>
+                  <div class="mq-option" data-correct>It is Balanced</div>
+                  <div class="mq-option">The experiment failed</div>
+                  <div class="mq-option">We need more queries to decide</div>
+                </div>
+                <div class="mq-feedback">
+                  <strong>Spot on!</strong> If the outcome is <em>anything</em> other than all zeros, the constant case is completely ruled out. In the balanced case, the amplitude of the all-zeros state is exactly zero, so any measurement you get must be a non-zero string.
+                </div>
+              </div>
+            </div>
+
             <h3 id="s3-analysis">3.3 Why It Works: The Key Insight</h3>
             <p>
               The crucial insight is that $H^{\otimes n}$ is its own inverse ($(H^{\otimes n})^2 =
@@ -1386,41 +1471,58 @@ else:
             </p>
 
             <div class="callout theorem">
-              <div class="callout-title">Bernstein–Vazirani State Derivation</div>
+              <div class="callout-title">Bernstein–Vazirani Step-by-Step Logic</div>
+
+              <div class="derivation-container">
+                <p><strong>Step 1: Create the superposition</strong></p>
+                <p>We start with $\ket{0^n}$ and apply Hadamards to get:
+                  $$\frac{1}{\sqrt{2^n}}\sum_x \ket{x}$$
+                </p>
+
+                <p><strong>Step 2: Apply the Oracle (Phase Kickback)</strong></p>
+                <p>The oracle adds a phase of $(-1)^{f(x)}$ to each state. Since $f(x) = s \cdot x$:
+                  $$\frac{1}{\sqrt{2^n}}\sum_{x \in \{0,1\}^n}(-1)^{s \cdot x}\ket{x}$$
+                </p>
+
+                <p><strong>Step 3: The Second Hadamard Layer</strong></p>
+                <p>We apply $H^{\otimes n}$ again. This is where the magic (interference) happens:
+                  $$\sum_z \left(\frac{1}{2^n}\sum_x(-1)^{x\cdot(s\oplus z)}\right)\ket{z}$$
+                </p>
+              </div>
 
               <p>
-                <strong>After $H^{\otimes n}$:</strong> Uniform superposition
-                $\frac{1}{\sqrt{2^n}}\sum_x \ket{x}$.
-              </p>
-
-              <p><strong>After oracle $U_f$ with phase kickback:</strong></p>
-              $$\frac{1}{\sqrt{2^n}}\sum_{x \in \{0,1\}^n}(-1)^{f(x)}\ket{x} =
-              \frac{1}{\sqrt{2^n}}\sum_{x}(-1)^{s\cdot x}\ket{x}$$
-
-              <p>
-                <strong>After $H^{\otimes n}$:</strong> Use the identity $H^{\otimes n}\ket{x} =
-                \frac{1}{\sqrt{2^n}}\sum_z (-1)^{x\cdot z}\ket{z}$:
-              </p>
-              $$H^{\otimes n}\left(\frac{1}{\sqrt{2^n}}\sum_x (-1)^{s\cdot x}\ket{x}\right) = \sum_z
-              \left(\frac{1}{2^n}\sum_x(-1)^{s\cdot x + x\cdot z}\right)\ket{z}$$ $$= \sum_z
-              \left(\frac{1}{2^n}\sum_x(-1)^{x\cdot(s\oplus z)}\right)\ket{z}$$
-
-              <p>
-                The inner sum
+                Look closely at that inner sum:
                 <span
                   class="has-tooltip"
-                  data-tooltip="This sum over all computational basis states acts as an interference filter. Destructive interference zeroes out the amplitude unless s exactly matches z."
+                  data-tooltip="This is an interference filter. If s = z, all terms are (-1)^0 = 1. If s ≠ z, exactly half the terms are +1 and half are -1, so they cancel to zero."
                   >$\frac{1}{2^n}\sum_x(-1)^{x\cdot(s\oplus z)}$</span
-                >
-                equals $1$ if $s = z$, and $0$ otherwise (it's the
-                <span
-                  class="has-tooltip"
-                  data-tooltip="Orthogonality of characters means that summing the complex phases over the entire group yields the group size if the phase is trivial, and 0 otherwise."
-                  >orthogonality of characters</span
-                >
-                of the group $(\mathbb{Z}_2)^n$).
+                >.
+                It acts as a <strong>searchlight</strong> that only lights up when $z$ matches our
+                secret string $s$.
               </p>
-              $$\Rightarrow \ket{\psi_3} = \ket{s}$$
+              <div class="math-block highlighted">
+                $$\text{Final State} = \ket{s}$$
+              </div>
+            </div>
+
+            <div class="callout example">
+              <div class="callout-title">Walkthrough — Seeing it with n=2, s=11</div>
+              <p>
+                Let's trace it through. Our goal is to find $s=11$ in 1 query.
+              </p>
+              <ol style="margin-left: 1.5rem">
+                <li><strong>Start:</strong> $\frac{1}{2}(\ket{00} + \ket{01} + \ket{10} + \ket{11})$</li>
+                <li><strong>Apply Oracle ($s \cdot x$):</strong>
+                  <ul style="list-style: none; margin-left: 1rem; font-size: 0.9rem">
+                    <li>$11 \cdot 00 = 0 \to +\ket{00}$</li>
+                    <li>$11 \cdot 01 = 1 \to -\ket{01}$</li>
+                    <li>$11 \cdot 10 = 1 \to -\ket{10}$</li>
+                    <li>$11 \cdot 11 = 0 \pmod 2 \to +\ket{11}$</li>
+                  </ul>
+                  State is now $\frac{1}{2}(\ket{00} - \ket{01} - \ket{10} + \ket{11})$.
+                </li>
+                <li><strong>Final Hadamard:</strong> This specific phase pattern converts exactly back to $\ket{11}$ through constructive interference. Try it: $H^{\otimes 2}\ket{11}$ gives exactly this state. Since $H$ is its own inverse, this state gives $\ket{11}$ back!</li>
+              </ol>
             </div>
 
             <div class="callout insight">
@@ -1530,18 +1632,29 @@ print(f"Circuit depth: {qc.depth()}")</code></pre>
             <h3 id="s5-problem">5.1 The Problem</h3>
 
             <div class="callout definition">
-              <div class="callout-title">Simon's Problem</div>
+              <div class="callout-header">🏙️ The Twin Cities Analogy</div>
               <p>
-                You are given a function $f : \{0,1\}^n \to \{0,1\}^n$ with the promise that there
-                exists a secret $s \in \{0,1\}^n$ such that for all $x, y \in \{0,1\}^n$: $$f(x) =
-                f(y) \iff x = y \text{ or } x = y \oplus s$$ That is, $f$ is two-to-one with a
-                hidden XOR symmetry $s$ (or one-to-one if $s = 0^n$). Find $s$.
+                Imagine a weird world where every city has a "twin" city. If you visit any city, the
+                food, weather, and people look <strong>exactly</strong> the same as in its twin.
+              </p>
+              <ul style="margin-left: 1.5rem">
+                <li>
+                  The cities are the inputs ($x, y$).
+                </li>
+                <li>
+                  The "look" of the city is the function output ($f(x)$).
+                </li>
+              </ul>
+              <p>
+                There's a secret <strong>offset</strong> ($s$) that connects every city to its
+                twin: $\text{City } A \oplus s = \text{City } B$. Your goal is to find that secret
+                offset $s$ as quickly as possible.
               </p>
             </div>
 
             <p>
               If $s = 0^n$, then $f$ is one-to-one (injective). Otherwise, every output value is hit
-              exactly twice, by $x$ and $x \oplus s$. This is like a "hidden XOR subgroup problem" —
+              exactly twice, by $x$ and $x \oplus s$. This is like a "hidden XOR symmetry" —
               and the technique used to solve it is the prototype for Shor's algorithm.
             </p>
 
@@ -1549,47 +1662,44 @@ print(f"Circuit depth: {qc.depth()}")</code></pre>
               <div class="algo-box classical">
                 <h5>🖥 Classical Complexity</h5>
                 <p>
-                  By the birthday paradox, you need $\Omega(\sqrt{2^n}) = \Omega(2^{n/2})$ queries
-                  to find a collision $f(x) = f(x \oplus s)$. This is exponential in $n$.
+                  To find the secret $s$, a classical computer has to keep checking cities until it
+                  happens to find two that look identical. By the "Birthday Paradox," this takes about
+                  $\sqrt{2^n}$ queries—which is <strong>exponentially slow</strong>.
                 </p>
               </div>
               <div class="algo-box quantum">
                 <h5>⚛ Quantum Complexity</h5>
                 <p>
-                  $O(n)$ quantum queries (plus $O(n^3)$ classical post-processing with Gaussian
-                  elimination). An exponential quantum speedup.
+                  A quantum computer finds the secret $s$ in just $O(n)$ queries. It doesn't look for
+                  collisions one by one; it detects the <strong>global symmetry</strong> of the
+                  entire function at once.
                 </p>
               </div>
             </div>
 
-            <h3 id="s5-circuit">5.2 Circuit and Classical Post-Processing</h3>
-            <p>
-              Simon's circuit has $2n$ qubits: $n$ data qubits and $n$ ancilla (output) qubits.
-              Let's walk through each step carefully — this algorithm has a subtle interplay
-              between entanglement, measurement, and interference that deserves a slow build-up.
-            </p>
+            <h3 id="s5-circuit">5.2 Step-by-Step Evolution</h3>
 
             <div class="callout theorem">
-              <div class="callout-title">Simon's Algorithm — Step-by-Step State Evolution</div>
+              <div class="callout-header">🛤️ Tracking the Data's Journey</div>
 
               <p>
-                <strong>Step 1 — Prepare uniform superposition:</strong> Apply $H^{\otimes n}$ to
-                the data register (ancilla stays $\ket{0^n}$):
-                $$\ket{\psi_1} = \frac{1}{\sqrt{2^n}}\sum_{x=0}^{2^n-1}\ket{x}\ket{0^n}$$
+                <strong>Step 1 — Let's start everywhere at once:</strong> Apply $H^{\otimes n}$ to
+                the data register:
+                $$\ket{\psi_1} = \frac{1}{\sqrt{2^n}}\sum_{x}\ket{x}\ket{0}$$
               </p>
 
               <p>
-                <strong>Step 2 — Apply the oracle $U_f$:</strong> The oracle writes $f(x)$ into the
-                ancilla register:
+                <strong>Step 2 — "Photographing" each city:</strong> When we apply $U_f$, each city
+                in the superposition gets tagged with its appearance ($f(x)$):
                 $$\ket{\psi_2} = \frac{1}{\sqrt{2^n}}\sum_x \ket{x}\ket{f(x)}$$
-                Notice something crucial: the data and ancilla registers are now
-                <em>entangled</em>. Each input $\ket{x}$ is correlated with its function
-                value $\ket{f(x)}$.
+                The input and output are now <strong>entangled</strong>.
               </p>
 
               <p>
-                <strong>Step 3 — Measure the ancilla register:</strong> This is the key step
-                that beginners often find mysterious. Let's be very explicit about what happens.
+                <strong>Step 3 — The Collapsing Trick:</strong> We measure the output register.
+                Suppose the "appearance" was $y_0$. Suddenly, the data register <b>collapses</b>
+                to just the two cities that look like that:
+                $$\ket{\text{Data after measurement}} = \frac{1}{\sqrt{2}}(\ket{x_0} + \ket{x_0 \oplus s})$$
               </p>
             </div>
 
@@ -1720,14 +1830,17 @@ print(f"Circuit depth: {qc.depth()}")</code></pre>
             </div>
 
             <div class="callout insight">
-              <div class="callout-title">Simon → Shor</div>
+              <div class="callout-header">🚀 Next Stop: Shor's Algorithm</div>
               <p>
-                Simon's algorithm is the philosophical ancestor of Shor's factoring algorithm.
-                Shor's algorithm can be viewed as a continuous (or group-theoretic) version of
-                Simon's — instead of XOR periodicity in $(\mathbb{Z}_2)^n$, Shor looks for additive
-                periodicity in $\mathbb{Z}_{2^n}$. The hidden subgroup problem (HSP) generalises
-                both and is the unifying framework for many quantum speedups.
+                Simon's algorithm is the "grandfather" of the most famous algorithm in quantum history:
+                <strong>Shor's Factoring Algorithm</strong>.
               </p>
+              <p>
+                While Simon's looks for a secret XOR pattern, Shor's looks for a secret <strong>repeating
+                cycle</strong> (periodicity) in numbers. They both use the same trick: using quantum
+                interference to reveal a global pattern that is invisible to classical computers.
+              </p>
+              <p><em>Master Simon's, and you've already understood the core "aha!" moment of Shor's.</em></p>
             </div>
           </section>
 
@@ -1782,62 +1895,61 @@ print(f"Circuit depth: {qc.depth()}")</code></pre>
               flips the phase of the marked state.
             </p>
 
-            <h3 id="s6-diffuser">6.3 The Diffusion Operator</h3>
+            <h3 id="s6-diffuser">6.3 The Diffusion Operator (The Mirror about the Mean)</h3>
             <p>
-              The second component is the <strong>diffusion operator</strong> (Grover diffuser),
-              which inverts about the average amplitude:
-            </p>
-            $$D = H^{\otimes n}(2\ket{0^n}\bra{0^n} - I)H^{\otimes n} = 2\ket{s}\bra{s} - I$$ where
-            $\ket{s} = H^{\otimes n}\ket{0^n} = \frac{1}{\sqrt{N}}\sum_x \ket{x}$ is the uniform
-            superposition.
-
-            <details class="math-details">
-              <summary>Derivation: why $H^{\otimes n}(2\ket{0^n}\bra{0^n} - I)H^{\otimes n} = 2\ket{s}\bra{s} - I$</summary>
-              <div class="math-details-content">
-                <p>
-                  <strong>Step 1 — Conjugation of the projector:</strong>
-                  Since $\ket{s} = H^{\otimes n}\ket{0^n}$, we have:
-                  $$H^{\otimes n}\ket{0^n}\bra{0^n}H^{\otimes n} = \ket{s}\bra{s}$$
-                </p>
-                <p>
-                  <strong>Step 2 — Distribute the conjugation</strong> using $(H^{\otimes n})^2 = I$:
-                  $$H^{\otimes n}(2\ket{0^n}\bra{0^n} - I)H^{\otimes n} = 2\underbrace{H^{\otimes n}\ket{0^n}\bra{0^n}H^{\otimes n}}_{\ket{s}\bra{s}} - \underbrace{H^{\otimes n} I\, H^{\otimes n}}_{I}$$
-                  $$= 2\ket{s}\bra{s} - I \quad \checkmark$$
-                </p>
-                <p>
-                  <strong>Step 3 — Inversion about the mean:</strong>
-                  For any state $\ket{\psi} = \sum_x \alpha_x\ket{x}$, note that
-                  $\braket{s|\psi} = \frac{1}{\sqrt{N}}\sum_x \alpha_x = \sqrt{N}\,\bar{\alpha}$
-                  where $\bar{\alpha}$ is the mean amplitude. Therefore:
-                  $$(2\ket{s}\bra{s}-I)\ket{\psi} = 2\ket{s}\braket{s|\psi} - \ket{\psi} = 2\sqrt{N}\bar{\alpha}\cdot\frac{1}{\sqrt{N}}\sum_x\ket{x} - \sum_x\alpha_x\ket{x} = \sum_x(2\bar{\alpha}-\alpha_x)\ket{x}$$
-                  Each amplitude $\alpha_x$ is reflected across the mean $\bar{\alpha}$.
-                </p>
-              </div>
-            </details>
-
-            <p>
-              The action of $D$ on a state $\ket{\psi} = \sum_x \alpha_x \ket{x}$ with mean
-              amplitude $\bar{\alpha} = \frac{1}{N}\sum_x \alpha_x$: $$D\ket{\psi} = \sum_x
-              (2\bar{\alpha} - \alpha_x)\ket{x}$$
-            </p>
-            <p>
-              This is exactly <em>inversion about the mean</em>: each amplitude $\alpha_x$ is
-              replaced by $2\bar\alpha - \alpha_x$ (reflection of $\alpha_x$ across the average
-              $\bar\alpha$). States with below-average amplitude get boosted; states with
-              above-average amplitude get suppressed.
+              The second component is the <strong>diffusion operator</strong>. While the oracle
+              "marks" our target with a minus sign, the diffuser is what actually <em>amplifies</em>
+              its probability.
             </p>
 
             <div class="callout insight">
-              <div class="callout-title">Amplitude Amplification Intuition</div>
+              <div class="callout-header">🪞 The Mirror Analogy</div>
               <p>
-                Initially, every amplitude is $1/\sqrt{N}$, and the mean is also $1/\sqrt{N}$. The
-                oracle reduces the marked amplitude to $-1/\sqrt{N}$ (flips sign) while leaving
-                others positive. Now the mean drops slightly below $1/\sqrt{N}$. The diffuser
-                reflects each amplitude about this new (lower) mean: the marked amplitude, being
-                furthest below the mean, jumps by $\approx 2 \cdot 1/\sqrt{N}$ in the positive
-                direction, while the unmarked amplitudes drop slightly. Repeating this process
-                monotonically increases the marked amplitude until it's close to 1.
+                Imagine a row of bars of different heights. The <strong>Mean</strong> is the average
+                height of all the bars.
               </p>
+              <p>
+                The diffusion operator acts like a <strong>mirror</strong> placed at the height of
+                the mean. Every bar is "reflected" through this mirror. If a bar is below the mean,
+                it gets flipped to be equally far <em>above</em> the mean. If it's above the mean, it
+                gets flipped <em>below</em> it.
+              </p>
+            </div>
+
+            <div class="derivation-container">
+              <p> Mathematically, the diffuser $D$ performs <strong>inversion about the mean</strong>:</p>
+              <div class="math-block highlighted">
+                $$\text{New Amplitude} = 2 \cdot (\text{Average}) - (\text{Old Amplitude})$$
+              </div>
+              <p>
+                Because the oracle flipped the target's amplitude to be negative, the target is now
+                <em>way below</em> the average. When we reflect it through the mean, it jumps high
+                above everyone else!
+              </p>
+            </div>
+
+            <p>
+              The formal definition is $D = 2\ket{s}\bra{s} - I$, where $\ket{s}$ is the uniform
+              superposition. In a circuit, this is implemented by wrapping a 0-state phase flip
+              between two Hadamard layers ($H^{\otimes n}$).
+            </p>
+
+            <div class="micro-quiz">
+              <div class="mq-header">⚡ Grover Intuition</div>
+              <div class="mq-body">
+                <div class="mq-question">
+                  Why do we need the Diffuser? Why isn't the Oracle enough to find the item?
+                </div>
+                <div class="mq-options">
+                  <div class="mq-option">The oracle only works for one qubit</div>
+                  <div class="mq-option" data-correct>The oracle only changes the phase, not the probability of measuring the item</div>
+                  <div class="mq-option">The diffuser is what actually marks the item</div>
+                  <div class="mq-option">The oracle is too slow on its own</div>
+                </div>
+                <div class="mq-feedback">
+                  <strong>Exactly!</strong> Probability depends on the <em>square</em> of the amplitude. Since $|1|^2 = |-1|^2$, flipping the sign doesn't change how likely we are to measure the item. We need the diffuser to convert that phase difference into an amplitude (and thus probability) difference.
+                </div>
+              </div>
             </div>
 
             <h3 id="s6-geometry">6.4 Geometric Picture — Rotation in 2D</h3>
