@@ -1583,14 +1583,82 @@
             </div>
 
             <div class="subsection">
-              <h3 class="subsection-title">The Q-Sphere</h3>
+              <h3 class="subsection-title">The Q-Sphere (Visualizing Many Qubits)</h3>
               <p>
-                For $n &gt; 1$ qubits, the Bloch sphere generalizes to the
-                <strong>Q-sphere</strong>, which visualizes the amplitudes of all $2^n$
-                computational basis states. Each basis state occupies a point on the sphere
-                determined by its Hamming weight (number of 1s), and the amplitude is represented by
-                the size and color of a circle at that point.
+                The Bloch sphere is perfect for a single qubit, but it fails completely for multi-qubit
+                entangled states. For systems up to 5 qubits, we use the <strong>Q-sphere</strong>,
+                which maps <em>all</em> $2^n$ basis states onto the surface of a globe simultaneously.
               </p>
+
+              <div class="callout insight">
+                <div class="callout-header">🌍 The "Global Map" Analogy</div>
+                <p>
+                  Think of the Q-sphere as a planet where every basis state is a city:
+                </p>
+                <ul style="margin: 0.4rem 0 0.8rem 1.5rem">
+                  <li style="margin-bottom: 0.3rem"><strong>Latitude (Hamming Weight):</strong> The North Pole is the "all zeros" state ($\ket{000}$). The South Pole is the "all ones" state ($\ket{111}$). States with an equal number of 1s sit on the same latitude ring.</li>
+                  <li style="margin-bottom: 0.3rem"><strong>City Size (Probability):</strong> A state's probability $|\alpha_x|^2$ is represented by the <em>size</em> of the sphere at that location. Bigger = more likely.</li>
+                  <li style="margin-bottom: 0.3rem"><strong>Color (Phase):</strong> The <em>phase</em> $\phi$ is mapped to a color wheel (red → green → blue → red). Phase determines how states will interfere when gates are applied — it's the hidden variable that makes quantum computing powerful.</li>
+                </ul>
+              </div>
+
+              <div class="callout definition">
+                <div class="callout-header">📐 Formal Definition — Q-Sphere Mapping</div>
+                <p>
+                  For an $n$-qubit state $\ket{\psi} = \sum_{x \in \{0,1\}^n} \alpha_x \ket{x}$, each
+                  basis state $\ket{x}$ is placed at:
+                </p>
+                <ul style="margin: 0.3rem 0 0.5rem 1.5rem">
+                  <li>
+                    <strong>Polar angle:</strong> $\theta_x = \frac{\pi \cdot w(x)}{n}$, where
+                    $w(x) = \sum_i x_i$ is the <strong>Hamming weight</strong> (number of 1-bits).
+                  </li>
+                  <li>
+                    <strong>Azimuthal angle:</strong> $\phi_x$ is assigned by distributing all states of the
+                    same weight evenly around the circle at that latitude.
+                  </li>
+                  <li>
+                    <strong>Dot radius:</strong> $r_x \propto |\alpha_x|$ (proportional to the amplitude magnitude).
+                  </li>
+                  <li>
+                    <strong>Dot color:</strong> $\text{Hue} = \frac{\arg(\alpha_x) + \pi}{2\pi}$ (phase mapped to the color wheel).
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Q-Sphere Interactive Visualizer -->
+              <div class="viz-container" style="margin-top: 2.5rem;">
+                <div class="viz-header">
+                  <div class="viz-title">Interactive Q-Sphere Explorer</div>
+                  <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-faint);">
+                    Drag to rotate · Scroll to zoom · Hover/click nodes for details
+                  </div>
+                </div>
+                <div class="viz-body">
+                  <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.25rem" id="qsphere-btns">
+                    <button class="btn primary" data-qs-state="|+⟩^n" data-qs-n="3">Uniform |+⟩³</button>
+                    <button class="btn" data-qs-state="GHZ State" data-qs-n="3">GHZ</button>
+                    <button class="btn" data-qs-state="W State" data-qs-n="3">W State</button>
+                    <button class="btn" data-qs-state="|-⟩^n" data-qs-n="3">|−⟩³</button>
+                    <button class="btn" data-qs-state="Fourier" data-qs-n="3">QFT</button>
+                    <button class="btn" data-qs-state="|0...0⟩" data-qs-n="3">|000⟩</button>
+                    <button class="btn" data-qs-state="Random" data-qs-n="3">Random 3Q</button>
+                    <button class="btn" data-qs-state="Random" data-qs-n="4">Random 4Q</button>
+                    <button class="btn" data-qs-state="Random" data-qs-n="5">Random 5Q</button>
+                  </div>
+                  <div id="qsphere-viz" style="width: 100%; height: 480px; position: relative; background: radial-gradient(ellipse at 50% 40%, #111b2e 0%, #080e1a 100%); border-radius: 12px;"></div>
+                </div>
+              </div>
+
+              <div class="callout example" style="margin-top: 1.5rem;">
+                <div class="callout-header">🧪 What to Look For</div>
+                <ul style="margin: 0.3rem 0 0 1.5rem">
+                  <li style="margin-bottom: 0.3rem"><strong>Uniform (|+⟩³):</strong> All 8 states have equal-sized dots and the same color (phase 0). This is the state after applying $H^{\otimes 3}$ to $\ket{000}$.</li>
+                  <li style="margin-bottom: 0.3rem"><strong>GHZ State:</strong> Only 2 dots — at the North and South Poles ($\ket{000}$ and $\ket{111}$). Maximum entanglement, like the "magic coins" analogy.</li>
+                  <li style="margin-bottom: 0.3rem"><strong>W State:</strong> 3 dots at the same latitude (weight 1). The entanglement here is more "robust" than GHZ — losing one qubit doesn't destroy it.</li>
+                  <li style="margin-bottom: 0.3rem"><strong>QFT:</strong> All states equal-sized, but with <em>different colors</em>. The phases form a spiral pattern — this is what the Quantum Fourier Transform looks like.</li>
+                </ul>
+              </div>
             </div>
           </section>
 
@@ -1754,6 +1822,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="js/bloch-sphere.js"></script>
+    <script src="js/q-sphere.js"></script>
     <script src="js/visualizations.js"></script>
     <script src="js/main.js"></script>
     <script>
@@ -1815,6 +1884,26 @@
         document.getElementById('mq-circuit-select')?.addEventListener('change', function () {
           renderMQCircuit(this.value);
         });
+
+        /* Init Q-Sphere */
+        if (typeof initQSphere === 'function' && document.getElementById('qsphere-viz')) {
+          window.qSphereViz = initQSphere('qsphere-viz', 3);
+          
+          // Wire up buttons via data attributes
+          const qsBtnContainer = document.getElementById('qsphere-btns');
+          if (qsBtnContainer) {
+            const qsBtns = qsBtnContainer.querySelectorAll('[data-qs-state]');
+            qsBtns.forEach(b => {
+              b.addEventListener('click', () => {
+                const stateName = b.getAttribute('data-qs-state');
+                const n = parseInt(b.getAttribute('data-qs-n'), 10) || 3;
+                qSphereViz.loadNamedState(stateName, n);
+                qsBtns.forEach(bn => bn.classList.remove('primary'));
+                b.classList.add('primary');
+              });
+            });
+          }
+        }
       });
 
       function renderCircuit(type) {
