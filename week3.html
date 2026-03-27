@@ -898,169 +898,182 @@
             <h3 id="s3-circuit">3.2 Full Circuit Derivation</h3>
             <p>The circuit uses $n$ data qubits and 1 ancilla qubit.</p>
 
-            <div class="circuit-container">
-              <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+            <div class="circuit-container" style="
+              background: rgba(13, 20, 36, 0.4);
+              border: 1px solid rgba(31, 49, 85, 0.6);
+              border-radius: 12px;
+              padding: 2.5rem 1.5rem 1rem;
+              margin: 2rem 0;
+              position: relative;
+              overflow: hidden;
+              backdrop-filter: blur(8px);
+            ">
+              <div style='position:absolute; top:12px; left:16px; font-family:var(--font-mono); font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.1em;'>Logic Visualization</div>
+              <svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="1.5" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                  <filter id="glow-purple" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="1.5" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                  <filter id="glow-gold" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="1.5" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                  <linearGradient id="grad-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:0.2" />
+                    <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:0.05" />
+                  </linearGradient>
+                  <linearGradient id="grad-purple" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#9b5de5;stop-opacity:0.3" />
+                    <stop offset="100%" style="stop-color:#9b5de5;stop-opacity:0.1" />
+                  </linearGradient>
+                  <linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#f4c430;stop-opacity:0.2" />
+                    <stop offset="100%" style="stop-color:#f4c430;stop-opacity:0" />
+                  </linearGradient>
+                </defs>
                 <style>
                   .wl {
-                    stroke: #334155;
+                    stroke: rgba(61, 82, 120, 0.4);
                     stroke-width: 1.5;
                     fill: none;
                   }
+                  .barrier {
+                    stroke: rgba(122, 147, 184, 0.25);
+                    stroke-width: 1.5;
+                    stroke-dasharray: 4,4;
+                  }
                   .gate {
-                    fill: #0f172a;
+                    fill: #0a0f1d;
                     stroke: #00d4ff;
                     stroke-width: 1.5;
-                    rx: 5;
+                    rx: 6;
+                    filter: url(#glow-cyan);
+                  }
+                  .gate-h {
+                    transition: var(--transition);
+                  }
+                  .gate-h:hover {
+                    opacity: 0.8;
+                    transform: translateY(-1px);
                   }
                   .gate-t {
                     fill: #00d4ff;
-                    font:
-                      bold 13px 'JetBrains Mono',
-                      monospace;
-                  }
-                  .gate-p {
-                    fill: #9b5de5;
-                  }
-                  .gate-pt {
-                    fill: #e2e8f0;
-                    font:
-                      bold 13px 'JetBrains Mono',
-                      monospace;
+                    font: bold 14px 'JetBrains Mono', monospace;
+                    text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
                   }
                   .lbl {
                     fill: #94a3b8;
-                    font:
-                      12px 'Source Serif 4',
-                      serif;
+                    font: bold 12px 'JetBrains Mono', monospace;
+                  }
+                  .lbl-s {
+                    fill: #4e6282;
+                    font: 10px 'JetBrains Mono', monospace;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
                   }
                   .result {
                     fill: #f4c430;
-                    font:
-                      bold 11px 'JetBrains Mono',
-                      monospace;
+                    font: bold 12px 'JetBrains Mono', monospace;
+                    filter: url(#glow-gold);
+                  }
+                  .step-pill {
+                    fill: rgba(30, 41, 59, 0.8);
+                    stroke: rgba(148, 163, 184, 0.2);
+                    rx: 10;
+                  }
+                  .step-text {
+                    fill: #94a3b8;
+                    font: bold 9px 'JetBrains Mono', monospace;
+                    text-transform: uppercase;
+                    letter-spacing: 0.1em;
                   }
                 </style>
+
+                <!-- Step Section Labels (Top) -->
+                <rect x="70" y="5" width="80" height="16" class="step-pill" />
+                <text x="110" y="16" class="step-text" text-anchor="middle">Step 1</text>
+
+                <rect x="270" y="5" width="140" height="16" class="step-pill" />
+                <text x="340" y="16" class="step-text" text-anchor="middle">Step 2: Oracle</text>
+
+                <rect x="435" y="5" width="40" height="16" class="step-pill" />
+                <text x="455" y="16" class="step-text" text-anchor="middle">S3</text>
+
+                <rect x="495" y="5" width="80" height="16" class="step-pill" />
+                <text x="535" y="16" class="step-text" text-anchor="middle">Step 4</text>
+
+                <!-- Barrier Lines -->
+                <line x1="240" y1="20" x2="240" y2="185" class="barrier" />
+                <line x1="425" y1="20" x2="425" y2="185" class="barrier" />
+                <line x1="485" y1="20" x2="485" y2="185" class="barrier" />
+
                 <!-- Wires -->
                 <line x1="60" y1="40" x2="640" y2="40" class="wl" />
                 <line x1="60" y1="80" x2="640" y2="80" class="wl" />
                 <line x1="60" y1="120" x2="640" y2="120" class="wl" />
                 <line x1="60" y1="160" x2="640" y2="160" class="wl" />
 
-                <!-- Labels -->
+                <!-- Qubit Labels -->
                 <text x="8" y="44" class="lbl">|0⟩</text>
                 <text x="8" y="84" class="lbl">|0⟩</text>
                 <text x="8" y="124" class="lbl">⋮</text>
-                <text x="8" y="164" class="lbl">|1⟩</text>
-                <text x="52" y="177" class="lbl" style="font-size: 10px">ancilla</text>
+                <text x="8" y="164" class="lbl" fill="#9b5de5">|1⟩</text>
+                <text x="52" y="177" class="lbl-s">ancilla</text>
 
                 <!-- H gates (first layer) -->
-                <rect x="80" y="25" width="30" height="28" rx="5" class="gate" />
-                <text x="95" y="44" class="gate-t" text-anchor="middle">H</text>
+                <g class="gate-h">
+                  <rect x="80" y="25" width="30" height="30" class="gate" />
+                  <text x="95" y="45" class="gate-t" text-anchor="middle">H</text>
+                </g>
+                <g class="gate-h">
+                  <rect x="80" y="65" width="30" height="30" class="gate" />
+                  <text x="95" y="85" class="gate-t" text-anchor="middle">H</text>
+                </g>
+                <g class="gate-h">
+                  <rect x="80" y="145" width="30" height="30" class="gate" />
+                  <text x="95" y="165" class="gate-t" text-anchor="middle">H</text>
+                </g>
 
-                <rect x="80" y="65" width="30" height="28" rx="5" class="gate" />
-                <text x="95" y="84" class="gate-t" text-anchor="middle">H</text>
-
-                <rect x="80" y="145" width="30" height="28" rx="5" class="gate" />
-                <text x="95" y="164" class="gate-t" text-anchor="middle">H</text>
-
-                <!-- X gate on ancilla to prep |1> -->
-                <rect x="130" y="145" width="30" height="28" rx="5" class="gate" />
-                <text x="145" y="164" class="gate-t" text-anchor="middle">X</text>
-                <text x="145" y="193" class="lbl" text-anchor="middle" style="font-size: 10px">
-                  →|1⟩
-                </text>
-
-                <!-- H on ancilla -->
-                <rect x="170" y="145" width="30" height="28" rx="5" class="gate" />
-                <text x="185" y="164" class="gate-t" text-anchor="middle">H</text>
-                <text x="185" y="193" class="lbl" text-anchor="middle" style="font-size: 10px">
-                  →|−⟩
-                </text>
-
-                <!-- Uf box -->
-                <rect
-                  x="270"
-                  y="20"
-                  width="140"
-                  height="155"
-                  rx="8"
-                  fill="rgba(155,93,229,0.15)"
-                  stroke="#9b5de5"
-                  stroke-width:2
-                />
-                <text x="340" y="100" class="gate-pt" text-anchor="middle">U_f</text>
-                <text
-                  x="340"
-                  y="118"
-                  fill="#9b5de5"
-                  font-size="11"
-                  text-anchor="middle"
-                  font-family="Source Serif 4,serif"
-                >
-                  (oracle)
-                </text>
+                <!-- Uf Box -->
+                <rect x="270" y="25" width="140" height="150" rx="10" fill="url(#grad-purple)" stroke="#9b5de5" stroke-width="2" filter="url(#glow-purple)" />
+                <text x="340" y="95" fill="#e2e8f0" font="bold 16px 'JetBrains Mono', monospace" text-anchor="middle" filter="url(#glow-purple)">U_f</text>
+                <text x="340" y="115" fill="#9b5de5" font-size="11" text-anchor="middle" font-family="'Source Serif 4', serif" font-style="italic">(oracle)</text>
 
                 <!-- H gates (second layer) -->
-                <rect x="440" y="25" width="30" height="28" rx="5" class="gate" />
-                <text x="455" y="44" class="gate-t" text-anchor="middle">H</text>
-
-                <rect x="440" y="65" width="30" height="28" rx="5" class="gate" />
-                <text x="455" y="84" class="gate-t" text-anchor="middle">H</text>
-
-                <rect x="440" y="145" width="30" height="28" rx="5" class="gate" />
-                <text x="455" y="164" class="gate-t" text-anchor="middle">H</text>
+                <g class="gate-h">
+                  <rect x="440" y="25" width="30" height="30" class="gate" />
+                  <text x="455" y="45" class="gate-t" text-anchor="middle">H</text>
+                </g>
+                <g class="gate-h">
+                  <rect x="440" y="65" width="30" height="30" class="gate" />
+                  <text x="455" y="85" class="gate-t" text-anchor="middle">H</text>
+                </g>
 
                 <!-- Measurement boxes -->
-                <rect
-                  x="500"
-                  y="25"
-                  width="36"
-                  height="28"
-                  rx="4"
-                  fill="#1e293b"
-                  stroke="#f4c430"
-                  stroke-width:1.5
-                />
-                <text x="518" y="44" class="result" text-anchor="middle">M</text>
-                <rect
-                  x="500"
-                  y="65"
-                  width="36"
-                  height="28"
-                  rx="4"
-                  fill="#1e293b"
-                  stroke="#f4c430"
-                  stroke-width:1.5
-                />
-                <text x="518" y="84" class="result" text-anchor="middle">M</text>
+                <g class="gate-h">
+                  <rect x="502" y="25" width="36" height="30" rx="6" fill="#0a0f1d" stroke="#f4c430" stroke-width="2" filter="url(#glow-gold)" />
+                  <text x="520" y="45" class="result" text-anchor="middle">M</text>
+                </g>
+                <g class="gate-h">
+                  <rect x="502" y="65" width="36" height="30" rx="6" fill="#0a0f1d" stroke="#f4c430" stroke-width="2" filter="url(#glow-gold)" />
+                  <text x="520" y="85" class="result" text-anchor="middle">M</text>
+                </g>
 
-                <!-- Result labels -->
-                <text x="560" y="44" class="result">⟵ measure</text>
-                <text x="560" y="84" class="result">⟵ all 0s?</text>
-                <text
-                  x="430"
-                  y="185"
-                  fill="#94a3b8"
-                  font-size="11"
-                  text-anchor="middle"
-                  font-family="Source Serif 4,serif"
-                >
-                  (discard ancilla)
-                </text>
+                <!-- Result Arrow labels -->
+                <text x="560" y="45" class="result" style="font-size: 11px;">⟵ measure</text>
+                <text x="560" y="85" class="result" style="font-size: 11px;">⟵ all 0s?</text>
+                <text x="455" y="185" class="lbl-s" text-anchor="middle">(discard ancilla)</text>
 
-                <!-- Step labels at bottom -->
-                <text x="95" y="205" class="lbl" text-anchor="middle" font-size="10">
-                  Step 1: H⊗n
-                </text>
-                <text x="340" y="205" class="lbl" text-anchor="middle" font-size="10">
-                  Step 2: Uf
-                </text>
-                <text x="455" y="205" class="lbl" text-anchor="middle" font-size="10">
-                  Step 3: H⊗n
-                </text>
-                <text x="518" y="205" class="lbl" text-anchor="middle" font-size="10">
-                  Step 4: Meas.
-                </text>
+                <!-- Descriptive Bottom labels -->
+                <text x="110" y="220" class="lbl-s" text-anchor="middle" fill="#00d4ff">Superposition</text>
+                <text x="340" y="220" class="lbl-s" text-anchor="middle" fill="#9b5de5">Phase Kickback</text>
+                <text x="455" y="220" class="lbl-s" text-anchor="middle" fill="#00d4ff">Interference</text>
+                <text x="538" y="220" class="lbl-s" text-anchor="middle" fill="#f4c430">Sampling</text>
               </svg>
             </div>
 
@@ -1331,6 +1344,7 @@
                 <button class="dj-oracle-btn balanced" data-type="b3">Balanced C</button>
                 <button class="dj-oracle-btn balanced" data-type="b4">Balanced D</button>
               </div>
+              <div class="dj-circuit-wrap" id="dj-circuit" style="margin: 1rem 0; min-height: 120px;"></div>
               <div class="dj-steps" id="dj-steps">
                 <div class="dj-step" id="dj-s1">
                   <span class="step-icon">①</span
@@ -1679,7 +1693,105 @@ print(f"Circuit depth: {qc.depth()}")</code></pre>
 
             <h3 id="s5-circuit">5.2 Step-by-Step Evolution</h3>
 
+            <div class="circuit-container" style="
+              background: rgba(13, 20, 36, 0.4);
+              border: 1px solid rgba(31, 49, 85, 0.6);
+              border-radius: 12px;
+              padding: 2.5rem 1.5rem 1rem;
+              margin: 2rem 0;
+              position: relative;
+              overflow: hidden;
+              backdrop-filter: blur(8px);
+            ">
+              <div style='position:absolute; top:12px; left:16px; font-family:var(--font-mono); font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.1em;'>Simon's Register Visualization</div>
+              <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <filter id="glow-cyan-s" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="1.5" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                  <filter id="glow-purple-s" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="1.5" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                  <linearGradient id="grad-purple-s" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#9b5de5;stop-opacity:0.3" />
+                    <stop offset="100%" style="stop-color:#9b5de5;stop-opacity:0.1" />
+                  </linearGradient>
+                </defs>
+                <style>
+                  .wl { stroke: rgba(61, 82, 120, 0.4); stroke-width: 1.5; fill: none; }
+                  .barrier { stroke: rgba(122, 147, 184, 0.2); stroke-width: 1.5; stroke-dasharray: 4,4; }
+                  .gate { fill: #0a0f1d; stroke: #00d4ff; stroke-width: 1.5; rx: 6; filter: url(#glow-cyan-s); }
+                  .gate-t { fill: #00d4ff; font: bold 14px 'JetBrains Mono', monospace; }
+                  .lbl { fill: #94a3b8; font: bold 12px 'JetBrains Mono', monospace; }
+                  .lbl-s { fill: #4e6282; font: 10px 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.05em; }
+                  .step-pill { fill: rgba(30, 41, 59, 0.8); stroke: rgba(148, 163, 184, 0.2); rx: 10; }
+                  .step-text { fill: #94a3b8; font: bold 9px 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; }
+                </style>
+
+                <!-- Section Headers -->
+                <rect x="70" y="5" width="80" height="16" class="step-pill" />
+                <text x="110" y="16" class="step-text" text-anchor="middle">Step 1</text>
+                <rect x="270" y="5" width="140" height="16" class="step-pill" />
+                <text x="340" y="16" class="step-text" text-anchor="middle">Step 2: Oracle</text>
+                <rect x="440" y="5" width="80" height="16" class="step-pill" />
+                <text x="480" y="16" class="step-text" text-anchor="middle">Step 3 & 4</text>
+
+                <!-- Barriers -->
+                <line x1="220" y1="20" x2="220" y2="240" class="barrier" />
+                <line x1="420" y1="20" x2="420" y2="240" class="barrier" />
+
+                <!-- Wires -->
+                <text x="5" y="44" class="lbl">q0|0⟩</text>
+                <line x1="55" y1="40" x2="640" y2="40" class="wl" />
+                <text x="5" y="84" class="lbl">q1|0⟩</text>
+                <line x1="55" y1="80" x2="640" y2="80" class="wl" />
+                <text x="5" y="124" class="lbl">⋮</text>
+                <line x1="55" y1="120" x2="640" y2="120" class="wl" />
+                
+                <text x="5" y="184" class="lbl" fill="#9b5de5">a0|0⟩</text>
+                <line x1="55" y1="180" x2="640" y2="180" class="wl" />
+                <text x="5" y="224" class="lbl" fill="#9b5de5">a1|0⟩</text>
+                <line x1="55" y1="220" x2="640" y2="220" class="wl" />
+                
+                <text x="60" y="145" class="lbl-s">data register</text>
+                <text x="60" y="245" class="lbl-s" fill="#9b5de5">ancilla register</text>
+
+                <!-- H layer 1 -->
+                <rect x="80" y="25" width="30" height="30" class="gate" />
+                <text x="95" y="45" class="gate-t" text-anchor="middle">H</text>
+                <rect x="80" y="65" width="30" height="30" class="gate" />
+                <text x="95" y="85" class="gate-t" text-anchor="middle">H</text>
+                <rect x="80" y="105" width="30" height="30" class="gate" />
+                <text x="95" y="125" class="gate-t" text-anchor="middle">H</text>
+
+                <!-- Uf Oracle -->
+                <rect x="270" y="25" width="140" height="210" rx="10" fill="url(#grad-purple-s)" stroke="#9b5de5" stroke-width="2" filter="url(#glow-purple-s)" />
+                <text x="340" y="125" fill="#e2e8f0" font="bold 16px 'JetBrains Mono', monospace" text-anchor="middle">U_f</text>
+                <text x="340" y="145" fill="#9b5de5" font-size="10" text-anchor="middle" font-family="'Source Serif 4', serif" font-style="italic">f(x) = f(x ⊕ s)</text>
+
+                <!-- H layer 2 -->
+                <rect x="440" y="25" width="30" height="30" class="gate" />
+                <text x="455" y="45" class="gate-t" text-anchor="middle">H</text>
+                <rect x="440" y="65" width="30" height="30" class="gate" />
+                <text x="455" y="85" class="gate-t" text-anchor="middle">H</text>
+                <rect x="440" y="105" width="30" height="30" class="gate" />
+                <text x="455" y="125" class="gate-t" text-anchor="middle">H</text>
+
+                <!-- Measurement -->
+                <rect x="500" y="25" width="36" height="30" rx="6" fill="#0a0f1d" stroke="#f4c430" stroke-width="2" />
+                <text x="518" y="45" fill="#f4c430" font="bold 12px 'JetBrains Mono', monospace" text-anchor="middle">M</text>
+                <rect x="500" y="65" width="36" height="30" rx="6" fill="#0a0f1d" stroke="#f4c430" stroke-width="2" />
+                <text x="518" y="85" fill="#f4c430" font="bold 12px 'JetBrains Mono', monospace" text-anchor="middle">M</text>
+
+                <text x="545" y="45" fill="#f4c430" font="10px 'JetBrains Mono', monospace">⟵ z s.t.</text>
+                <text x="545" y="58" fill="#f4c430" font="10px 'JetBrains Mono', monospace">s·z = 0</text>
+              </svg>
+            </div>
+
             <div class="callout theorem">
+
               <div class="callout-header">🛤️ Tracking the Data's Journey</div>
 
               <p>
@@ -1952,7 +2064,77 @@ print(f"Circuit depth: {qc.depth()}")</code></pre>
               </div>
             </div>
 
-            <h3 id="s6-geometry">6.4 Geometric Picture — Rotation in 2D</h3>
+            <h3 id="s6-circuit">6.4 Grover Iterator Circuit</h3>
+            <div class="circuit-container" style="
+              background: rgba(13, 20, 36, 0.4);
+              border: 1px solid rgba(31, 49, 85, 0.6);
+              border-radius: 12px;
+              padding: 2.5rem 1.5rem 1rem;
+              margin: 2rem 0;
+              position: relative;
+              overflow: hidden;
+              backdrop-filter: blur(8px);
+            ">
+              <div style='position:absolute; top:12px; left:16px; font-family:var(--font-mono); font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.1em;'>Grover Iteration Component</div>
+              <svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                   <filter id="glow-cyan-g" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.5" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter>
+                   <linearGradient id="grad-gold-g" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#f4c430;stop-opacity:0.3" />
+                    <stop offset="100%" style="stop-color:#f4c430;stop-opacity:0.1" />
+                  </linearGradient>
+                </defs>
+                <style>
+                  .wl { stroke: rgba(61, 82, 120, 0.4); stroke-width: 1.5; fill: none; }
+                  .barrier { stroke: rgba(122, 147, 184, 0.2); stroke-width: 1.5; stroke-dasharray: 4,4; }
+                  .gate { fill: #0a0f1d; stroke: #00d4ff; stroke-width: 1.5; rx: 6; filter: url(#glow-cyan-g); }
+                  .gate-t { fill: #00d4ff; font: bold 14px 'JetBrains Mono', monospace; }
+                </style>
+                
+                <text x="10" y="44" class="lbl" fill="#94a3b8" font="bold 12px 'JetBrains Mono', monospace">q0|0⟩</text>
+                <line x1="60" y1="40" x2="640" y2="40" class="wl" />
+                <text x="10" y="84" class="lbl" fill="#94a3b8" font="bold 12px 'JetBrains Mono', monospace">q1|0⟩</text>
+                <line x1="60" y1="80" x2="640" y2="80" class="wl" />
+                <text x="10" y="124" class="lbl" fill="#94a3b8" font="bold 12px 'JetBrains Mono', monospace">⋮</text>
+                <line x1="60" y1="120" x2="640" y2="120" class="wl" />
+
+                <!-- Initial H -->
+                <rect x="70" y="25" width="30" height="30" class="gate" />
+                <text x="85" y="45" class="gate-t" text-anchor="middle">H</text>
+                <rect x="70" y="65" width="30" height="30" class="gate" />
+                <text x="85" y="85" class="gate-t" text-anchor="middle">H</text>
+
+                <line x1="120" y1="20" x2="120" y2="160" class="barrier" />
+
+                <!-- Oracle Block -->
+                <rect x="140" y="25" width="120" height="110" rx="8" fill="rgba(255,159,67,0.1)" stroke="#ff9f43" stroke-width="2" />
+                <text x="200" y="80" fill="#ff9f43" font="bold 14px 'JetBrains Mono', monospace" text-anchor="middle">Oracle O_f</text>
+                <text x="200" y="95" fill="#ff9f43" font-size="9" text-anchor="middle">Mark Target</text>
+
+                <line x1="280" y1="20" x2="280" y2="160" class="barrier" />
+
+                <!-- Diffuser Block -->
+                <rect x="300" y="25" width="180" height="110" rx="8" fill="url(#grad-gold-g)" stroke="#f4c430" stroke-width="2" />
+                <text x="390" y="80" fill="#f4c430" font="bold 14px 'JetBrains Mono', monospace" text-anchor="middle">Diffuser D</text>
+                <text x="390" y="95" fill="#f4c430" font-size="9" text-anchor="middle">Invert about Mean</text>
+
+                <line x1="500" y1="20" x2="500" y2="160" class="barrier" />
+                <text x="510" y="85" fill="#94a3b8" font-size="10" font-family="'JetBrains Mono', monospace">Repeat k times...</text>
+
+                <!-- Measure -->
+                <rect x="580" y="25" width="30" height="30" rx="5" fill="#0a0f1d" stroke="#f4c430" stroke-width="2" />
+                <text x="595" y="45" fill="#f4c430" font="bold 12px 'JetBrains Mono', monospace" text-anchor="middle">M</text>
+                <rect x="580" y="65" width="30" height="30" rx="5" fill="#0a0f1d" stroke="#f4c430" stroke-width="2" />
+                <text x="595" y="85" fill="#f4c430" font="bold 12px 'JetBrains Mono', monospace" text-anchor="middle">M</text>
+
+                <!-- Step Labels -->
+                <text x="85" y="180" fill="#94a3b8" font="bold 10px 'JetBrains Mono', monospace" text-anchor="middle">Prep</text>
+                <text x="200" y="180" fill="#ff9f43" font="bold 10px 'JetBrains Mono', monospace" text-anchor="middle">Reflection (O)</text>
+                <text x="390" y="180" fill="#f4c430" font="bold 10px 'JetBrains Mono', monospace" text-anchor="middle">Amplification (D)</text>
+              </svg>
+            </div>
+
+            <h3 id="s6-geometry">6.5 Geometric Picture — Rotation in 2D</h3>
             <p>
               Grover's algorithm has an elegant geometric interpretation. Consider the 2D plane
               spanned by:
@@ -2486,7 +2668,49 @@ print(result.data.meas.get_counts())</code></pre>
                 ? `✔ CONSTANT — measured |00⟩ (prob = ${ampZero ** 2})`
                 : `✔ BALANCED — amplitude of |00⟩ is zero; measured non-zero string`;
             ans.className = 'dj-answer ' + o.type;
+            drawDJCircuit(o);
           }, 2400);
+        }
+
+        function drawDJCircuit(o) {
+          const container = document.getElementById('dj-circuit');
+          const svgW = 500, svgH = 120;
+          let svg = `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="dj-glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.5" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+            </defs>
+            <style>
+              .dj-wl { stroke: rgba(61, 82, 120, 0.4); stroke-width: 1.5; }
+              .dj-gate { fill: #0a0f1d; stroke: #00d4ff; stroke-width: 1.5; rx: 5; filter: url(#dj-glow); }
+              .dj-t { fill: #00d4ff; font: bold 11px 'JetBrains Mono', monospace; }
+            </style>
+            <!-- Wires -->
+            <line x1="50" y1="30" x2="450" y2="30" class="dj-wl"/>
+            <text x="5" y="34" fill="#94a3b8" font-size="10" font-family="JetBrains Mono">data|0⟩</text>
+            <line x1="50" y1="80" x2="450" y2="80" class="dj-wl" stroke="#9b5de5"/>
+            <text x="5" y="84" fill="#9b5de5" font-size="10" font-family="JetBrains Mono">anc |1⟩</text>
+
+            <!-- H Layer -->
+            <rect x="60" y="18" width="24" height="24" class="dj-gate"/>
+            <text x="72" y="34" class="dj-t" text-anchor="middle">H</text>
+            <rect x="60" y="68" width="24" height="24" class="dj-gate" stroke="#9b5de5"/>
+            <text x="72" y="84" class="dj-t" text-anchor="middle" fill="#9b5de5">H</text>
+
+            <!-- Oracle -->
+            <rect x="150" y="15" width="120" height="80" rx="8" fill="rgba(155,93,229,0.1)" stroke="#9b5de5" stroke-width="2" filter="url(#dj-glow)"/>
+            <text x="210" y="55" fill="#e2e8f0" font="bold 12px 'JetBrains Mono'" text-anchor="middle">Oracle (U_f)</text>
+            <text x="210" y="72" fill="#9b5de5" font-size="9" text-anchor="middle">${o.name}</text>
+
+            <!-- Final H -->
+            <rect x="330" y="18" width="24" height="24" class="dj-gate"/>
+            <text x="342" y="34" class="dj-t" text-anchor="middle">H</text>
+
+            <!-- Measure -->
+            <rect x="400" y="18" width="28" height="24" rx="4" fill="#0a0f1d" stroke="#f4c430" stroke-width="1.5"/>
+            <text x="414" y="35" fill="#f4c430" font="bold 10px 'JetBrains Mono'" text-anchor="middle">M</text>
+            <text x="435" y="35" fill="#f4c430" font-size="10" font-family="JetBrains Mono">${o.type === 'constant' ? '=0' : '≠0'}</text>
+          </svg>`;
+          container.innerHTML = svg;
         }
       })();
 
@@ -2517,34 +2741,58 @@ print(result.data.meas.get_counts())</code></pre>
           const sStr = s.join('');
           oracleLabel.textContent = `f(x) = s·x mod 2, s = ${sStr}`;
           result.innerHTML = `<span style="color:var(--text-muted)">BV algorithm queries oracle once → measures </span><span style="color:var(--accent-gold)">${sStr}</span>`;
-          // Draw simple circuit SVG
-          const svgW = 520,
-            svgH = n * 40 + 40;
-          let svg = `<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="max-width:100%">`;
+          
+          const svgW = 520, svgH = n * 45 + 60;
+          let svg = `<svg viewBox="0 -10 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="max-width:100%">
+            <defs>
+              <filter id="bv-glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.5" result="b"/><feComposite in="SourceGraphic" in2="b" operator="over"/></filter>
+              <linearGradient id="bv-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#9b5de5" stop-opacity="0.2"/><stop offset="100%" stop-color="#9b5de5" stop-opacity="0.05"/></linearGradient>
+            </defs>
+            <style>
+              .bv-wl { stroke: rgba(61, 82, 120, 0.4); stroke-width: 1.5; }
+              .bv-gate { fill: #0a0f1d; stroke: #00d4ff; stroke-width: 1.5; rx: 5; filter: url(#bv-glow); }
+              .bv-t { fill: #00d4ff; font: bold 12px 'JetBrains Mono', monospace; }
+              .bv-lbl { fill: #94a3b8; font: 11px 'JetBrains Mono', monospace; }
+            </style>`;
+
+          // Wires
           for (let i = 0; i < n; i++) {
             const y = 30 + i * 40;
-            svg += `<line x1="60" y1="${y}" x2="${svgW - 40}" y2="${y}" stroke="#334155" stroke-width="1.5"/>`;
-            svg += `<text x="5" y="${y + 4}" fill="#94a3b8" font-size="12" font-family="JetBrains Mono,monospace">q${i}|0⟩</text>`;
-            // H gate
-            svg += `<rect x="70" y="${y - 12}" width="26" height="24" rx="4" fill="#0f172a" stroke="#00d4ff" stroke-width="1.5"/>`;
-            svg += `<text x="83" y="${y + 4}" fill="#00d4ff" font-size="12" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">H</text>`;
-            // CNOT if s[i]=1
+            svg += `<line x1="60" y1="${y}" x2="${svgW - 50}" y2="${y}" class="bv-wl"/>`;
+            svg += `<text x="5" y="${y + 4}" class="bv-lbl">q${i}|0⟩</text>`;
+            
+            // H Layer 1
+            svg += `<rect x="70" y="${y - 12}" width="26" height="24" class="bv-gate"/>`;
+            svg += `<text x="83" y="${y + 5}" class="bv-t" text-anchor="middle">H</text>`;
+            
+            // CNOT dots if s[i]=1
             if (s[i] === 1) {
-              svg += `<circle cx="240" cy="${y}" r="12" fill="none" stroke="#f4c430" stroke-width="1.5"/>`;
-              svg += `<text x="240" y="${y + 4}" fill="#f4c430" font-size="12" text-anchor="middle" font-family="JetBrains Mono,monospace">⊕</text>`;
-              svg += `<text x="250" y="${y - 14}" fill="#9b5de5" font-size="9" font-family="JetBrains Mono,monospace">CNOT</text>`;
+              svg += `<circle cx="210" cy="${y}" r="10" fill="none" stroke="#9b5de5" stroke-width="2" filter="url(#bv-glow)"/>`;
+              svg += `<text x="210" y="${y + 4}" fill="#9b5de5" font-size="12" text-anchor="middle">⊕</text>`;
+              svg += `<line x1="210" y1="${y}" x2="210" y2="${n * 40 + 30}" stroke="#9b5de5" stroke-dasharray="2,2"/>`;
             }
-            // H gate after oracle
-            svg += `<rect x="380" y="${y - 12}" width="26" height="24" rx="4" fill="#0f172a" stroke="#00d4ff" stroke-width="1.5"/>`;
-            svg += `<text x="393" y="${y + 4}" fill="#00d4ff" font-size="12" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">H</text>`;
+
+            // H Layer 2
+            svg += `<rect x="350" y="${y - 12}" width="26" height="24" class="bv-gate"/>`;
+            svg += `<text x="363" y="${y + 5}" class="bv-t" text-anchor="middle">H</text>`;
+            
             // Measurement
-            svg += `<rect x="420" y="${y - 12}" width="28" height="24" rx="4" fill="#1e293b" stroke="#f4c430" stroke-width="1.5"/>`;
-            svg += `<text x="434" y="${y + 5}" fill="#f4c430" font-size="11" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">M</text>`;
-            svg += `<text x="458" y="${y + 5}" fill="#f4c430" font-size="11" font-family="JetBrains Mono,monospace">=${s[i]}</text>`;
+            svg += `<rect x="400" y="${y - 12}" width="30" height="24" rx="4" fill="#0a0f1d" stroke="#f4c430" stroke-width="1.5"/>`;
+            svg += `<text x="415" y="${y + 5}" fill="#f4c430" font="bold 11px 'JetBrains Mono', monospace" text-anchor="middle">M</text>`;
+            svg += `<text x="440" y="${y + 5}" fill="#f4c430" font-size="11" font-family="'JetBrains Mono', monospace">=${s[i]}</text>`;
           }
-          // Oracle box
-          svg += `<rect x="155" y="15" width="110" height="${n * 40 + 5}" rx="6" fill="rgba(155,93,229,0.1)" stroke="#9b5de5" stroke-width="1.5"/>`;
-          svg += `<text x="210" y="${n * 20 + 20}" fill="#9b5de5" font-size="12" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">U_f</text>`;
+
+          // Ancilla Wire
+          const ay = n * 40 + 30;
+          svg += `<line x1="60" y1="${ay}" x2="${svgW - 50}" y2="${ay}" class="bv-wl" stroke="#9b5de5"/>`;
+          svg += `<text x="5" y="${ay + 4}" class="bv-lbl" fill="#9b5de5">anc |1⟩</text>`;
+          svg += `<rect x="70" y="${ay - 12}" width="26" height="24" rx="5" fill="#0a0f1d" stroke="#9b5de5" stroke-width="1.5" filter="url(#bv-glow)"/>`;
+          svg += `<text x="83" y="${ay + 5}" fill="#9b5de5" font="bold 12px 'JetBrains Mono', monospace" text-anchor="middle">H</text>`;
+
+          // Oracle Box
+          svg += `<rect x="140" y="10" width="140" height="${n * 40 + 35}" rx="8" fill="url(#bv-grad)" stroke="#9b5de5" stroke-width="2" filter="url(#bv-glow)"/>`;
+          svg += `<text x="210" y="22" fill="#9b5de5" font-size="9" font-family="'JetBrains Mono', monospace" text-anchor="middle">ORACLE U_f</text>`;
+
           svg += '</svg>';
           circuitDiv.innerHTML = svg;
         }
