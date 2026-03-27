@@ -2649,6 +2649,37 @@
                       </div>
                     </div>
                   </div>
+                  
+                  <!-- Matrix Steps View -->
+                  <div id="cnp-matrix-view" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); animation: fadeIn 0.5s ease-out;">
+                    <div style="color: var(--text-faint); font-size: 0.72rem; text-transform: uppercase; margin-bottom: 1.25rem; text-align: center; letter-spacing: 0.05em;">Dynamical Block-Matrix Evolution</div>
+                    <div style="display: flex; gap: 0.75rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+                      <div style="text-align: center;">
+                        <div style="color: var(--cyan); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">A ⊗ B</div>
+                        <div id="cnp-mat-step1"></div>
+                      </div>
+                      <div style="font-size: 1.2rem; color: var(--text-faint); margin-top: 1rem;">×</div>
+                      <div style="text-align: center;">
+                        <div style="color: var(--text-faint); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">CNOT (left)</div>
+                        <div id="cnp-mat-step-cnot-pre"></div>
+                      </div>
+                      <div style="font-size: 1.2rem; color: var(--text-faint); margin-top: 1rem;">=</div>
+                      <div style="text-align: center;">
+                        <div style="color: var(--purple); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">CNOT(A ⊗ B)</div>
+                        <div id="cnp-mat-step2"></div>
+                      </div>
+                      <div style="font-size: 1.2rem; color: var(--text-faint); margin-top: 1rem;">×</div>
+                      <div style="text-align: center;">
+                        <div style="color: var(--text-faint); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">CNOT (right)</div>
+                        <div id="cnp-mat-step-cnot-post"></div>
+                      </div>
+                      <div style="font-size: 1.2rem; color: var(--text-faint); margin-top: 1rem;">=</div>
+                      <div style="text-align: center;">
+                        <div style="color: var(--gold); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">Final Sandwich</div>
+                        <div id="cnp-mat-step3"></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -3089,6 +3120,85 @@
 
         // ── CNOT Propagation Simulator ──
         let cnpState = { c: 'I', t: 'I' };
+
+        // Matrix helpers for CNOT Prop
+        const c_zero = { r: 0, i: 0 };
+        const c_one = { r: 1, i: 0 };
+        const c_none = { r: -1, i: 0 };
+        const c_i = { r: 0, i: 1 };
+        const c_ni = { r: 0, i: -1 };
+
+        const PauliMatrices = {
+          I: [[c_one, c_zero], [c_zero, c_one]],
+          X: [[c_zero, c_one], [c_one, c_zero]],
+          Y: [[c_zero, c_ni], [c_i, c_zero]],
+          Z: [[c_one, c_zero], [c_zero, c_none]]
+        };
+
+        const CNOTMatrix = [
+          [c_one, c_zero, c_zero, c_zero],
+          [c_zero, c_one, c_zero, c_zero],
+          [c_zero, c_zero, c_zero, c_one],
+          [c_zero, c_zero, c_one, c_zero]
+        ];
+
+        function complexMult(a, b) {
+          return { r: a.r * b.r - a.i * b.i, i: a.r * b.i + a.i * b.r };
+        }
+        function complexAdd(a, b) {
+          return { r: a.r + b.r, i: a.i + b.i };
+        }
+        function tensor(A, B) {
+          let res = [];
+          for (let i = 0; i < 4; i++) {
+            res[i] = [];
+            for (let j = 0; j < 4; j++) {
+              let rA = Math.floor(i / 2), cA = Math.floor(j / 2);
+              let rB = i % 2, cB = j % 2;
+              res[i][j] = complexMult(A[rA][cA], B[rB][cB]);
+            }
+          }
+          return res;
+        }
+        function multiply(A, B) {
+          let res = [];
+          for (let i = 0; i < 4; i++) {
+            res[i] = [];
+            for (let j = 0; j < 4; j++) {
+              let sum = c_zero;
+              for (let k = 0; k < 4; k++) {
+                sum = complexAdd(sum, complexMult(A[i][k], B[k][j]));
+              }
+              res[i][j] = sum;
+            }
+          }
+          return res;
+        }
+        function renderCNPMatrix(mat, id) {
+          const el = document.getElementById(id);
+          if (!el) return;
+          let html = '<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; font-size: 0.65rem; min-width: 135px; font-family: var(--font-mono);">';
+          for (let r = 0; r < 4; r++) {
+            for (let c = 0; c < 4; c++) {
+              const v = mat[r][c];
+              let t = "0";
+              if (v.r !== 0 && v.i === 0) t = v.r === 1 ? "1" : (v.r === -1 ? "-1" : v.r);
+              else if (v.r === 0 && v.i !== 0) t = v.i === 1 ? "i" : (v.i === -1 ? "-i" : v.i + "i");
+              else if (v.r !== 0 && v.i !== 0) t = `${v.r}${v.i > 0 ? "+" : ""}${v.i}i`;
+              
+              const isBlockAlt = (Math.floor(r/2) + Math.floor(c/2)) % 2 === 1;
+              const bg = isBlockAlt ? 'rgba(255,255,255,0.03)' : 'var(--bg-3)';
+              const color = t === "0" ? 'rgba(255,255,255,0.15)' : 'var(--text)';
+              const bR = c === 1 ? '1px solid rgba(255,255,255,0.15)' : 'none';
+              const bB = r === 1 ? '1px solid rgba(255,255,255,0.15)' : 'none';
+              
+              html += `<div style="background: ${bg}; padding: 0.35rem 0; text-align: center; color: ${color}; border-right: ${bR}; border-bottom: ${bB};">${t}</div>`;
+            }
+          }
+          html += '</div>';
+          el.innerHTML = html;
+        }
+
         window.setCNOTProp = function(q, type) {
           cnpState[q] = type;
           // Update buttons
@@ -3196,6 +3306,17 @@
           document.getElementById('cnp-before').textContent = `${cnpState.c} ⊗ ${cnpState.t}`;
           document.getElementById('cnp-after').textContent = `${cAfter} ⊗ ${tAfter}`;
           document.getElementById('cnp-explanation').textContent = explanation;
+
+          // Dynamic Matrix Evolution
+          const m1 = tensor(PauliMatrices[cnpState.c], PauliMatrices[cnpState.t]);
+          const m2 = multiply(CNOTMatrix, m1);
+          const m3 = multiply(m2, CNOTMatrix);
+
+          renderCNPMatrix(m1, 'cnp-mat-step1');
+          renderCNPMatrix(CNOTMatrix, 'cnp-mat-step-cnot-pre');
+          renderCNPMatrix(m2, 'cnp-mat-step2');
+          renderCNPMatrix(CNOTMatrix, 'cnp-mat-step-cnot-post');
+          renderCNPMatrix(m3, 'cnp-mat-step3');
         }
         function drawGate(ctx, x, y, type, colors) {
           if (type === 'I') return;
