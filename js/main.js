@@ -7,11 +7,28 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ── Reading Progress Bar ── */
   const bar = document.querySelector('.reading-progress-bar');
   if (bar) {
-    window.addEventListener('scroll', () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      bar.style.width = (docHeight > 0 ? (scrollTop / docHeight) * 100 : 0) + '%';
-    });
+    let ticking = false;
+    let docHeight = document.documentElement.scrollHeight - window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    }, { passive: true });
+
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            const scrollTop = window.scrollY;
+            if (docHeight <= 0) docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            bar.style.width = (docHeight > 0 ? (scrollTop / docHeight) * 100 : 0) + '%';
+            ticking = false;
+          });
+          ticking = true;
+        }
+      },
+      { passive: true }
+    );
   }
 
   /* ── Active sidebar link ── */

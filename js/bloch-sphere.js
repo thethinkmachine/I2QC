@@ -220,9 +220,21 @@ function initBlochSphere(containerId, opts = {}) {
 
   /* Animation loop */
   let running = true;
+  let isVisible = false;
+
+  const io = new IntersectionObserver((entries) => {
+    isVisible = entries[0].isIntersecting;
+  }, { threshold: 0.1 });
+  io.observe(container);
+
   function animate() {
     if (!running) return;
+    if (!isVisible) {
+      requestAnimationFrame(animate);
+      return;
+    }
     requestAnimationFrame(animate);
+
     const r = 3.2;
     camera.position.x = r * Math.sin(rotY) * Math.cos(rotX);
     camera.position.y = r * Math.sin(rotX);
@@ -254,6 +266,8 @@ function initBlochSphere(containerId, opts = {}) {
     getR: () => r,
     destroy: () => {
       running = false;
+      io.disconnect();
+      ro.disconnect();
       container.removeChild(renderer.domElement);
     },
   };

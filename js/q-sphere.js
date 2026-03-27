@@ -459,8 +459,21 @@ function initQSphere(containerId, initialQubits = 3) {
   //  RENDER LOOP
   // ──────────────────────────────────────────
   let running = true;
+  let isVisible = false;
+
+  // Use IntersectionObserver to play/pause
+  const io = new IntersectionObserver((entries) => {
+    isVisible = entries[0].isIntersecting;
+  }, { threshold: 0.1 });
+  io.observe(container);
+
   function animate() {
     if (!running) return;
+    if (!isVisible) {
+      // Just wait until visible
+      requestAnimationFrame(animate);
+      return;
+    }
     requestAnimationFrame(animate);
 
     const now = performance.now();
@@ -586,6 +599,7 @@ function initQSphere(containerId, initialQubits = 3) {
     destroy() {
       running = false;
       ro.disconnect();
+      io.disconnect();
       try { container.removeChild(renderer.domElement); } catch (_) {}
       try { container.removeChild(infoPanel); } catch (_) {}
       try { container.removeChild(legend); } catch (_) {}

@@ -1676,26 +1676,38 @@ noisy_job = noisy_sim.run(qc, shots=<span class="code-num">1000</span>)
           dmScene.add(dmGridGroup);
           
           // Animation Loop
-          let rotX = 0, rotY = 0;
+          let running = true;
+          let isVisible = false;
           let isDragging = false;
           let lastMouseX, lastMouseY;
-          
+
+          const io = new IntersectionObserver((entries) => {
+            isVisible = entries[0].isIntersecting;
+          }, { threshold: 0.1 });
+          io.observe(dmContainer);
+
           dmContainer.addEventListener('mousedown', (e) => { isDragging = true; lastMouseX = e.clientX; lastMouseY = e.clientY; });
           window.addEventListener('mouseup', () => isDragging = false);
           window.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
             const dx = e.clientX - lastMouseX;
-            const dy = e.clientY - lastMouseY;
             dmGridGroup.rotation.y += dx * 0.01;
             lastMouseX = e.clientX;
-            lastMouseY = e.clientY;
           });
 
           function animate() {
+            if (!running) return;
             requestAnimationFrame(animate);
+            if (!isVisible) return;
             dmRenderer.render(dmScene, dmCamera);
           }
           animate();
+
+          // Cleanup on window unload
+          window.addEventListener('unload', () => {
+            running = false;
+            io.disconnect();
+          });
         }
 
         const densityStates = {

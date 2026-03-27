@@ -954,6 +954,7 @@ select:hover {
 }
 .fade-in {
   animation: fadeInUp 0.5s ease both;
+  will-change: opacity, transform;
 }
 
 /* === KETS === */
