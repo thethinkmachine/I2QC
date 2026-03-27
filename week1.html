@@ -2631,12 +2631,12 @@
                       ">
                         <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center; text-align: center">
                           <div>
-                            <div style="color: var(--text-faint); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 0.3rem">Before CNOT</div>
+                            <div style="color: var(--text-faint); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 0.3rem">Inner Operator (A ⊗ B)</div>
                             <div id="cnp-before" style="font-size: 1.2rem; color: var(--text); font-weight: 600">I ⊗ I</div>
                           </div>
                           <div style="font-size: 1.5rem; color: var(--text-faint)">→</div>
                           <div>
-                            <div style="color: var(--text-faint); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 0.3rem">After CNOT</div>
+                            <div style="color: var(--text-faint); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 0.3rem">Resulting Operator</div>
                             <div id="cnp-after" style="font-size: 1.2rem; font-weight: 600; color: var(--cyan)">I ⊗ I</div>
                           </div>
                         </div>
@@ -3115,60 +3115,83 @@
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           
           const wireY1 = 40, wireY2 = 110;
-          const startX = 60, endX = canvas.width - 60, cnotX = canvas.width / 2;
+          const startX = 40;
+          const cnot1X = 80;
+          const pauliX = 160;
+          const cnot2X = 240;
+          const eqX = 310;
+          const resultX = 420;
           
-          // Draw wires
+          // Draw wires for sandwich
           ctx.beginPath(); 
-          ctx.moveTo(startX, wireY1); ctx.lineTo(endX, wireY1);
-          ctx.moveTo(startX, wireY2); ctx.lineTo(endX, wireY2);
-          ctx.strokeStyle = colors.border; ctx.lineWidth = 2; ctx.stroke();
+          ctx.moveTo(startX, wireY1); ctx.lineTo(cnot2X + 40, wireY1);
+          ctx.moveTo(startX, wireY2); ctx.lineTo(cnot2X + 40, wireY2);
+          
+          // Draw wires for result
+          ctx.moveTo(resultX - 40, wireY1); ctx.lineTo(resultX + 40, wireY1);
+          ctx.moveTo(resultX - 40, wireY2); ctx.lineTo(resultX + 40, wireY2);
+          
+          ctx.strokeStyle = colors.border; ctx.lineWidth = 1.5; ctx.stroke();
           
           // Labels
-          ctx.fillStyle = colors.faint; ctx.font = '12px ' + getComputedStyle(document.body).fontFamily;
+          ctx.fillStyle = colors.faint; ctx.font = '11px ' + getComputedStyle(document.body).fontFamily;
           ctx.textAlign = 'left';
-          ctx.fillText('Control', 10, wireY1+5); ctx.fillText('Target', 10, wireY2+5);
+          ctx.fillText('q₀ (ctrl)', 10, wireY1+4); ctx.fillText('q₁ (trgt)', 10, wireY2+4);
           
-          // Before Paulis
-          drawGate(ctx, startX + 60, wireY1, cnpState.c, colors);
-          drawGate(ctx, startX + 60, wireY2, cnpState.t, colors);
-          
-          // CNOT
-          ctx.strokeStyle = colors.text;
-          ctx.beginPath(); ctx.moveTo(cnotX, wireY1); ctx.lineTo(cnotX, wireY2); ctx.stroke();
-          ctx.beginPath(); ctx.arc(cnotX, wireY1, 6, 0, Math.PI*2); ctx.fillStyle = colors.text; ctx.fill();
-          
-          ctx.beginPath(); ctx.arc(cnotX, wireY2, 15, 0, Math.PI*2); ctx.fillStyle = colors.bg; ctx.fill(); 
-          ctx.strokeStyle = colors.text; ctx.lineWidth = 2; ctx.stroke();
-          
-          ctx.beginPath(); ctx.moveTo(cnotX-15, wireY2); ctx.lineTo(cnotX+15, wireY2); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(cnotX, wireY2-15); ctx.lineTo(cnotX, wireY2+15); ctx.stroke();
-          
+          // Equals sign
+          ctx.fillStyle = colors.text;
+          ctx.font = 'bold 24px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('=', eqX, (wireY1 + wireY2) / 2 + 8);
+
+          // Helper to draw CNOT
+          const drawCNOT = (x) => {
+            ctx.strokeStyle = colors.text;
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(x, wireY1); ctx.lineTo(x, wireY2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(x, wireY1, 5, 0, Math.PI*2); ctx.fillStyle = colors.text; ctx.fill();
+            
+            ctx.beginPath(); ctx.arc(x, wireY2, 12, 0, Math.PI*2); ctx.fillStyle = colors.bg; ctx.fill(); 
+            ctx.strokeStyle = colors.text; ctx.stroke();
+            
+            ctx.beginPath(); ctx.moveTo(x-8, wireY2); ctx.lineTo(x+8, wireY2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x, wireY2-8); ctx.lineTo(x, wireY2+8); ctx.stroke();
+          };
+
+          // Draw the sandwich: CNOT - Paulis - CNOT
+          drawCNOT(cnot1X);
+          drawGate(ctx, pauliX, wireY1, cnpState.c, colors);
+          drawGate(ctx, pauliX, wireY2, cnpState.t, colors);
+          drawCNOT(cnot2X);
+
           // Result Computation
           let cAfter = cnpState.c, tAfter = cnpState.t;
           let explanation = "No errors — CNOT acts normally";
           
           if (cnpState.c === 'X') { 
             tAfter = tAfter==='I'?'X':(tAfter==='X'?'I':(tAfter==='Z'?'Y':'Z')); 
-            explanation = "X propagates forward from control to target"; 
           }
           if (cnpState.t === 'Z') { 
             cAfter = cAfter==='I'?'Z':(cAfter==='Z'?'I':(cAfter==='X'?'Y':'X')); 
-            explanation = "Z propagates backward from target to control"; 
           }
           if (cnpState.c === 'Y') { 
             tAfter = tAfter==='I'?'X':(tAfter==='X'?'I':(tAfter==='Z'?'Y':'Z')); 
-            explanation = "Y on control: X-part spreads forward, Z-part stays"; 
           }
           if (cnpState.t === 'Y') { 
             cAfter = cAfter==='I'?'Z':(cAfter==='Z'?'I':(cAfter==='X'?'Y':'X')); 
-            explanation = "Y on target: Z-part spreads backward, X-part stays"; 
           }
-          
-          if (cnpState.c !== 'I' && cnpState.t !== 'I') explanation = "Combined rules: X flows forward, Z flows backward";
 
-          // After Paulis
-          drawGate(ctx, endX - 60, wireY1, cAfter, colors);
-          drawGate(ctx, endX - 60, wireY2, tAfter, colors);
+          // Update explanation based on current inputs
+          if (cnpState.c !== 'I' || cnpState.t !== 'I') {
+            if (cnpState.c === 'X' && cnpState.t === 'I') explanation = "X on control spreads forward: CNOT(X⊗I)CNOT = X⊗X";
+            else if (cnpState.c === 'I' && cnpState.t === 'Z') explanation = "Z on target spreads backward: CNOT(I⊗Z)CNOT = Z⊗Z";
+            else if (cnpState.c === 'X' && cnpState.t === 'Z') explanation = "Combined: X flows forward AND Z flows backward";
+            else explanation = "Pauli operators transform locally and spread based on CNOT rules";
+          }
+
+          // Draw the result
+          drawGate(ctx, resultX, wireY1, cAfter, colors);
+          drawGate(ctx, resultX, wireY2, tAfter, colors);
           
           document.getElementById('cnp-before').textContent = `${cnpState.c} ⊗ ${cnpState.t}`;
           document.getElementById('cnp-after').textContent = `${cAfter} ⊗ ${tAfter}`;
