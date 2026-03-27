@@ -3173,7 +3173,7 @@ for eq in [None, 0, 1, 2]:
         });
 
         function resize() {
-          const w = Math.min(680, canvas.parentElement.clientWidth - 32);
+          const w = Math.max(520, Math.min(680, canvas.parentElement.clientWidth - 32));
           canvas.width = w;
           canvas.height = Math.max(200, Math.min(280, w * 0.41));
           drawCurve();

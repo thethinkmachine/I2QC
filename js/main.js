@@ -4,6 +4,174 @@
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
+  /* ── Mobile sidebar drawer + stable demo layout ── */
+  const nav = document.querySelector('.nav');
+  const sidebar = document.querySelector('.sidebar');
+  const navLinks = document.querySelector('.nav-links');
+  let sidebarToggle = null;
+  let backdrop = null;
+
+  function buildStableVizFrame(container) {
+    if (container.querySelector('.viz-mobile-viewport')) return;
+
+    const viewport = document.createElement('div');
+    viewport.className = 'viz-mobile-viewport';
+
+    const stage = document.createElement('div');
+    stage.className = 'viz-mobile-stage';
+
+    while (container.firstChild) {
+      stage.appendChild(container.firstChild);
+    }
+
+    viewport.appendChild(stage);
+    container.appendChild(viewport);
+
+    const syncScale = () => {
+      if (window.innerWidth > 900) {
+        viewport.style.height = '';
+        stage.style.width = '';
+        stage.style.transform = '';
+        return;
+      }
+
+      stage.style.width = '';
+      stage.style.transform = '';
+      viewport.style.height = '';
+
+      const naturalWidth = Math.max(stage.scrollWidth, 480);
+      const naturalHeight = stage.scrollHeight;
+      const availableWidth = viewport.clientWidth;
+      const scale = naturalWidth > 0 ? Math.min(1, availableWidth / naturalWidth) : 1;
+
+      stage.style.width = `${naturalWidth}px`;
+      stage.style.transform = `scale(${scale})`;
+      viewport.style.height = `${Math.ceil(naturalHeight * scale)}px`;
+    };
+
+    const ro = new ResizeObserver(syncScale);
+    ro.observe(container);
+    window.addEventListener('resize', syncScale, { passive: true });
+    syncScale();
+  }
+
+  document.querySelectorAll('.viz-container').forEach((container) => {
+    const hasLargeCanvas = Array.from(container.querySelectorAll('canvas')).some((canvas) => {
+      const declaredWidth = parseInt(canvas.getAttribute('width') || '0', 10);
+      const inlineWidth = canvas.getAttribute('style') || '';
+      const rect = canvas.getBoundingClientRect();
+      const isResponsiveCanvas = inlineWidth.includes('width: 100%') || inlineWidth.includes('width:100%');
+      if (declaredWidth >= 420 || isResponsiveCanvas) {
+        canvas.classList.add('stable-viz-canvas');
+        return true;
+      }
+      return rect.width >= 420;
+    });
+
+    const hasWideLayout = Boolean(
+      container.querySelector(
+        '[style*="grid-template-columns"], [style*="display:flex"], svg, .grover-controls'
+      )
+    );
+
+    if (hasLargeCanvas || hasWideLayout) {
+      container.setAttribute('data-stable-layout', 'true');
+      buildStableVizFrame(container);
+    }
+  });
+
+  if (nav && sidebar) {
+    sidebar.id ||= 'page-sidebar';
+    const pageTitle = document.querySelector('.hero-title')?.textContent?.replace(/\s+/g, ' ').trim();
+    const pageSubtitle = document.querySelector('.hero-subtitle')?.textContent
+      ?.replace(/\s+/g, ' ')
+      .trim();
+    const weekLinksHtml = Array.from(document.querySelectorAll('.nav-links a'))
+      .map(
+        (link) => `
+          <a href="${link.getAttribute('href')}" class="sidebar-week-link ${link.className}">
+            <span class="week-dot"></span>
+            <span>${link.textContent.trim()}</span>
+          </a>
+        `
+      )
+      .join('');
+    const sidebarInner = sidebar.querySelector('.sidebar-inner');
+
+    if (sidebarInner && !sidebarInner.querySelector('.sidebar-mobile-header')) {
+      const mobileHeader = document.createElement('div');
+      mobileHeader.className = 'sidebar-mobile-header';
+      mobileHeader.innerHTML = `
+        <span class="sidebar-mobile-kicker">Navigate</span>
+        <div class="sidebar-mobile-title">${pageTitle || 'Contents'}</div>
+        ${pageSubtitle ? `<div class="sidebar-mobile-subtitle">${pageSubtitle}</div>` : ''}
+      `;
+      sidebarInner.prepend(mobileHeader);
+
+      if (weekLinksHtml) {
+        const weekLinks = document.createElement('div');
+        weekLinks.className = 'sidebar-week-links';
+        weekLinks.innerHTML = weekLinksHtml;
+        mobileHeader.insertAdjacentElement('afterend', weekLinks);
+      }
+    }
+
+    sidebarToggle = document.createElement('button');
+    sidebarToggle.type = 'button';
+    sidebarToggle.className = 'nav-sidebar-toggle';
+    sidebarToggle.setAttribute('aria-label', 'Open page contents');
+    sidebarToggle.setAttribute('aria-controls', sidebar.id);
+    sidebarToggle.setAttribute('aria-expanded', 'false');
+    sidebarToggle.innerHTML = `
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="M4 7h16M4 12h16M4 17h16"></path>
+      </svg>
+      <span class="nav-sidebar-toggle-label">Topics</span>
+    `;
+
+    backdrop = document.createElement('div');
+    backdrop.className = 'mobile-sidebar-backdrop';
+    backdrop.hidden = true;
+    document.body.appendChild(backdrop);
+
+    nav.insertBefore(sidebarToggle, navLinks || null);
+
+    const closeSidebar = () => {
+      sidebar.classList.remove('mobile-open');
+      document.body.classList.remove('sidebar-open');
+      sidebarToggle.setAttribute('aria-expanded', 'false');
+      if (backdrop) {
+        backdrop.classList.remove('visible');
+        backdrop.hidden = true;
+      }
+    };
+
+    const openSidebar = () => {
+      sidebar.classList.add('mobile-open');
+      document.body.classList.add('sidebar-open');
+      sidebarToggle.setAttribute('aria-expanded', 'true');
+      if (backdrop) {
+        backdrop.hidden = false;
+        window.requestAnimationFrame(() => backdrop.classList.add('visible'));
+      }
+    };
+
+    sidebarToggle.addEventListener('click', () => {
+      const isOpen = sidebar.classList.contains('mobile-open');
+      if (isOpen) closeSidebar();
+      else openSidebar();
+    });
+
+    backdrop.addEventListener('click', closeSidebar);
+    sidebar.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeSidebar));
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && sidebar.classList.contains('mobile-open')) closeSidebar();
+    });
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 900) closeSidebar();
+    });
+  }
+
   /* ── Reading Progress Bar ── */
   const bar = document.querySelector('.reading-progress-bar');
   if (bar) {

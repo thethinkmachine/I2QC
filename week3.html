@@ -3164,7 +3164,7 @@ print(result.data.meas.get_counts())</code></pre>
         // Resize
         function resize() {
           const wrap = canvas.parentElement;
-          canvas.width = Math.min(700, wrap.clientWidth - 32);
+          canvas.width = Math.max(520, Math.min(700, wrap.clientWidth - 32));
           canvas.height = Math.max(260, Math.min(340, canvas.width * 0.49));
           draw();
         }
