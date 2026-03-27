@@ -2651,32 +2651,41 @@
                   </div>
                   
                   <!-- Matrix Steps View -->
+                  <style>
+                    /* Force matrix grids to stay as 4x4 even on mobile when global CSS resets them */
+                    .matrix-evolution-grid {
+                      grid-template-columns: repeat(4, 34px) !important;
+                      grid-template-rows: repeat(4, 34px) !important;
+                    }
+                  </style>
                   <div id="cnp-matrix-view" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); animation: fadeIn 0.5s ease-out;">
                     <div style="color: var(--text-faint); font-size: 0.72rem; text-transform: uppercase; margin-bottom: 1.25rem; text-align: center; letter-spacing: 0.05em;">Dynamical Block-Matrix Evolution</div>
-                    <div style="display: flex; gap: 0.75rem; justify-content: center; align-items: center; flex-wrap: wrap;">
-                      <div style="text-align: center;">
-                        <div style="color: var(--cyan); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">A ⊗ B</div>
-                        <div id="cnp-mat-step1"></div>
-                      </div>
-                      <div style="font-size: 1.2rem; color: var(--text-faint); margin-top: 1rem;">×</div>
-                      <div style="text-align: center;">
-                        <div style="color: var(--text-faint); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">CNOT (left)</div>
-                        <div id="cnp-mat-step-cnot-pre"></div>
-                      </div>
-                      <div style="font-size: 1.2rem; color: var(--text-faint); margin-top: 1rem;">=</div>
-                      <div style="text-align: center;">
-                        <div style="color: var(--purple); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">CNOT(A ⊗ B)</div>
-                        <div id="cnp-mat-step2"></div>
-                      </div>
-                      <div style="font-size: 1.2rem; color: var(--text-faint); margin-top: 1rem;">×</div>
-                      <div style="text-align: center;">
-                        <div style="color: var(--text-faint); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">CNOT (right)</div>
-                        <div id="cnp-mat-step-cnot-post"></div>
-                      </div>
-                      <div style="font-size: 1.2rem; color: var(--text-faint); margin-top: 1rem;">=</div>
-                      <div style="text-align: center;">
-                        <div style="color: var(--gold); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">Final Sandwich</div>
-                        <div id="cnp-mat-step3"></div>
+                    <div style="overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch;">
+                      <div style="display: flex; gap: 0.75rem; justify-content: center; align-items: center; min-width: 820px; padding: 0.5rem 1rem;">
+                        <div style="text-align: center;">
+                          <div style="color: var(--text-faint); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">CNOT (left)</div>
+                          <div id="cnp-mat-step-cnot-pre"></div>
+                        </div>
+                        <div style="font-size: 1.2rem; color: var(--text-faint); margin-top: 2rem;">×</div>
+                        <div style="text-align: center;">
+                          <div style="color: var(--cyan); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">A ⊗ B</div>
+                          <div id="cnp-mat-step1"></div>
+                        </div>
+                        <div style="font-size: 1.2rem; color: var(--text-faint); margin-top: 2rem;">=</div>
+                        <div style="text-align: center;">
+                          <div style="color: var(--purple); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">CNOT(A ⊗ B)</div>
+                          <div id="cnp-mat-step2"></div>
+                        </div>
+                        <div style="font-size: 1.2rem; color: var(--text-faint); margin-top: 2rem;">×</div>
+                        <div style="text-align: center;">
+                          <div style="color: var(--text-faint); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">CNOT (right)</div>
+                          <div id="cnp-mat-step-cnot-post"></div>
+                        </div>
+                        <div style="font-size: 1.2rem; color: var(--text-faint); margin-top: 2rem;">=</div>
+                        <div style="text-align: center;">
+                          <div style="color: var(--gold); font-size: 0.65rem; margin-bottom: 0.5rem; font-family: var(--font-mono);">Final Sandwich</div>
+                          <div id="cnp-mat-step3"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -3174,10 +3183,56 @@
           }
           return res;
         }
+        function getBlockLabel(q) {
+          const isZ = (v) => v.r === 0 && v.i === 0;
+          const eq = (v1, v2) => v1.r === v2.r && v1.i === v2.i;
+          const neg = (v) => ({ r: -v.r, i: -v.i });
+          const timesI = (v) => ({ r: -v.i, i: v.r });
+          const timesNI = (v) => ({ r: v.i, i: -v.r });
+
+          const paulis = {
+            I: [[c_one, c_zero], [c_zero, c_one]],
+            X: [[c_zero, c_one], [c_one, c_zero]],
+            Y: [[c_zero, c_ni], [c_i, c_zero]],
+            Z: [[c_one, c_zero], [c_zero, c_none]]
+          };
+
+          for (let name in paulis) {
+            let p = paulis[name];
+            // Check +1, -1, i, -i multipliers
+            if (eq(q[0][0], p[0][0]) && eq(q[0][1], p[0][1]) && eq(q[1][0], p[1][0]) && eq(q[1][1], p[1][1])) return name;
+            if (eq(q[0][0], neg(p[0][0])) && eq(q[0][1], neg(p[0][1])) && eq(q[1][0], neg(p[1][0])) && eq(q[1][1], neg(p[1][1]))) return "−" + name;
+            if (eq(q[0][0], timesI(p[0][0])) && eq(q[0][1], timesI(p[0][1])) && eq(q[1][0], timesI(p[1][0])) && eq(q[1][1], timesI(p[1][1]))) return "i" + name;
+            if (eq(q[0][0], timesNI(p[0][0])) && eq(q[0][1], timesNI(p[0][1])) && eq(q[1][0], timesNI(p[1][0])) && eq(q[1][1], timesNI(p[1][1]))) return "−i" + name;
+          }
+          return "";
+        }
+
         function renderCNPMatrix(mat, id) {
           const el = document.getElementById(id);
           if (!el) return;
-          let html = '<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1.5px solid var(--border); border-radius: 4px; overflow: hidden; font-size: 0.65rem; min-width: 135px; font-family: var(--font-mono);">';
+          
+          let html = '<div style="position: relative; display: inline-flex; border-radius: 4px; overflow: hidden; background: #080e1a; border: 1px solid var(--border);">';
+          
+          // Background labels (Watermarks)
+          html += '<div class="matrix-evolution-grid" style="position: absolute; top:0; left:0; width: 100%; height: 100%; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); pointer-events: none; z-index: 0;">';
+          for (let q = 0; q < 4; q++) {
+            const rStart = q >= 2 ? 3 : 1;
+            const cStart = q % 2 === 1 ? 3 : 1;
+            const area = `${rStart} / ${cStart} / span 2 / span 2`;
+            
+            const rOff = q >= 2 ? 2 : 0;
+            const cOff = q % 2 === 1 ? 2 : 0;
+            const block = [[mat[rOff][cOff], mat[rOff][cOff+1]], [mat[rOff+1][cOff], mat[rOff+1][cOff+1]]];
+            const label = getBlockLabel(block);
+            
+            html += `<div style="grid-area: ${area}; display:flex; align-items:center; justify-content:center; font-size: 2rem; font-family: 'Georgia', serif; font-weight: 100; color: #fff; opacity: 0.08;">${label}</div>`;
+          }
+          html += '</div>';
+
+          // Foreground grid - Added 'matrix-evolution-grid' class to override mobile collapsing
+          const cellSize = "34px";
+          html += `<div class="matrix-evolution-grid" style="display: grid; grid-template-columns: repeat(4, ${cellSize}); grid-template-rows: repeat(4, ${cellSize}); gap: 1px; font-size: 0.68rem; font-family: var(--font-mono); position: relative; z-index: 1;">`;
           for (let r = 0; r < 4; r++) {
             for (let c = 0; c < 4; c++) {
               const v = mat[r][c];
@@ -3187,15 +3242,17 @@
               else if (v.r !== 0 && v.i !== 0) t = `${v.r}${v.i > 0 ? "+" : ""}${v.i}i`;
               
               const isBlockAlt = (Math.floor(r/2) + Math.floor(c/2)) % 2 === 1;
-              const bg = isBlockAlt ? 'rgba(255,255,255,0.03)' : 'var(--bg-3)';
+              const bg = isBlockAlt ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0)';
               const color = t === "0" ? 'rgba(255,255,255,0.15)' : 'var(--text)';
-              const bR = c === 1 ? '1px solid rgba(255,255,255,0.15)' : 'none';
-              const bB = r === 1 ? '1px solid rgba(255,255,255,0.15)' : 'none';
               
-              html += `<div style="background: ${bg}; padding: 0.35rem 0; text-align: center; color: ${color}; border-right: ${bR}; border-bottom: ${bB};">${t}</div>`;
+              const bR = c === 1 ? '1px solid rgba(255,255,255,0.1)' : 'none';
+              const bB = r === 1 ? '1px solid rgba(255,255,255,0.1)' : 'none';
+              
+              // Ensuring absolute centering and overflow handled for symbols like - and i
+              html += `<div style="background: ${bg}; text-align: center; color: ${color}; border-right: ${bR}; border-bottom: ${bB}; display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; box-sizing: border-box; padding: 1px 0 0; overflow: visible;">${t}</div>`;
             }
           }
-          html += '</div>';
+          html += '</div></div>';
           el.innerHTML = html;
         }
 
