@@ -362,6 +362,142 @@
                   feature of reality.
                 </p>
               </div>
+
+              <div class="subsection" id="s1-density">
+                <h4 class="subsubsection-title">The Density Matrix and "State City" Visualization</h4>
+                <p>
+                  So far we've described quantum states as <em>ket vectors</em> $\ket{\psi}$. But there's
+                  an equivalent (and sometimes more powerful) representation: the
+                  <strong>density matrix</strong> (or density operator) $\rho$. For a pure state $\ket{\psi}$, the
+                  density matrix is simply the outer product:
+                </p>
+                <div class="math-block highlighted">
+                  $$\boxed{\rho = \ket{\psi}\bra{\psi}}$$
+                  <span class="math-label">Density matrix of a pure state</span>
+                </div>
+                <p>
+                  This is a matrix whose entries encode <em>everything</em> about the state. For an $n$-qubit system,
+                  $\rho$ is a $2^n \times 2^n$ matrix. The diagonal entries $\rho_{ii} = |\alpha_i|^2$ are the
+                  <strong>populations</strong> (probabilities of each basis state), and the off-diagonal entries
+                  $\rho_{ij} = \alpha_i \alpha_j^*$ are the <strong>coherences</strong> — they capture quantum
+                  superposition and interference. A state with nonzero off-diagonal entries is in a
+                  genuine superposition; a state with only diagonal entries is a classical mixture.
+                </p>
+
+                <div class="callout example">
+                  <div class="callout-header">🧪 Example — Density Matrix of a GHZ State</div>
+                  <p>
+                    The 3-qubit GHZ state is $\ket{\text{GHZ}} = \frac{1}{\sqrt{2}}(\ket{000} + \ket{111})$.
+                    Its density matrix is:
+                    $$\rho = \ket{\text{GHZ}}\bra{\text{GHZ}} = \frac{1}{2}\big(\ket{000}\bra{000}
+                    + \ket{000}\bra{111} + \ket{111}\bra{000} + \ket{111}\bra{111}\big)$$
+                  </p>
+                  <p>
+                    As an $8 \times 8$ matrix, this has <strong>exactly four nonzero entries</strong>,
+                    all with amplitude $\frac{1}{2}$:
+                  </p>
+                  <ul style="margin: 0.5rem 0 1rem 1rem; color: var(--text-dim)">
+                    <li style="margin: 0.3rem 0">
+                      <strong style="color: var(--text)">Two diagonal peaks:</strong>
+                      $\rho_{000,000} = \frac{1}{2}$ and $\rho_{111,111} = \frac{1}{2}$
+                      — the populations (50% probability of $\ket{000}$, 50% for $\ket{111}$)
+                    </li>
+                    <li style="margin: 0.3rem 0">
+                      <strong style="color: var(--text)">Two off-diagonal peaks:</strong>
+                      $\rho_{000,111} = \frac{1}{2}$ and $\rho_{111,000} = \frac{1}{2}$
+                      — the coherences (proof that this is a genuine superposition, not a classical coin-flip)
+                    </li>
+                  </ul>
+                  <p>All other entries are zero.</p>
+                </div>
+
+                <div class="callout insight">
+                  <div class="callout-header">💡 The "State City" Visualization</div>
+                  <p>
+                    In Qiskit, the <code>plot_state_city</code> function draws the density matrix
+                    as a <strong>3D bar chart</strong> — imagine the $2^n \times 2^n$ matrix as a city grid,
+                    where each entry is a "building" whose height represents its magnitude.
+                    Two separate plots show the real and imaginary parts. For a GHZ state:
+                  </p>
+                  <ul style="margin: 0.5rem 0 0.8rem 1rem; color: var(--text-dim)">
+                    <li style="margin: 0.3rem 0">
+                      The <strong style="color: var(--text)">real-part city</strong> shows exactly
+                      4 bars of height $0.5$: two diagonal ($|000\rangle\langle000|$, $|111\rangle\langle111|$)
+                      and two off-diagonal ($|000\rangle\langle111|$, $|111\rangle\langle000|$)
+                    </li>
+                    <li style="margin: 0.3rem 0">
+                      The <strong style="color: var(--text)">imaginary-part city</strong> is completely flat
+                      (all amplitudes are real for the GHZ state)
+                    </li>
+                  </ul>
+                  <p style="color: var(--text-dim); font-size: 0.88rem">
+                    <strong>Why it matters:</strong> If you prepare a GHZ state on noisy hardware and see the off-diagonal
+                    bars shrinking, that's <em>decoherence</em> in action — the environment is destroying the
+                    coherences, turning your quantum superposition into a classical mixture.
+                    The statevector simulator (not the shot-based QASM simulator) must be used to
+                    visualize the density matrix, since it provides exact amplitudes.
+                </div>
+              </div>
+
+              <!-- Interactive Density Matrix Heatmap -->
+              <div class="viz-container">
+                <div class="viz-header">
+                  <div class="viz-title">Density Matrix Heatmap</div>
+                  <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-faint)">
+                    Select a state to visualize its populations (diagonal) and coherences (off-diagonal)
+                  </div>
+                </div>
+                <div class="viz-body" style="padding: 1.5rem">
+                  <div style="display: grid; grid-template-columns: 200px 1fr; gap: 2rem; align-items: start">
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem">
+                      <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.3rem">Pure States</div>
+                      <button class="btn" onclick="setDensityState('00')" id="db-00">|00⟩</button>
+                      <button class="btn" onclick="setDensityState('11')" id="db-11">|11⟩</button>
+                      <button class="btn" onclick="setDensityState('plus_plus')" id="db-pp">|++⟩</button>
+                      <button class="btn" onclick="setDensityState('phi_plus')" id="db-bp">Bell |Φ+⟩</button>
+                      <button class="btn" onclick="setDensityState('ghz')" id="db-ghz">3-Qubit GHZ</button>
+                      
+                      <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-top: 1rem; margin-bottom: 0.3rem">Mixed States</div>
+                      <button class="btn" onclick="setDensityState('mixed_z')" id="db-mz">50/50 Z-mix</button>
+                      <button class="btn" onclick="setDensityState('maximally_mixed')" id="db-mm">Maximally Mixed</button>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: center">
+                      <div id="density-3d-container" style="
+                        width: 100%; max-width: 500px; height: 350px; background: var(--bg-3); 
+                        border: 1px solid var(--border); border-radius: 8px; position: relative;
+                        overflow: hidden; box-shadow: inset 0 2px 20px rgba(0,0,0,0.4);
+                      ">
+                        <!-- Canvas will be injected here -->
+                        <div style="
+                          position: absolute; bottom: 10px; right: 10px; 
+                          font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-faint);
+                          pointer-events: none;
+                        ">
+                          Qiskit "State City" 3D Rendering (Real Part)
+                        </div>
+                      </div>
+                      <div id="density-legend" style="display: flex; gap: 1.5rem; margin-top: 1.5rem; font-size: 0.75rem; color: var(--text-dim)">
+                        <div style="display: flex; align-items: center; gap: 0.5rem">
+                          <div style="width: 12px; height: 12px; background: var(--cyan); border-radius: 2px"></div> Population
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem">
+                          <div style="width: 12px; height: 12px; background: var(--purple); border-radius: 2px"></div> Coherence
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-faint)">
+                          (Drag to Rotate · Scroll to Zoom)
+                        </div>
+                      </div>
+                      <div id="density-description" style="
+                        margin-top: 1.2rem; padding: 1rem; background: var(--bg-2); border-radius: 8px;
+                        font-family: var(--font-mono); font-size: 0.85rem; color: var(--text); border-left: 3px solid var(--purple);
+                        width: 100%;
+                      ">
+                        Select a state to see details...
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- CHSH Game Interactive Visualizer -->
@@ -1118,6 +1254,79 @@
 
               <div class="callout insight">
                 <div class="callout-header">
+                  💡 Simulator Types in Qiskit Aer — Which One to Use?
+                </div>
+                <p>
+                  Qiskit Aer provides several simulation backends, each suited to a different task.
+                  Choosing the right simulator is essential for correctly visualising and verifying
+                  your circuits:
+                </p>
+                <div class="table-wrapper">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Simulator</th>
+                        <th>What it does</th>
+                        <th>Max qubits (typical)</th>
+                        <th>Use when you need</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>Statevector</strong></td>
+                        <td>
+                          Stores the full $2^n$-dimensional state vector. Gives exact amplitudes,
+                          phases, and density matrices. <em>No measurement collapse.</em>
+                        </td>
+                        <td>~30–35</td>
+                        <td>Bloch sphere plots, state city visualisation,
+                            debugging exact amplitudes</td>
+                      </tr>
+                      <tr>
+                        <td><strong>QASM (shot-based)</strong></td>
+                        <td>
+                          Samples measurement outcomes stochastically, like real hardware.
+                          Returns bitstring counts (histograms).
+                        </td>
+                        <td>~30–35</td>
+                        <td>Histogram plots, testing algorithms with finite shots,
+                            mimicking real hardware (without noise)</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Clifford</strong></td>
+                        <td>
+                          Uses the stabilizer formalism — exponentially efficient for circuits
+                          containing only Clifford gates (H, S, CNOT, X, Y, Z and Pauli measurements).
+                        </td>
+                        <td>~<strong>several thousand</strong></td>
+                        <td>Large-scale QEC simulations, entanglement verification,
+                            randomised benchmarking (Clifford-only circuits)</td>
+                      </tr>
+                      <tr>
+                        <td><strong>Matrix Product State (MPS)</strong></td>
+                        <td>
+                          Tensor-network simulator efficient for circuits with limited entanglement
+                          (low bond dimension). Can handle more qubits than statevector for
+                          weakly-entangled states.
+                        </td>
+                        <td>~50–100</td>
+                        <td>1D physics simulations, shallow circuits,
+                            states with area-law entanglement</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p style="margin-top: 0.6rem; color: var(--text-dim); font-size: 0.85rem">
+                  <strong>Rule of thumb:</strong> Use <code>statevector</code> when you need to
+                  inspect the quantum state itself (Bloch sphere, density matrix, Q-sphere).
+                  Use <code>qasm_simulator</code> when you want histogram outputs like real hardware.
+                  IBM Quantum Composer and Lab use <strong>OpenQASM 3.0</strong> for circuit
+                  descriptions (the human-readable assembly language for quantum circuits).
+                </p>
+              </div>
+
+              <div class="callout insight">
+                <div class="callout-header">
                   💡 SamplerV2 vs EstimatorV2 — Which Primitive to Use?
                 </div>
                 <p>
@@ -1439,6 +1648,179 @@ noisy_job = noisy_sim.run(qc, shots=<span class="code-num">1000</span>)
 
         if (typeof initCHSHGameViz === 'function') initCHSHGameViz('chsh-game-viz');
         if (typeof initPhaseKickbackViz === 'function') initPhaseKickbackViz('phase-kickback-viz');
+
+        // ── 3D Density Matrix (State City) ──
+        let dmScene, dmCamera, dmRenderer, dmGridGroup;
+        const dmContainer = document.getElementById('density-3d-container');
+        const densityDesc = document.getElementById('density-description');
+        
+        function initDensity3D() {
+          if (!dmContainer || !window.THREE) return;
+          
+          dmScene = new THREE.Scene();
+          dmCamera = new THREE.PerspectiveCamera(45, dmContainer.offsetWidth / dmContainer.offsetHeight, 0.1, 1000);
+          dmRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+          dmRenderer.setSize(dmContainer.offsetWidth, dmContainer.offsetHeight);
+          dmContainer.appendChild(dmRenderer.domElement);
+          
+          const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+          dmScene.add(ambientLight);
+          const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+          dirLight.position.set(20, 40, 30);
+          dmScene.add(dirLight);
+          
+          dmCamera.position.set(12, 10, 12);
+          dmCamera.lookAt(0, 0, 0);
+          
+          dmGridGroup = new THREE.Group();
+          dmScene.add(dmGridGroup);
+          
+          // Animation Loop
+          let rotX = 0, rotY = 0;
+          let isDragging = false;
+          let lastMouseX, lastMouseY;
+          
+          dmContainer.addEventListener('mousedown', (e) => { isDragging = true; lastMouseX = e.clientX; lastMouseY = e.clientY; });
+          window.addEventListener('mouseup', () => isDragging = false);
+          window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - lastMouseX;
+            const dy = e.clientY - lastMouseY;
+            dmGridGroup.rotation.y += dx * 0.01;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+          });
+
+          function animate() {
+            requestAnimationFrame(animate);
+            dmRenderer.render(dmScene, dmCamera);
+          }
+          animate();
+        }
+
+        const densityStates = {
+          '00': { size: 4, data: [[1,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]], desc: "State |00⟩. Single peak at the origin." },
+          '11': { size: 4, data: [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,1]], desc: "State |11⟩. Single peak at (11, 11)." },
+          'plus_plus': { 
+            size: 4, data: Array(4).fill(0.25).map(()=>Array(4).fill(0.25)), 
+            desc: "|++⟩ = 1/2(|00⟩+|01⟩+|10⟩+|11⟩). Flat city of 16 bars."
+          },
+          'phi_plus': { size: 4, data: [[.5,0,0,.5],[0,0,0,0],[0,0,0,0],[.5,0,0,.5]], desc: "Bell State |Φ+⟩. Two populations (diagonal) and two coherences (off-diagonal)." },
+          'ghz': { 
+            size: 8, data: Array(8).fill(0).map((_,i)=>Array(8).fill(0).map((_,j)=>(i===0||i===7)&&(j===0||j===7)?0.5:0)), 
+            desc: "3-Qubit GHZ. Note the large separation between peaks in 8x8 space."
+          },
+          'mixed_z': { size: 4, data: [[.5,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,.5]], desc: "Mixed State (50% |00⟩, 50% |11⟩). Only diagonal peaks exist. Coherences are gone." },
+          'maximally_mixed': { size: 4, data: [[.25,0,0,0],[0,.25,0,0],[0,0,.25,0],[0,0,0,.25]], desc: "Maximally Mixed. Minimal structure, purely diagonal." }
+        };
+
+        window.setDensityState = function(id) {
+          const state = densityStates[id];
+          if (!state || !dmScene) return;
+          
+          // Update buttons
+          Object.keys(densityStates).forEach(k => {
+            const btn = document.getElementById('db-' + (k==='plus_plus'?'pp':(k==='phi_plus'?'bp':(k==='mixed_z'?'mz':(k==='maximally_mixed'?'mm':k)))));
+            if (btn) btn.classList.remove('primary');
+          });
+          const activeBtn = document.getElementById('db-' + (id==='plus_plus'?'pp':(id==='phi_plus'?'bp':(id==='mixed_z'?'mz':(id==='maximally_mixed'?'mm':id)))));
+          if (activeBtn) activeBtn.classList.add('primary');
+
+          // Clear previous bars
+          while(dmGridGroup.children.length > 0) dmGridGroup.remove(dmGridGroup.children[0]);
+
+          const N = state.size;
+          const spacing = 1.2;
+          const offset = ((N-1) * spacing) / 2;
+          
+          // Draw Grid Floor
+          const floorGeo = new THREE.PlaneGeometry(N * spacing, N * spacing);
+          const floorMat = new THREE.MeshPhongMaterial({ color: 0x1a1a2e, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+          const floor = new THREE.Mesh(floorGeo, floorMat);
+          floor.rotation.x = Math.PI / 2;
+          floor.position.y = -0.01;
+          dmGridGroup.add(floor);
+
+          const cyanHex = 0x00f3ff;
+          const purpleHex = 0xbd00ff;
+
+          // Helper to create text sprite
+          function createTextLabel(text, x, y, z) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 128; canvas.height = 64;
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 64, 32);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(spriteMat);
+            sprite.scale.set(1.5, 0.75, 1);
+            sprite.position.set(x, y, z);
+            return sprite;
+          }
+
+          // Draw Axis Labels
+          const numQubits = Math.round(Math.log2(N));
+          for (let i = 0; i < N; i++) {
+            const labelStr = '│' + i.toString(2).padStart(numQubits, '0') + '⟩';
+            // X-axis labels (Rows)
+            dmGridGroup.add(createTextLabel(labelStr, i * spacing - offset, -0.8, offset + 1.2));
+            // Z-axis labels (Cols)
+            dmGridGroup.add(createTextLabel(labelStr, -offset - 1.8, -0.8, i * spacing - offset));
+          }
+
+          // Draw Grid Lines (ticks)
+          const lineMat = new THREE.LineBasicMaterial({ color: 0x888888, transparent: true, opacity: 0.2 });
+          for (let x = 0; x <= N; x++) {
+            const xPos = x * spacing - offset - spacing/2;
+            const geo = new THREE.BufferGeometry().setFromPoints([
+              new THREE.Vector3(xPos, 0, -offset-spacing/2), 
+              new THREE.Vector3(xPos, 0, offset+spacing/2)
+            ]);
+            dmGridGroup.add(lineMat ? new THREE.Line(geo, lineMat) : null);
+          }
+          for (let z = 0; z <= N; z++) {
+            const zPos = z * spacing - offset - spacing/2;
+            const geo = new THREE.BufferGeometry().setFromPoints([
+              new THREE.Vector3(-offset-spacing/2, 0, zPos), 
+              new THREE.Vector3(offset+spacing/2, 0, zPos)
+            ]);
+            dmGridGroup.add(lineMat ? new THREE.Line(geo, lineMat) : null);
+          }
+
+          for(let i=0; i<N; i++) {
+            for(let j=0; j<N; j++) {
+              const val = state.data[i][j];
+              if (val > 0.01) {
+                const h = val * 8;
+                const barGeo = new THREE.BoxGeometry(0.8, h, 0.8);
+                const barMat = new THREE.MeshPhongMaterial({ 
+                  color: i === j ? cyanHex : purpleHex,
+                  specular: 0x555555,
+                  shininess: 30
+                });
+                const bar = new THREE.Mesh(barGeo, barMat);
+                bar.position.set(i * spacing - offset, h/2, j * spacing - offset);
+                dmGridGroup.add(bar);
+                
+                // Add a glowing top edge
+                const wireframe = new THREE.BoxGeometry(0.8, h, 0.8);
+                const edges = new THREE.EdgesGeometry(wireframe);
+                const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 }));
+                line.position.copy(bar.position);
+                dmGridGroup.add(line);
+              }
+            }
+          }
+          densityDesc.textContent = state.desc;
+        };
+        
+        initDensity3D();
+        setDensityState('phi_plus');
       });
     </script>
   </body>

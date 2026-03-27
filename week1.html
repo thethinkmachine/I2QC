@@ -922,6 +922,203 @@
                 </p>
               </div>
 
+              <div class="subsection" id="s3-cartesian">
+                <h4 class="subsubsection-title">Bloch Sphere ↔ Cartesian Coordinates</h4>
+                <p>
+                  The Bloch sphere is, geometrically, just a unit sphere in 3D. Any point on
+                  a unit sphere can be described by either polar angles $(\theta, \phi)$
+                  or Cartesian coordinates $(x, y, z)$. The conversion is the standard
+                  spherical-to-Cartesian mapping:
+                </p>
+                <div class="math-block highlighted">
+                  $$\boxed{x = \sin\theta\cos\phi, \qquad y = \sin\theta\sin\phi, \qquad z = \cos\theta}$$
+                  <span class="math-label">Bloch vector Cartesian coordinates</span>
+                </div>
+                <p>
+                  The triple $(x, y, z)$ is called the <strong>Bloch vector</strong>. It points
+                  from the origin to the state's position on the sphere, and relates directly to
+                  the <em>expectation values</em> of the Pauli operators:
+                </p>
+                <div class="math-block">
+                  $$x = \langle X \rangle = \langle\psi|X|\psi\rangle, \qquad
+                  y = \langle Y \rangle = \langle\psi|Y|\psi\rangle, \qquad
+                  z = \langle Z \rangle = \langle\psi|Z|\psi\rangle$$
+                </div>
+                <p>
+                  This equivalence is powerful: the Bloch vector is <em>physically observable</em> — each
+                  component is the expected outcome of a Pauli measurement. Let's verify with a worked example:
+                </p>
+
+                <div class="callout example">
+                  <div class="callout-header">🧪 Example — Cartesian Coordinates of Key States</div>
+                  <div class="table-wrapper">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>State</th>
+                          <th>$\theta$</th>
+                          <th>$\phi$</th>
+                          <th>$x = \sin\theta\cos\phi$</th>
+                          <th>$y = \sin\theta\sin\phi$</th>
+                          <th>$z = \cos\theta$</th>
+                          <th>Location</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>$\ket{0}$</td>
+                          <td>$0$</td>
+                          <td>—</td>
+                          <td>$0$</td>
+                          <td>$0$</td>
+                          <td>$+1$</td>
+                          <td>North pole</td>
+                        </tr>
+                        <tr>
+                          <td>$\ket{1}$</td>
+                          <td>$\pi$</td>
+                          <td>—</td>
+                          <td>$0$</td>
+                          <td>$0$</td>
+                          <td>$-1$</td>
+                          <td>South pole</td>
+                        </tr>
+                        <tr>
+                          <td>$\ket{+}$</td>
+                          <td>$\pi/2$</td>
+                          <td>$0$</td>
+                          <td>$+1$</td>
+                          <td>$0$</td>
+                          <td>$0$</td>
+                          <td>+x axis</td>
+                        </tr>
+                        <tr>
+                          <td>$\ket{-}$</td>
+                          <td>$\pi/2$</td>
+                          <td>$\pi$</td>
+                          <td>$-1$</td>
+                          <td>$0$</td>
+                          <td>$0$</td>
+                          <td>−x axis</td>
+                        </tr>
+                        <tr>
+                          <td>$\ket{i}$</td>
+                          <td>$\pi/2$</td>
+                          <td>$\pi/2$</td>
+                          <td>$0$</td>
+                          <td>$+1$</td>
+                          <td>$0$</td>
+                          <td>+y axis</td>
+                        </tr>
+                        <tr>
+                          <td>$\ket{-i}$</td>
+                          <td>$\pi/2$</td>
+                          <td>$-\pi/2$</td>
+                          <td>$0$</td>
+                          <td>$-1$</td>
+                          <td>$0$</td>
+                          <td>−y axis</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p style="margin-top: 0.6rem; color: var(--text-dim); font-size: 0.88rem">
+                    Notice the pattern: each axis state has $|\text{component}| = 1$ along its axis
+                    and $0$ elsewhere — exactly what you'd expect from a unit vector along that axis.
+                  </p>
+                </div>
+
+                <!-- Interactive Bloch Coordinate Calculator -->
+                <div class="viz-container">
+                  <div class="viz-header">
+                    <div class="viz-title">Bloch Coordinate Calculator</div>
+                    <div
+                      style="
+                        font-family: var(--font-mono);
+                        font-size: 0.72rem;
+                        color: var(--text-faint);
+                      "
+                    >
+                      Move the sliders to see (θ, φ) ↔ (x, y, z) conversion in real time
+                    </div>
+                  </div>
+                  <div class="viz-body" style="padding: 1.5rem">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start">
+                      <div>
+                        <div style="margin-bottom: 1rem">
+                          <div class="ctrl-group">
+                            <span class="ctrl-label">θ</span>
+                            <input
+                              type="range"
+                              id="bloch-cart-theta"
+                              min="0"
+                              max="314"
+                              value="157"
+                              style="width: 180px"
+                            />
+                            <span class="val-display" id="bloch-cart-theta-val">90°</span>
+                          </div>
+                        </div>
+                        <div style="margin-bottom: 1.5rem">
+                          <div class="ctrl-group">
+                            <span class="ctrl-label">φ</span>
+                            <input
+                              type="range"
+                              id="bloch-cart-phi"
+                              min="0"
+                              max="628"
+                              value="0"
+                              style="width: 180px"
+                            />
+                            <span class="val-display" id="bloch-cart-phi-val">0°</span>
+                          </div>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem">
+                          <button class="btn" onclick="setBlochCart(0, 0)">|0⟩</button>
+                          <button class="btn" onclick="setBlochCart(Math.PI, 0)">|1⟩</button>
+                          <button class="btn" onclick="setBlochCart(Math.PI/2, 0)">|+⟩</button>
+                          <button class="btn" onclick="setBlochCart(Math.PI/2, Math.PI)">|−⟩</button>
+                          <button class="btn" onclick="setBlochCart(Math.PI/2, Math.PI/2)">|i⟩</button>
+                          <button class="btn" onclick="setBlochCart(Math.PI/2, 3*Math.PI/2)">|−i⟩</button>
+                        </div>
+                      </div>
+                      <div
+                        id="bloch-cart-output"
+                        style="
+                          background: var(--bg-3);
+                          border: 1px solid var(--border);
+                          border-radius: 8px;
+                          padding: 1.2rem;
+                          font-family: var(--font-mono);
+                          font-size: 0.9rem;
+                        "
+                      >
+                        <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.6rem">Polar → Cartesian</div>
+                        <div style="margin-bottom: 0.6rem">
+                          <span style="color: var(--text-dim)">θ = </span><span id="bc-theta-display" style="color: var(--cyan)">π/2</span>,
+                          <span style="color: var(--text-dim)"> φ = </span><span id="bc-phi-display" style="color: var(--cyan)">0</span>
+                        </div>
+                        <div style="border-top: 1px solid var(--border); padding-top: 0.6rem">
+                          <div style="margin-bottom: 0.3rem">
+                            <span style="color: var(--red)">x</span> = sin(θ)cos(φ) = <span id="bc-x" style="color: var(--red); font-weight: 600">1.000</span>
+                          </div>
+                          <div style="margin-bottom: 0.3rem">
+                            <span style="color: var(--green)">y</span> = sin(θ)sin(φ) = <span id="bc-y" style="color: var(--green); font-weight: 600">0.000</span>
+                          </div>
+                          <div>
+                            <span style="color: var(--blue, #6cb4ee)">z</span> = cos(θ) = <span id="bc-z" style="color: #6cb4ee; font-weight: 600">0.000</span>
+                          </div>
+                        </div>
+                        <div style="border-top: 1px solid var(--border); padding-top: 0.6rem; margin-top: 0.6rem">
+                          <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.3rem">State vector</div>
+                          <div id="bc-state" style="color: var(--gold)">|ψ⟩ = |+⟩</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <h4 class="subsubsection-title">The Three Standard Qubit Bases</h4>
               <p>
                 While the computational ($z$) basis is most natural, any pair of antipodal Bloch
@@ -1399,6 +1596,84 @@
                 classical analogue and are crucial for quantum interference.
               </p>
 
+              <h4 class="subsubsection-title">Pauli Algebra — Multiplication Rules</h4>
+              <p>
+                The Pauli matrices form a closed algebra under multiplication. These rules are
+                essential for simplifying circuits and propagating errors through gates:
+              </p>
+              <div class="math-block highlighted">
+                $$\boxed{X^2 = Y^2 = Z^2 = \mathbb{I}}$$
+                <span class="math-label">Squaring rule — every Pauli is its own inverse</span>
+              </div>
+              <div class="math-block">
+                $$XY = iZ, \qquad YZ = iX, \qquad ZX = iY$$
+              </div>
+              <div class="math-block">
+                $$YX = -iZ, \qquad ZY = -iX, \qquad XZ = -iY$$
+              </div>
+              <p>
+                Notice the cyclic pattern: $X \to Y \to Z \to X$ (clockwise) gives $+i$,
+                and reversing the order gives $-i$. The Pauli matrices
+                <strong>anti-commute</strong>: $\{\sigma_j, \sigma_k\} = \sigma_j\sigma_k + \sigma_k\sigma_j = 0$
+                for $j \neq k$. This means swapping the order flips the sign.
+              </p>
+              <div class="callout insight">
+                <div class="callout-header">💡 The Pauli Group</div>
+                <p>
+                  The 16-element set $\{\pm I, \pm iI, \pm X, \pm iX, \pm Y, \pm iY, \pm Z, \pm iZ\}$
+                  forms the <strong>single-qubit Pauli group</strong>. It is closed under multiplication
+                  — the product of any two Paulis is always another Pauli (possibly with a phase $\pm 1$ or $\pm i$).
+                  This algebraic closure is why Pauli gates are so fundamental: you can track errors
+                  through a circuit by simply multiplying Pauli labels, without ever touching matrices.
+                </p>
+              </div>
+
+              <div class="callout example">
+                <div class="callout-header">🧪 Example — Simplifying $XYZYX$</div>
+                <p>
+                  Using the algebra: $XYZYX = X \cdot (YZ) \cdot (YX) = X \cdot (iX) \cdot (-iZ) = X \cdot X \cdot Z = I \cdot Z = Z$.
+                  <br>Every intermediate step used either the squaring rule or the multiplication table. No matrix math needed!
+                </p>
+              </div>
+
+              <!-- Interactive Pauli Algebra Calculator -->
+              <div class="viz-container">
+                <div class="viz-header">
+                  <div class="viz-title">Pauli Algebra Calculator</div>
+                  <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-faint)">
+                    Click gates to build a chain — watch it simplify in real time
+                  </div>
+                </div>
+                <div class="viz-body" style="padding: 1.5rem">
+                  <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap">
+                    <button class="btn" onclick="pauliPush('X')" style="min-width: 3rem; font-weight: 700; color: var(--cyan)">X</button>
+                    <button class="btn" onclick="pauliPush('Y')" style="min-width: 3rem; font-weight: 700; color: var(--purple)">Y</button>
+                    <button class="btn" onclick="pauliPush('Z')" style="min-width: 3rem; font-weight: 700; color: var(--gold)">Z</button>
+                    <button class="btn" onclick="pauliPush('I')" style="min-width: 3rem; font-weight: 700; color: var(--text-dim)">I</button>
+                    <div style="flex-grow: 1"></div>
+                    <button class="btn" onclick="pauliUndo()" style="font-size: 0.8rem">← Undo</button>
+                    <button class="btn" onclick="pauliClear()" style="font-size: 0.8rem">Clear</button>
+                  </div>
+                  <div style="
+                    background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px;
+                    padding: 1rem; min-height: 120px; font-family: var(--font-mono);
+                  ">
+                    <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.5rem">Gate Chain</div>
+                    <div id="pauli-chain" style="font-size: 1.4rem; letter-spacing: 0.15rem; margin-bottom: 0.8rem; min-height: 2rem; color: var(--text)">
+                      <span style="color: var(--text-faint); font-size: 0.9rem">Click gates above to build a product…</span>
+                    </div>
+                    <div style="border-top: 1px solid var(--border); padding-top: 0.6rem">
+                      <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.3rem">Simplification Steps</div>
+                      <div id="pauli-steps" style="font-size: 0.85rem; color: var(--text-dim); line-height: 1.8"></div>
+                    </div>
+                    <div style="border-top: 1px solid var(--border); padding-top: 0.6rem; margin-top: 0.6rem">
+                      <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.3rem">Result</div>
+                      <div id="pauli-result" style="font-size: 1.5rem; font-weight: 700; color: var(--cyan)">I</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <h4 class="subsubsection-title">The Hadamard Gate</h4>
               <div class="math-block highlighted">
                 $$H = \frac{1}{\sqrt{2}}\begin{pmatrix}1&1\\1&-1\end{pmatrix}$$
@@ -1423,6 +1698,148 @@
                 Note $S = T^2$ and $Z = S^2 = T^4$. The set $\{H, T, \text{CNOT}\}$ is
                 <strong>universal</strong> for quantum computation.
               </p>
+
+              <h4 class="subsubsection-title">The Phase Gate $P(\lambda)$ — Unifying Z, S, and T</h4>
+              <p>
+                $Z$, $S$, and $T$ are all special cases of a single parameterised gate called
+                the <strong>Phase gate</strong> (sometimes written as $U_1(\lambda)$ in older Qiskit notation):
+              </p>
+              <div class="math-block highlighted">
+                $$\boxed{P(\lambda) = \begin{pmatrix}1 & 0 \\ 0 & e^{i\lambda}\end{pmatrix}
+                = \ket{0}\bra{0} + e^{i\lambda}\ket{1}\bra{1}}$$
+                <span class="math-label">Phase gate — adds phase $e^{i\lambda}$ to $\ket{1}$</span>
+              </div>
+              <p>Its action is simple: it leaves $\ket{0}$ alone and rotates the phase of $\ket{1}$:</p>
+              <div class="math-block">
+                $$P(\lambda)\ket{0} = \ket{0}, \qquad P(\lambda)\ket{1} = e^{i\lambda}\ket{1}$$
+              </div>
+              <p>
+                This is <em>not</em> quite the same as $R_z(\theta)$. The difference is a global phase:
+                $P(\lambda) = e^{i\lambda/2} R_z(\lambda)$ (equivalently, $R_z(\theta) = e^{-i\theta/2} P(\theta)$).
+                Since global phases are unphysical, $P(\lambda)$ and $R_z(\lambda)$ produce
+                identical measurement outcomes, but the distinction matters in <em>controlled</em>
+                gates (where the global phase becomes a relative phase).
+              </p>
+
+              <div class="callout definition">
+                <div class="callout-header">📐 The $Z$ Family as Phase Gates</div>
+                <div class="table-wrapper">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Gate</th>
+                        <th>Phase $\lambda$</th>
+                        <th>$P(\lambda)$ form</th>
+                        <th>As $R_z$</th>
+                        <th>Relation</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>$I$</td>
+                        <td>$0$</td>
+                        <td>$P(0) = I$</td>
+                        <td>$R_z(0) = I$</td>
+                        <td>Identity</td>
+                      </tr>
+                      <tr>
+                        <td>$T$</td>
+                        <td>$\pi/4$</td>
+                        <td>$P(\pi/4)$</td>
+                        <td>$e^{i\pi/8} R_z(\pi/4)$</td>
+                        <td>$T^2 = S$</td>
+                      </tr>
+                      <tr>
+                        <td>$S$</td>
+                        <td>$\pi/2$</td>
+                        <td>$P(\pi/2)$</td>
+                        <td>$e^{i\pi/4} R_z(\pi/2)$</td>
+                        <td>$S^2 = Z$</td>
+                      </tr>
+                      <tr>
+                        <td>$Z$</td>
+                        <td>$\pi$</td>
+                        <td>$P(\pi)$</td>
+                        <td>$e^{i\pi/2} R_z(\pi)$</td>
+                        <td>$Z^2 = I$</td>
+                      </tr>
+                      <tr>
+                        <td>$S^\dagger$</td>
+                        <td>$-\pi/2$</td>
+                        <td>$P(-\pi/2)$</td>
+                        <td>$e^{-i\pi/4} R_z(-\pi/2)$</td>
+                        <td>$SS^\dagger = I$</td>
+                      </tr>
+                      <tr>
+                        <td>$T^\dagger$</td>
+                        <td>$-\pi/4$</td>
+                        <td>$P(-\pi/4)$</td>
+                        <td>$e^{-i\pi/8} R_z(-\pi/4)$</td>
+                        <td>$TT^\dagger = I$</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p style="margin-top: 0.6rem; color: var(--text-dim); font-size: 0.88rem">
+                  Every $Z$-axis gate is just $P(\lambda)$ at a different angle. This is why they all
+                  commute with each other — they rotate about the same axis.
+                  $S^4 = Z^2 = I$ and $T^8 = S^4 = Z^2 = I$ follow directly from the angle doubling.
+                </p>
+              </div>
+
+              <!-- Interactive Phase Gate Dial -->
+              <div class="viz-container">
+                <div class="viz-header">
+                  <div class="viz-title">Phase Gate Dial</div>
+                  <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-faint)">
+                    Sweep λ from 0 to 2π to see P(λ) morph between I, T, S, Z and back
+                  </div>
+                </div>
+                <div class="viz-body" style="padding: 1.5rem">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start">
+                    <div>
+                      <div style="margin-bottom: 1rem">
+                        <div class="ctrl-group">
+                          <span class="ctrl-label" style="width: 2rem">λ</span>
+                          <input type="range" id="pgate-lambda" min="0" max="628" value="0" style="width: 200px" />
+                          <span class="val-display" id="pgate-lambda-val">0</span>
+                        </div>
+                      </div>
+                      <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem">
+                        <button class="btn" onclick="setPGate(0)">I (0)</button>
+                        <button class="btn" onclick="setPGate(79)">T (π/4)</button>
+                        <button class="btn" onclick="setPGate(157)">S (π/2)</button>
+                        <button class="btn" onclick="setPGate(314)">Z (π)</button>
+                        <button class="btn" onclick="setPGate(471)">S† (3π/2)</button>
+                        <button class="btn" onclick="setPGate(549)">T† (7π/4)</button>
+                      </div>
+                      <!-- Phase dial visualization -->
+                      <div style="display: flex; justify-content: center">
+                        <canvas id="pgate-dial" width="220" height="220" style="border-radius: 50%"></canvas>
+                      </div>
+                    </div>
+                    <div style="
+                      background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px;
+                      padding: 1.2rem; font-family: var(--font-mono); font-size: 0.9rem;
+                    ">
+                      <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.6rem">P(λ) Matrix</div>
+                      <div id="pgate-matrix" style="font-size: 1rem; line-height: 2; color: var(--cyan); margin-bottom: 0.8rem"></div>
+                      <div style="border-top: 1px solid var(--border); padding-top: 0.6rem">
+                        <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.3rem">Gate Name</div>
+                        <div id="pgate-name" style="font-size: 1.3rem; font-weight: 700; color: var(--gold)">I (Identity)</div>
+                      </div>
+                      <div style="border-top: 1px solid var(--border); padding-top: 0.6rem; margin-top: 0.6rem">
+                        <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.3rem">Action on |1⟩</div>
+                        <div id="pgate-action" style="color: var(--purple)">P(λ)|1⟩ = |1⟩</div>
+                      </div>
+                      <div style="border-top: 1px solid var(--border); padding-top: 0.6rem; margin-top: 0.6rem">
+                        <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.3rem">Hierarchy</div>
+                        <div id="pgate-hierarchy" style="color: var(--text-dim); font-size: 0.82rem">T² = S, S² = Z, Z² = I</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <h4 class="subsubsection-title">General Rotation Gates</h4>
               <p>
@@ -1449,6 +1866,203 @@
                 complex phase. For this reason, $R_y$ is heavily used in variational quantum
                 circuits (Week 4's hardware-efficient ansätze).
               </p>
+
+              <div class="callout definition">
+                <div class="callout-header">📐 Rotation ↔ Pauli Connection (Master Equations)</div>
+                <p>
+                  Each cardinal rotation gate is simply the general rotation formula
+                  $R_{\hat{n}}(\theta) = \cos(\theta/2)\,\mathbb{I} - i\sin(\theta/2)\,(\hat{n}\cdot\boldsymbol{\sigma})$
+                  applied to $\hat{n} = \hat{x}, \hat{y}$, or $\hat{z}$. Since the Pauli matrix
+                  for each axis plays the role of the <em>generator</em> of rotation about that axis,
+                  we can write:
+                </p>
+                <div class="math-block highlighted">
+                  $$\boxed{R_x(\theta) = \cos\!\tfrac{\theta}{2}\,I - i\sin\!\tfrac{\theta}{2}\,X}$$
+                  $$\boxed{R_y(\theta) = \cos\!\tfrac{\theta}{2}\,I - i\sin\!\tfrac{\theta}{2}\,Y}$$
+                  $$\boxed{R_z(\theta) = \cos\!\tfrac{\theta}{2}\,I - i\sin\!\tfrac{\theta}{2}\,Z}$$
+                </div>
+                <p>
+                  Or more compactly: <strong>$R_K(\theta) = \cos(\theta/2)\,I - i\sin(\theta/2)\,K$</strong>
+                  for $K \in \{X, Y, Z\}$. This is the <em>master equation</em> connecting
+                  rotations to Pauli gates.
+                </p>
+                <p style="color: var(--text-dim); font-size: 0.88rem; margin-top: 0.5rem">
+                  <strong>Sanity check:</strong> at $\theta = \pi$, $\cos(\pi/2) = 0$ and
+                  $\sin(\pi/2) = 1$, so $R_K(\pi) = -iK$. Since $-i$ is a global phase, this
+                  means a $\pi$-rotation about the $K$-axis is the Pauli gate $K$ itself
+                  (up to global phase). This is why the Pauli matrices are described as
+                  "180° rotations" — they literally are $R_x(\pi)$, $R_y(\pi)$, and $R_z(\pi)$.
+                </p>
+              </div>
+
+              <div class="callout example">
+                <div class="callout-header">🧪 Example — Verify $R_z(\pi) = -iZ$</div>
+                <p>
+                  From the master equation: $R_z(\pi) = \cos(\pi/2)\,I - i\sin(\pi/2)\,Z = 0 \cdot I - i \cdot 1 \cdot Z = -iZ$.
+                  <br>From the matrix: $R_z(\pi) = \begin{pmatrix}e^{-i\pi/2}&0\\0&e^{i\pi/2}\end{pmatrix}
+                  = \begin{pmatrix}-i&0\\0&i\end{pmatrix} = -i\begin{pmatrix}1&0\\0&-1\end{pmatrix} = -iZ \;\checkmark$
+                  <br>The global phase $-i$ is unphysical, so $R_z(\pi) \equiv Z$ as a gate.
+                </p>
+              </div>
+
+              <h4 class="subsubsection-title">The Euler Angle Decomposition (ZXZ)</h4>
+              <p>
+                A fundamental result in quantum computing is that <em>any</em> single-qubit gate
+                (any $2\times2$ unitary) can be decomposed into just three rotation gates and a
+                global phase:
+              </p>
+              <div class="math-block highlighted">
+                $$\boxed{U = e^{i\alpha}\, R_z(\beta)\, R_x(\gamma)\, R_z(\delta)}$$
+                <span class="math-label">Euler ZXZ decomposition</span>
+              </div>
+              <p>
+                The four real parameters $(\alpha, \beta, \gamma, \delta)$ uniquely determine any
+                single-qubit gate. This is the quantum analogue of Euler angles in classical
+                mechanics. Alternative decompositions (ZYZ, XYX, etc.) are also valid — all you
+                need is rotations around two non-parallel axes.
+              </p>
+
+              <div class="callout example">
+                <div class="callout-header">🧪 Worked Example — Decomposing the Hadamard Gate</div>
+                <p>
+                  We want to write $H = \frac{1}{\sqrt{2}}\begin{pmatrix}1&1\\1&-1\end{pmatrix}$
+                  in the form $e^{i\alpha}\,R_z(\beta)\,R_x(\gamma)\,R_z(\delta)$.
+                </p>
+                <p><strong>Step 1: Recognize H as a rotation.</strong><br>
+                  The Hadamard is a 180° rotation about the axis $\hat{n} = \frac{\hat{x}+\hat{z}}{\sqrt{2}}$
+                  (the axis midway between $x$ and $z$). Using $R_{\hat{n}}(\pi) = -i(n_x X + n_z Z)/\sqrt{...}$,
+                  we can write:
+                  $$H = \frac{1}{\sqrt{2}}(X + Z)$$
+                  Let's verify: $\frac{1}{\sqrt{2}}\left(\begin{pmatrix}0&1\\1&0\end{pmatrix} + \begin{pmatrix}1&0\\0&-1\end{pmatrix}\right) = \frac{1}{\sqrt{2}}\begin{pmatrix}1&1\\1&-1\end{pmatrix} = H \;\checkmark$
+                </p>
+                <p><strong>Step 2: Find the Euler angles.</strong><br>
+                  We can express $H$ as a product of $R_z$ and $R_x$ rotations. One valid decomposition is:
+                  $$H = e^{i\pi/2}\, R_z(0)\, R_x(\pi/2)\, R_z(\pi)$$
+                  Let's verify by multiplying out. Start from the right:
+                </p>
+                <p style="padding-left: 1rem;">
+                  $R_z(\pi) = \begin{pmatrix}e^{-i\pi/2}&0\\0&e^{i\pi/2}\end{pmatrix} = \begin{pmatrix}-i&0\\0&i\end{pmatrix}$
+                </p>
+                <p style="padding-left: 1rem;">
+                  $R_x(\pi/2) = \begin{pmatrix}\cos\frac{\pi}{4}&-i\sin\frac{\pi}{4}\\-i\sin\frac{\pi}{4}&\cos\frac{\pi}{4}\end{pmatrix} = \frac{1}{\sqrt{2}}\begin{pmatrix}1&-i\\-i&1\end{pmatrix}$
+                </p>
+                <p style="padding-left: 1rem;">
+                  $R_x(\pi/2)\cdot R_z(\pi) = \frac{1}{\sqrt{2}}\begin{pmatrix}1&-i\\-i&1\end{pmatrix}\begin{pmatrix}-i&0\\0&i\end{pmatrix} = \frac{1}{\sqrt{2}}\begin{pmatrix}-i&-i^2\\-i(-i)&i\end{pmatrix} = \frac{1}{\sqrt{2}}\begin{pmatrix}-i&1\\-1&i\end{pmatrix}$
+                </p>
+                <p style="padding-left: 1rem;">
+                  Multiply by $R_z(0) = I$ (identity, no change), then by $e^{i\pi/2} = i$:
+                  $$i \cdot \frac{1}{\sqrt{2}}\begin{pmatrix}-i&1\\-1&i\end{pmatrix} = \frac{1}{\sqrt{2}}\begin{pmatrix}1&i\\-i&-1\end{pmatrix}$$
+                </p>
+                <p>
+                  Hmm — that gives $H$ up to some column phases! A cleaner decomposition uses the $R_z$-$R_y$-$R_z$ form:
+                  $$H = R_z(\pi)\,R_y(\pi/2)$$
+                  Let's verify this simpler form:
+                </p>
+                <p style="padding-left: 1rem;">
+                  $R_y(\pi/2) = \frac{1}{\sqrt{2}}\begin{pmatrix}1&-1\\1&1\end{pmatrix}$
+                </p>
+                <p style="padding-left: 1rem;">
+                  $R_z(\pi) \cdot R_y(\pi/2) = \begin{pmatrix}-i&0\\0&i\end{pmatrix} \cdot \frac{1}{\sqrt{2}}\begin{pmatrix}1&-1\\1&1\end{pmatrix} = \frac{1}{\sqrt{2}}\begin{pmatrix}-i&i\\i&i\end{pmatrix} = \frac{i}{\sqrt{2}}\begin{pmatrix}-1&1\\1&1\end{pmatrix}$
+                </p>
+                <p>
+                  This equals $i \cdot \frac{1}{\sqrt{2}}\begin{pmatrix}-1&1\\1&1\end{pmatrix}$, which
+                  is $H$ multiplied by a global phase $e^{i3\pi/2}$. Since global phases are unphysical:
+                  $$\boxed{H \equiv R_z(\pi) \cdot R_y(\pi/2) \text{ (up to global phase)}}$$
+                </p>
+                <p style="color: var(--text-dim); font-size: 0.88rem; margin-top: 0.5rem">
+                  <strong>Key takeaway:</strong> The Hadamard is a $90°$ rotation about $y$ (which creates
+                  the superposition) followed by a $180°$ rotation about $z$ (which fixes the signs).
+                  This decomposition explains why $H\ket{0} = \ket{+}$ and $H\ket{1} = \ket{-}$.
+                </p>
+              </div>
+
+              <!-- Interactive Euler Decomposition Visualizer -->
+              <div class="viz-container">
+                <div class="viz-header">
+                  <div class="viz-title">Euler Decomposition Explorer</div>
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: 0.72rem;
+                      color: var(--text-faint);
+                    "
+                  >
+                    Adjust angles to see how R<sub>z</sub>(β) · R<sub>y</sub>(γ) · R<sub>z</sub>(δ) builds any gate
+                  </div>
+                </div>
+                <div class="viz-body" style="padding: 1.5rem">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start">
+                    <div>
+                      <div style="margin-bottom: 1rem">
+                        <div class="ctrl-group">
+                          <span class="ctrl-label" style="width: 2rem">β</span>
+                          <input type="range" id="euler-beta" min="0" max="628" value="314" style="width: 160px" />
+                          <span class="val-display" id="euler-beta-val">π</span>
+                        </div>
+                      </div>
+                      <div style="margin-bottom: 1rem">
+                        <div class="ctrl-group">
+                          <span class="ctrl-label" style="width: 2rem">γ</span>
+                          <input type="range" id="euler-gamma" min="0" max="628" value="157" style="width: 160px" />
+                          <span class="val-display" id="euler-gamma-val">π/2</span>
+                        </div>
+                      </div>
+                      <div style="margin-bottom: 1.5rem">
+                        <div class="ctrl-group">
+                          <span class="ctrl-label" style="width: 2rem">δ</span>
+                          <input type="range" id="euler-delta" min="0" max="628" value="0" style="width: 160px" />
+                          <span class="val-display" id="euler-delta-val">0</span>
+                        </div>
+                      </div>
+                      <div
+                        style="
+                          font-family: var(--font-mono);
+                          font-size: 0.68rem;
+                          color: var(--text-faint);
+                          text-transform: uppercase;
+                          margin-bottom: 0.5rem;
+                        "
+                      >
+                        Presets
+                      </div>
+                      <div style="display: flex; flex-wrap: wrap; gap: 0.4rem">
+                        <button class="btn" onclick="setEuler(314, 157, 0)">H gate</button>
+                        <button class="btn" onclick="setEuler(0, 314, 0)">X gate</button>
+                        <button class="btn" onclick="setEuler(314, 0, 0)">Z gate</button>
+                        <button class="btn" onclick="setEuler(157, 0, 0)">S gate</button>
+                        <button class="btn" onclick="setEuler(314, 157, 314)">Y gate</button>
+                        <button class="btn" onclick="setEuler(0, 0, 0)">I gate</button>
+                      </div>
+                    </div>
+                    <div
+                      id="euler-output"
+                      style="
+                        background: var(--bg-3);
+                        border: 1px solid var(--border);
+                        border-radius: 8px;
+                        padding: 1.2rem;
+                        font-family: var(--font-mono);
+                        font-size: 0.85rem;
+                      "
+                    >
+                      <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.6rem">Decomposition</div>
+                      <div style="margin-bottom: 0.8rem; color: var(--text-dim)">
+                        R<sub>z</sub>(<span id="eu-b" style="color: var(--cyan)">π</span>) ·
+                        R<sub>y</sub>(<span id="eu-g" style="color: var(--purple)">π/2</span>) ·
+                        R<sub>z</sub>(<span id="eu-d" style="color: var(--gold)">0</span>)
+                      </div>
+                      <div style="border-top: 1px solid var(--border); padding-top: 0.6rem; margin-bottom: 0.6rem">
+                        <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.4rem">Resulting 2×2 Matrix (up to global phase)</div>
+                        <div id="euler-matrix" style="font-size: 0.9rem; line-height: 1.8; color: var(--text)"></div>
+                      </div>
+                      <div style="border-top: 1px solid var(--border); padding-top: 0.6rem">
+                        <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.4rem">Action on |0⟩</div>
+                        <div id="euler-action" style="color: var(--cyan)"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Matrix-Vector Sandbox -->
@@ -1809,6 +2423,235 @@
                 practice when hardware only natively supports certain gate types.
               </p>
             </div>
+
+            <div class="subsection" id="s10-propagation">
+              <h3 class="subsection-title">Pauli Propagation Through CNOT ($UPU^\dagger$ Rules)</h3>
+              <p>
+                When we push a Pauli error (or gate) through a CNOT, the CNOT can
+                transform it — sometimes causing the error to <em>spread</em> to the other
+                qubit. These rules are fundamental to quantum error correction, circuit
+                simplification, and understanding how noise propagates. The key identity is:
+              </p>
+              <div class="math-block">
+                $$\text{CNOT} \cdot (P \otimes Q) \cdot \text{CNOT} = (P' \otimes Q')$$
+              </div>
+              <p>
+                We want to know: if a Pauli $P$ acts on the <em>control</em> qubit or the
+                <em>target</em> qubit, what happens when we "conjugate" it through a CNOT
+                (i.e., compute $\text{CNOT}\,(P \otimes I)\,\text{CNOT}$ or
+                $\text{CNOT}\,(I \otimes P)\,\text{CNOT}$)?
+              </p>
+
+              <div class="callout definition">
+                <div class="callout-header">📐 Complete CNOT Propagation Rules</div>
+                <div class="table-wrapper">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Error / Gate</th>
+                        <th>Before CNOT</th>
+                        <th>After CNOT</th>
+                        <th>What happened</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr style="border-bottom: 2px solid var(--border)">
+                        <td colspan="4" style="color: var(--cyan); font-family: var(--font-mono); font-size: 0.75rem; padding-top: 0.8rem">X ERRORS (bit flips)</td>
+                      </tr>
+                      <tr>
+                        <td>$X$ on <strong>control</strong></td>
+                        <td>$X \otimes I$</td>
+                        <td>$X \otimes X$</td>
+                        <td><strong style="color: var(--red)">Spreads!</strong> $X$ propagates from control → target</td>
+                      </tr>
+                      <tr>
+                        <td>$X$ on <strong>target</strong></td>
+                        <td>$I \otimes X$</td>
+                        <td>$I \otimes X$</td>
+                        <td><strong style="color: var(--green)">Stays.</strong> $X$ on target does not propagate</td>
+                      </tr>
+                      <tr style="border-bottom: 2px solid var(--border)">
+                        <td colspan="4" style="color: var(--purple); font-family: var(--font-mono); font-size: 0.75rem; padding-top: 0.8rem">Z ERRORS (phase flips)</td>
+                      </tr>
+                      <tr>
+                        <td>$Z$ on <strong>control</strong></td>
+                        <td>$Z \otimes I$</td>
+                        <td>$Z \otimes I$</td>
+                        <td><strong style="color: var(--green)">Stays.</strong> $Z$ on control does not propagate</td>
+                      </tr>
+                      <tr>
+                        <td>$Z$ on <strong>target</strong></td>
+                        <td>$I \otimes Z$</td>
+                        <td>$Z \otimes Z$</td>
+                        <td><strong style="color: var(--red)">Spreads!</strong> $Z$ propagates from target → control</td>
+                      </tr>
+                      <tr style="border-bottom: 2px solid var(--border)">
+                        <td colspan="4" style="color: var(--gold); font-family: var(--font-mono); font-size: 0.75rem; padding-top: 0.8rem">Y ERRORS (bit + phase flips, since $Y = iXZ$)</td>
+                      </tr>
+                      <tr>
+                        <td>$Y$ on <strong>control</strong></td>
+                        <td>$Y \otimes I$</td>
+                        <td>$Y \otimes X$</td>
+                        <td>The $X$ part of $Y$ spreads to target; $Z$ part stays</td>
+                      </tr>
+                      <tr>
+                        <td>$Y$ on <strong>target</strong></td>
+                        <td>$I \otimes Y$</td>
+                        <td>$Z \otimes Y$</td>
+                        <td>The $Z$ part of $Y$ spreads to control; $X$ part stays</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="callout insight">
+                <div class="callout-header">💡 The Dual Nature of CNOT — Why X and Z Propagate in Opposite Directions</div>
+                <p>
+                  The pattern above has a beautiful asymmetry: <strong>$X$ errors flow
+                  forward</strong> (control → target), while <strong>$Z$ errors flow backward</strong>
+                  (target → control). This happens because CNOT <em>copies</em> the computational
+                  basis (the $Z$-eigenstates), so a bit-flip on the control also flips the target.
+                  But in the conjugate basis ($X$-eigenstates, i.e., $\ket{+}/\ket{-}$), the roles
+                  reverse: the CNOT effectively copies from target to control.
+                </p>
+                <p>
+                  Formally, this follows from the identity:
+                  $$\text{CNOT} = \ket{0}\bra{0} \otimes I + \ket{1}\bra{1} \otimes X$$
+                  The control projects and the target conditionally flips — hence $X$ on control
+                  ripples to target. The reverse direction for $Z$ follows from the Hadamard
+                  conjugation: $\text{CNOT}_{1\to2} = (H \otimes H)\,\text{CNOT}_{2\to1}\,(H \otimes H)$,
+                  which swaps the roles of $X$ and $Z$.
+                </p>
+              </div>
+
+              <details class="math-details">
+                <summary>Proof: $X$ on control propagates</summary>
+                <div class="math-details-content">
+                  <p>
+                    We compute $\text{CNOT}\,(X \otimes I)\,\text{CNOT}$ on each basis state:
+                  </p>
+                  <p style="padding-left: 1rem">
+                    $\ket{00} \xrightarrow{\text{CNOT}} \ket{00} \xrightarrow{X \otimes I} \ket{10} \xrightarrow{\text{CNOT}} \ket{11}$
+                    <br>
+                    $\ket{01} \xrightarrow{\text{CNOT}} \ket{01} \xrightarrow{X \otimes I} \ket{11} \xrightarrow{\text{CNOT}} \ket{10}$
+                    <br>
+                    $\ket{10} \xrightarrow{\text{CNOT}} \ket{11} \xrightarrow{X \otimes I} \ket{01} \xrightarrow{\text{CNOT}} \ket{01}$
+                    <br>
+                    $\ket{11} \xrightarrow{\text{CNOT}} \ket{10} \xrightarrow{X \otimes I} \ket{00} \xrightarrow{\text{CNOT}} \ket{00}$
+                  </p>
+                  <p>
+                    In every case, both qubits are flipped — the same as applying $X \otimes X$.
+                    Therefore $\text{CNOT}\,(X \otimes I)\,\text{CNOT} = X \otimes X$. $\square$
+                  </p>
+                </div>
+              </details>
+
+              <details class="math-details">
+                <summary>Proof: $Z$ on target propagates</summary>
+                <div class="math-details-content">
+                  <p>
+                    We compute $\text{CNOT}\,(I \otimes Z)\,\text{CNOT}$ on each basis state:
+                  </p>
+                  <p style="padding-left: 1rem">
+                    $\ket{00} \xrightarrow{\text{CNOT}} \ket{00} \xrightarrow{I \otimes Z} \ket{00} \xrightarrow{\text{CNOT}} \ket{00}$ (phase $+1$)
+                    <br>
+                    $\ket{01} \xrightarrow{\text{CNOT}} \ket{01} \xrightarrow{I \otimes Z} -\ket{01} \xrightarrow{\text{CNOT}} -\ket{01}$ (phase $-1$)
+                    <br>
+                    $\ket{10} \xrightarrow{\text{CNOT}} \ket{11} \xrightarrow{I \otimes Z} -\ket{11} \xrightarrow{\text{CNOT}} -\ket{10}$ (phase $-1$)
+                    <br>
+                    $\ket{11} \xrightarrow{\text{CNOT}} \ket{10} \xrightarrow{I \otimes Z} \ket{10} \xrightarrow{\text{CNOT}} \ket{11}$ (phase $+1$)
+                  </p>
+                  <p>
+                    The phase pattern is: $+1$ when qubits agree ($00, 11$), $-1$ when they
+                    disagree ($01, 10$). This is exactly $Z \otimes Z$.
+                    Therefore $\text{CNOT}\,(I \otimes Z)\,\text{CNOT} = Z \otimes Z$. $\square$
+                  </p>
+                </div>
+              </details>
+
+              <div class="micro-quiz">
+                <div class="mq-header"><span style="font-size: 1.1rem">⚡</span> Propagation Check</div>
+                <div class="mq-body">
+                  <div class="mq-question">
+                    If a $Y$ error occurs on the <em>target</em> qubit of a CNOT, what is
+                    the resulting two-qubit error after the CNOT?
+                  </div>
+                  <div class="mq-options">
+                    <div class="mq-option">$I \otimes Y$ (stays on target)</div>
+                    <div class="mq-option">$Y \otimes I$ (moves to control)</div>
+                    <div class="mq-option" data-correct>$Z \otimes Y$ (Z spreads to control)</div>
+                    <div class="mq-option">$Y \otimes Y$ (spreads to both)</div>
+                  </div>
+                  <div class="mq-feedback">
+                    <strong>Correct!</strong> Since $Y = iXZ$, the $X$ part stays on the target
+                    (X on target doesn't propagate), while the $Z$ part propagates backward to the
+                    control (Z on target spreads). The net result is $Z \otimes Y$.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive CNOT Propagation Simulator -->
+              <div class="viz-container">
+                <div class="viz-header">
+                  <div class="viz-title">CNOT Propagation Simulator</div>
+                  <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-faint)">
+                    Place a Pauli error before the CNOT and watch it propagate
+                  </div>
+                </div>
+                <div class="viz-body" style="padding: 1.5rem">
+                  <div style="display: grid; grid-template-columns: auto 1fr; gap: 2rem; align-items: start">
+                    <div>
+                      <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.5rem">Error on Control Qubit</div>
+                      <div style="display: flex; gap: 0.4rem; margin-bottom: 1rem">
+                        <button class="btn" id="cnp-ci" onclick="setCNOTProp('c','I')" style="min-width: 2.5rem">I</button>
+                        <button class="btn" id="cnp-cx" onclick="setCNOTProp('c','X')" style="min-width: 2.5rem; color: var(--cyan)">X</button>
+                        <button class="btn" id="cnp-cy" onclick="setCNOTProp('c','Y')" style="min-width: 2.5rem; color: var(--purple)">Y</button>
+                        <button class="btn" id="cnp-cz" onclick="setCNOTProp('c','Z')" style="min-width: 2.5rem; color: var(--gold)">Z</button>
+                      </div>
+                      <div style="color: var(--text-faint); font-size: 0.68rem; text-transform: uppercase; margin-bottom: 0.5rem">Error on Target Qubit</div>
+                      <div style="display: flex; gap: 0.4rem; margin-bottom: 1rem">
+                        <button class="btn" id="cnp-ti" onclick="setCNOTProp('t','I')" style="min-width: 2.5rem">I</button>
+                        <button class="btn" id="cnp-tx" onclick="setCNOTProp('t','X')" style="min-width: 2.5rem; color: var(--cyan)">X</button>
+                        <button class="btn" id="cnp-ty" onclick="setCNOTProp('t','Y')" style="min-width: 2.5rem; color: var(--purple)">Y</button>
+                        <button class="btn" id="cnp-tz" onclick="setCNOTProp('t','Z')" style="min-width: 2.5rem; color: var(--gold)">Z</button>
+                      </div>
+                    </div>
+                    <div>
+                      <!-- Circuit diagram area -->
+                      <div id="cnot-prop-circuit" style="
+                        background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px;
+                        padding: 1.2rem; min-height: 160px; position: relative;
+                      ">
+                        <canvas id="cnot-prop-canvas" width="520" height="150" style="width: 100%; height: auto"></canvas>
+                      </div>
+                      <div style="
+                        margin-top: 1rem; background: var(--bg-3); border: 1px solid var(--border);
+                        border-radius: 8px; padding: 1rem; font-family: var(--font-mono);
+                      ">
+                        <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center; text-align: center">
+                          <div>
+                            <div style="color: var(--text-faint); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 0.3rem">Before CNOT</div>
+                            <div id="cnp-before" style="font-size: 1.2rem; color: var(--text); font-weight: 600">I ⊗ I</div>
+                          </div>
+                          <div style="font-size: 1.5rem; color: var(--text-faint)">→</div>
+                          <div>
+                            <div style="color: var(--text-faint); font-size: 0.65rem; text-transform: uppercase; margin-bottom: 0.3rem">After CNOT</div>
+                            <div id="cnp-after" style="font-size: 1.2rem; font-weight: 600; color: var(--cyan)">I ⊗ I</div>
+                          </div>
+                        </div>
+                        <div id="cnp-explanation" style="
+                          margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--border);
+                          color: var(--text-dim); font-size: 0.82rem; text-align: center;
+                        ">
+                          No errors — CNOT acts normally
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
         </article>
       </div>
@@ -1904,6 +2747,444 @@
             });
           }
         }
+
+        // ── Bloch Coordinate Calculator ──
+        function fmtAngle(rad) {
+          const pi = Math.PI;
+          if (Math.abs(rad) < 0.01) return '0';
+          if (Math.abs(rad - pi) < 0.01) return 'π';
+          if (Math.abs(rad - pi/2) < 0.01) return 'π/2';
+          if (Math.abs(rad - pi/4) < 0.01) return 'π/4';
+          if (Math.abs(rad - 2*pi) < 0.01) return '2π';
+          if (Math.abs(rad - 3*pi/2) < 0.01) return '3π/2';
+          return (rad / pi).toFixed(2) + 'π';
+        }
+        function updateBlochCart() {
+          const thetaSlider = document.getElementById('bloch-cart-theta');
+          const phiSlider = document.getElementById('bloch-cart-phi');
+          if (!thetaSlider || !phiSlider) return;
+          const theta = thetaSlider.value / 100;
+          const phi = phiSlider.value / 100;
+          const tDeg = (theta * 180 / Math.PI).toFixed(0);
+          const pDeg = (phi * 180 / Math.PI).toFixed(0);
+          document.getElementById('bloch-cart-theta-val').textContent = tDeg + '°';
+          document.getElementById('bloch-cart-phi-val').textContent = pDeg + '°';
+          document.getElementById('bc-theta-display').textContent = fmtAngle(theta);
+          document.getElementById('bc-phi-display').textContent = fmtAngle(phi);
+          const x = Math.sin(theta) * Math.cos(phi);
+          const y = Math.sin(theta) * Math.sin(phi);
+          const z = Math.cos(theta);
+          document.getElementById('bc-x').textContent = x.toFixed(3);
+          document.getElementById('bc-y').textContent = y.toFixed(3);
+          document.getElementById('bc-z').textContent = z.toFixed(3);
+
+          // Determine named state
+          let name = '';
+          if (Math.abs(z - 1) < 0.02) name = '|ψ⟩ = |0⟩';
+          else if (Math.abs(z + 1) < 0.02) name = '|ψ⟩ = |1⟩';
+          else if (Math.abs(x - 1) < 0.02 && Math.abs(y) < 0.02) name = '|ψ⟩ = |+⟩';
+          else if (Math.abs(x + 1) < 0.02 && Math.abs(y) < 0.02) name = '|ψ⟩ = |−⟩';
+          else if (Math.abs(y - 1) < 0.02 && Math.abs(x) < 0.02) name = '|ψ⟩ = |i⟩';
+          else if (Math.abs(y + 1) < 0.02 && Math.abs(x) < 0.02) name = '|ψ⟩ = |−i⟩';
+          else {
+            const a = Math.cos(theta / 2).toFixed(3);
+            const b = Math.sin(theta / 2).toFixed(3);
+            name = `|ψ⟩ = ${a}|0⟩ + ${b}e^{i·${pDeg}°}|1⟩`;
+          }
+          document.getElementById('bc-state').textContent = name;
+        }
+        window.setBlochCart = function(theta, phi) {
+          const ts = document.getElementById('bloch-cart-theta');
+          const ps = document.getElementById('bloch-cart-phi');
+          if (ts) ts.value = Math.round(theta * 100);
+          if (ps) ps.value = Math.round(phi * 100);
+          updateBlochCart();
+        };
+        document.getElementById('bloch-cart-theta')?.addEventListener('input', updateBlochCart);
+        document.getElementById('bloch-cart-phi')?.addEventListener('input', updateBlochCart);
+        updateBlochCart();
+
+        // ── Euler Decomposition Explorer ──
+        function cplxFmt(re, im) {
+          const r = Math.abs(re) < 0.005 ? 0 : re;
+          const i = Math.abs(im) < 0.005 ? 0 : im;
+          if (Math.abs(i) < 0.005) return r.toFixed(2);
+          if (Math.abs(r) < 0.005) {
+            if (Math.abs(i - 1) < 0.005) return 'i';
+            if (Math.abs(i + 1) < 0.005) return '−i';
+            return i.toFixed(2) + 'i';
+          }
+          const sign = i > 0 ? '+' : '−';
+          return r.toFixed(2) + sign + Math.abs(i).toFixed(2) + 'i';
+        }
+        function updateEuler() {
+          const bSlider = document.getElementById('euler-beta');
+          const gSlider = document.getElementById('euler-gamma');
+          const dSlider = document.getElementById('euler-delta');
+          if (!bSlider || !gSlider || !dSlider) return;
+          const beta = bSlider.value / 100;
+          const gamma = gSlider.value / 100;
+          const delta = dSlider.value / 100;
+          document.getElementById('euler-beta-val').textContent = fmtAngle(beta);
+          document.getElementById('euler-gamma-val').textContent = fmtAngle(gamma);
+          document.getElementById('euler-delta-val').textContent = fmtAngle(delta);
+          document.getElementById('eu-b').textContent = fmtAngle(beta);
+          document.getElementById('eu-g').textContent = fmtAngle(gamma);
+          document.getElementById('eu-d').textContent = fmtAngle(delta);
+
+          // Compute Rz(beta) * Ry(gamma) * Rz(delta)
+          // Rz(a) = [[e^{-ia/2}, 0], [0, e^{ia/2}]]
+          // Ry(a) = [[cos(a/2), -sin(a/2)], [sin(a/2), cos(a/2)]]
+          const cb2 = Math.cos(beta/2), sb2 = Math.sin(beta/2);
+          const cg2 = Math.cos(gamma/2), sg2 = Math.sin(gamma/2);
+          const cd2 = Math.cos(delta/2), sd2 = Math.sin(delta/2);
+
+          // Rz(delta): [[cd2 - i*sd2, 0], [0, cd2 + i*sd2]]
+          // Ry(gamma): [[cg2, -sg2], [sg2, cg2]]
+          // Rz(beta): [[cb2 - i*sb2, 0], [0, cb2 + i*sb2]]
+
+          // First: M = Ry(gamma) * Rz(delta)
+          // M[0][0] = cg2*(cd2 - i*sd2)
+          // M[0][1] = -sg2*(cd2 + i*sd2)
+          // M[1][0] = sg2*(cd2 - i*sd2)
+          // M[1][1] = cg2*(cd2 + i*sd2)
+          const m00r = cg2*cd2, m00i = -cg2*sd2;
+          const m01r = -sg2*cd2, m01i = -sg2*sd2;
+          const m10r = sg2*cd2, m10i = -sg2*sd2;
+          const m11r = cg2*cd2, m11i = cg2*sd2;
+
+          // Then: U = Rz(beta) * M
+          // Rz(beta)[0][0] = cb2 - i*sb2
+          // U[0][0] = (cb2 - i*sb2)*(m00r + i*m00i)
+          const u00r = cb2*m00r + sb2*m00i;
+          const u00i = cb2*m00i - sb2*m00r;
+          const u01r = cb2*m01r + sb2*m01i;
+          const u01i = cb2*m01i - sb2*m01r;
+          // Rz(beta)[1][1] = cb2 + i*sb2
+          const u10r = cb2*m10r - sb2*m10i;
+          const u10i = cb2*m10i + sb2*m10r;
+          const u11r = cb2*m11r - sb2*m11i;
+          const u11i = cb2*m11i + sb2*m11r;
+
+          const matEl = document.getElementById('euler-matrix');
+          if (matEl) {
+            matEl.innerHTML =
+              `<span style="color:var(--cyan)">[ ${cplxFmt(u00r,u00i)}   ${cplxFmt(u01r,u01i)} ]</span><br>` +
+              `<span style="color:var(--cyan)">[ ${cplxFmt(u10r,u10i)}   ${cplxFmt(u11r,u11i)} ]</span>`;
+          }
+
+          const actEl = document.getElementById('euler-action');
+          if (actEl) {
+            // Action on |0⟩ = first column
+            actEl.textContent = `|ψ⟩ = (${cplxFmt(u00r,u00i)})|0⟩ + (${cplxFmt(u10r,u10i)})|1⟩`;
+          }
+        }
+        window.setEuler = function(b, g, d) {
+          const bs = document.getElementById('euler-beta');
+          const gs = document.getElementById('euler-gamma');
+          const ds = document.getElementById('euler-delta');
+          if (bs) bs.value = b;
+          if (gs) gs.value = g;
+          if (ds) ds.value = d;
+          updateEuler();
+        };
+        document.getElementById('euler-beta')?.addEventListener('input', updateEuler);
+        document.getElementById('euler-gamma')?.addEventListener('input', updateEuler);
+        document.getElementById('euler-delta')?.addEventListener('input', updateEuler);
+        updateEuler();
+        
+        // ── Pauli Algebra Calculator ──
+        let pauliChain = [];
+        window.pauliPush = function(gate) {
+          pauliChain.push(gate);
+          updatePauliCalc();
+        };
+        window.pauliUndo = function() {
+          pauliChain.pop();
+          updatePauliCalc();
+        };
+        window.pauliClear = function() {
+          pauliChain = [];
+          updatePauliCalc();
+        };
+        function updatePauliCalc() {
+          const chainEl = document.getElementById('pauli-chain');
+          const stepsEl = document.getElementById('pauli-steps');
+          const resultEl = document.getElementById('pauli-result');
+          if (!chainEl) return;
+
+          if (pauliChain.length === 0) {
+            chainEl.innerHTML = '<span style="color: var(--text-faint); font-size: 0.9rem">Click gates above to build a product…</span>';
+            stepsEl.textContent = '';
+            resultEl.textContent = 'I';
+            return;
+          }
+
+          chainEl.textContent = pauliChain.join(' · ');
+          
+          let current = 'I';
+          let phase = 1; // 1, -1, i, -i
+          let steps = [];
+          
+          for (let g of pauliChain) {
+            if (g === 'I') continue;
+            if (current === 'I') {
+              current = g;
+              continue;
+            }
+            
+            const prev = current;
+            if (prev === g) {
+              steps.push(`${prev}·${g} → I`);
+              current = 'I';
+            } else {
+              // Multiplication rules
+              const pair = prev + g;
+              let next = 'I';
+              let stepPhase = '';
+              
+              if (pair === 'XY') { next = 'Z'; stepPhase = 'i'; }
+              else if (pair === 'YX') { next = 'Z'; stepPhase = '-i'; }
+              else if (pair === 'YZ') { next = 'X'; stepPhase = 'i'; }
+              else if (pair === 'ZY') { next = 'X'; stepPhase = '-i'; }
+              else if (pair === 'ZX') { next = 'Y'; stepPhase = 'i'; }
+              else if (pair === 'XZ') { next = 'Y'; stepPhase = '-i'; }
+              
+              steps.push(`${prev}·${g} → ${stepPhase}${next}`);
+              current = next;
+              
+              // Phase tracking
+              if (stepPhase === 'i') {
+                if (phase === 1) phase = 'i';
+                else if (phase === -1) phase = '-i';
+                else if (phase === 'i') phase = -1;
+                else if (phase === '-i') phase = 1;
+              } else if (stepPhase === '-i') {
+                if (phase === 1) phase = '-i';
+                else if (phase === -1) phase = 'i';
+                else if (phase === 'i') phase = 1;
+                else if (phase === '-i') phase = -1;
+              }
+            }
+          }
+          
+          stepsEl.innerHTML = steps.length ? steps.join('<br>') : 'No simplification needed';
+          let phaseStr = phase === 1 ? '' : (phase === -1 ? '-' : (phase === 'i' ? 'i' : '-i'));
+          resultEl.textContent = phaseStr + current;
+        }
+
+        // ── Helper: Resolve CSS Variables for Canvas ──
+        function getCSSVar(name) {
+          return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '#ffffff';
+        }
+
+        function drawRoundedRect(ctx, x, y, width, height, radius) {
+          ctx.beginPath();
+          ctx.moveTo(x + radius, y);
+          ctx.lineTo(x + width - radius, y);
+          ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+          ctx.lineTo(x + width, y + height - radius);
+          ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+          ctx.lineTo(x + radius, y + height);
+          ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+          ctx.lineTo(x, y + radius);
+          ctx.quadraticCurveTo(x, y, x + radius, y);
+          ctx.closePath();
+        }
+
+        // ── Phase Gate Dial ──
+        const pgCanvas = document.getElementById('pgate-dial');
+        const pgCtx = pgCanvas?.getContext('2d');
+        function drawPGateDial(lambda) {
+          if (!pgCtx) return;
+          const colors = {
+            purple: getCSSVar('--purple'),
+            cyan: getCSSVar('--cyan'),
+            gold: getCSSVar('--gold'),
+            text: getCSSVar('--text'),
+            dim: getCSSVar('--text-dim'),
+            border: getCSSVar('--border')
+          };
+          
+          pgCtx.clearRect(0, 0, 220, 220);
+          const cx = 110, cy = 110, r = 85;
+          
+          // Outer circle
+          pgCtx.beginPath();
+          pgCtx.arc(cx, cy, r, 0, Math.PI * 2);
+          pgCtx.strokeStyle = 'rgba(255,255,255,0.05)';
+          pgCtx.lineWidth = 15;
+          pgCtx.stroke();
+          
+          // Phase arc
+          pgCtx.beginPath();
+          pgCtx.arc(cx, cy, r, -Math.PI/2, -Math.PI/2 + lambda);
+          pgCtx.strokeStyle = colors.purple;
+          pgCtx.lineWidth = 15;
+          pgCtx.lineCap = 'round';
+          pgCtx.stroke();
+          
+          // Center point
+          pgCtx.fillStyle = colors.text;
+          pgCtx.beginPath(); pgCtx.arc(cx, cy, 4, 0, Math.PI*2); pgCtx.fill();
+          
+          // Needle
+          pgCtx.save();
+          pgCtx.translate(cx, cy);
+          pgCtx.rotate(-Math.PI/2 + lambda);
+          pgCtx.beginPath();
+          pgCtx.moveTo(0, 0);
+          pgCtx.lineTo(r - 5, 0);
+          pgCtx.strokeStyle = colors.cyan;
+          pgCtx.lineWidth = 3;
+          pgCtx.stroke();
+          pgCtx.restore();
+
+          // Labels
+          const labels = [
+            { a: 0, t: 'I' }, { a: Math.PI/4, t: 'T' }, { a: Math.PI/2, t: 'S' }, 
+            { a: Math.PI, t: 'Z' }, { a: 3*Math.PI/2, t: 'S†' }, { a: 7*Math.PI/4, t: 'T†' }
+          ];
+          pgCtx.font = '12px ' + getComputedStyle(document.body).fontFamily;
+          pgCtx.textAlign = 'center';
+          pgCtx.textBaseline = 'middle';
+          labels.forEach(l => {
+            const lx = cx + (r + 25) * Math.cos(l.a - Math.PI/2);
+            const ly = cy + (r + 25) * Math.sin(l.a - Math.PI/2);
+            pgCtx.fillStyle = Math.abs(l.a - lambda) < 0.1 ? colors.gold : colors.dim;
+            pgCtx.fillText(l.t, lx, ly);
+          });
+        }
+        function updatePGate() {
+          const slider = document.getElementById('pgate-lambda');
+          if (!slider) return;
+          const lambda = slider.value / 100;
+          document.getElementById('pgate-lambda-val').textContent = (lambda/Math.PI).toFixed(2) + 'π';
+          drawPGateDial(lambda);
+          
+          const matEl = document.getElementById('pgate-matrix');
+          const re = Math.cos(lambda).toFixed(2);
+          const im = Math.sin(lambda).toFixed(2);
+          const ph = im >= 0 ? `+${im}i` : `${im}i`;
+          matEl.innerHTML = `[ 1      0   ]<br>[ 0    ${re}${ph} ]`;
+          
+          const actEl = document.getElementById('pgate-action');
+          actEl.textContent = `P(λ)|1⟩ = (${re}${ph})|1⟩`;
+          
+          let name = 'P(λ)';
+          if (Math.abs(lambda) < 0.05) name = 'I (Identity)';
+          else if (Math.abs(lambda - Math.PI/4) < 0.05) name = 'T Gate';
+          else if (Math.abs(lambda - Math.PI/2) < 0.05) name = 'S Gate';
+          else if (Math.abs(lambda - Math.PI) < 0.05) name = 'Z Gate';
+          else if (Math.abs(lambda - 1.5*Math.PI) < 0.05) name = 'S† Gate';
+          else if (Math.abs(lambda - 1.75*Math.PI) < 0.05) name = 'T† Gate';
+          document.getElementById('pgate-name').textContent = name;
+        }
+        window.setPGate = function(val) {
+          const s = document.getElementById('pgate-lambda');
+          if (s) { s.value = val; updatePGate(); }
+        };
+        document.getElementById('pgate-lambda')?.addEventListener('input', updatePGate);
+        updatePGate();
+
+        // ── CNOT Propagation Simulator ──
+        let cnpState = { c: 'I', t: 'I' };
+        window.setCNOTProp = function(q, type) {
+          cnpState[q] = type;
+          // Update buttons
+          ['ci','cx','cy','cz','ti','tx','ty','tz'].forEach(id => document.getElementById('cnp-'+id)?.classList.remove('primary'));
+          const btn = document.getElementById('cnp-'+q+type.toLowerCase());
+          if (btn) btn.classList.add('primary');
+          updateCNOTProp();
+        };
+        function updateCNOTProp() {
+          const canvas = document.getElementById('cnot-prop-canvas');
+          const ctx = canvas?.getContext('2d');
+          if (!ctx) return;
+          
+          const colors = {
+            cyan: getCSSVar('--cyan'),
+            purple: getCSSVar('--purple'),
+            gold: getCSSVar('--gold'),
+            text: getCSSVar('--text'),
+            faint: getCSSVar('--text-faint'),
+            border: getCSSVar('--border'),
+            bg: getCSSVar('--bg-3')
+          };
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+          const wireY1 = 40, wireY2 = 110;
+          const startX = 60, endX = canvas.width - 60, cnotX = canvas.width / 2;
+          
+          // Draw wires
+          ctx.beginPath(); 
+          ctx.moveTo(startX, wireY1); ctx.lineTo(endX, wireY1);
+          ctx.moveTo(startX, wireY2); ctx.lineTo(endX, wireY2);
+          ctx.strokeStyle = colors.border; ctx.lineWidth = 2; ctx.stroke();
+          
+          // Labels
+          ctx.fillStyle = colors.faint; ctx.font = '12px ' + getComputedStyle(document.body).fontFamily;
+          ctx.textAlign = 'left';
+          ctx.fillText('Control', 10, wireY1+5); ctx.fillText('Target', 10, wireY2+5);
+          
+          // Before Paulis
+          drawGate(ctx, startX + 60, wireY1, cnpState.c, colors);
+          drawGate(ctx, startX + 60, wireY2, cnpState.t, colors);
+          
+          // CNOT
+          ctx.strokeStyle = colors.text;
+          ctx.beginPath(); ctx.moveTo(cnotX, wireY1); ctx.lineTo(cnotX, wireY2); ctx.stroke();
+          ctx.beginPath(); ctx.arc(cnotX, wireY1, 6, 0, Math.PI*2); ctx.fillStyle = colors.text; ctx.fill();
+          
+          ctx.beginPath(); ctx.arc(cnotX, wireY2, 15, 0, Math.PI*2); ctx.fillStyle = colors.bg; ctx.fill(); 
+          ctx.strokeStyle = colors.text; ctx.lineWidth = 2; ctx.stroke();
+          
+          ctx.beginPath(); ctx.moveTo(cnotX-15, wireY2); ctx.lineTo(cnotX+15, wireY2); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(cnotX, wireY2-15); ctx.lineTo(cnotX, wireY2+15); ctx.stroke();
+          
+          // Result Computation
+          let cAfter = cnpState.c, tAfter = cnpState.t;
+          let explanation = "No errors — CNOT acts normally";
+          
+          if (cnpState.c === 'X') { 
+            tAfter = tAfter==='I'?'X':(tAfter==='X'?'I':(tAfter==='Z'?'Y':'Z')); 
+            explanation = "X propagates forward from control to target"; 
+          }
+          if (cnpState.t === 'Z') { 
+            cAfter = cAfter==='I'?'Z':(cAfter==='Z'?'I':(cAfter==='X'?'Y':'X')); 
+            explanation = "Z propagates backward from target to control"; 
+          }
+          if (cnpState.c === 'Y') { 
+            tAfter = tAfter==='I'?'X':(tAfter==='X'?'I':(tAfter==='Z'?'Y':'Z')); 
+            explanation = "Y on control: X-part spreads forward, Z-part stays"; 
+          }
+          if (cnpState.t === 'Y') { 
+            cAfter = cAfter==='I'?'Z':(cAfter==='Z'?'I':(cAfter==='X'?'Y':'X')); 
+            explanation = "Y on target: Z-part spreads backward, X-part stays"; 
+          }
+          
+          if (cnpState.c !== 'I' && cnpState.t !== 'I') explanation = "Combined rules: X flows forward, Z flows backward";
+
+          // After Paulis
+          drawGate(ctx, endX - 60, wireY1, cAfter, colors);
+          drawGate(ctx, endX - 60, wireY2, tAfter, colors);
+          
+          document.getElementById('cnp-before').textContent = `${cnpState.c} ⊗ ${cnpState.t}`;
+          document.getElementById('cnp-after').textContent = `${cAfter} ⊗ ${tAfter}`;
+          document.getElementById('cnp-explanation').textContent = explanation;
+        }
+        function drawGate(ctx, x, y, type, colors) {
+          if (type === 'I') return;
+          const gateColors = { X: colors.cyan, Y: colors.purple, Z: colors.gold };
+          ctx.fillStyle = gateColors[type] || colors.text;
+          drawRoundedRect(ctx, x-18, y-18, 36, 36, 6);
+          ctx.fill();
+          ctx.fillStyle = '#ffffff'; ctx.font = 'bold 16px sans-serif';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(type, x, y);
+        }
+        setCNOTProp('c', 'I'); setCNOTProp('t', 'I');
       });
 
       function renderCircuit(type) {
